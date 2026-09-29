@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { Activity, Question, Step } from './lib/math'
-import { makeSession, stepMatches } from './lib/math'
+import { isPrime, makeSession, stepMatches } from './lib/math'
 import './index.css'
 
 type Screen = 'home' | 'activities' | 'levels' | 'exercise' | 'result'
@@ -95,7 +96,10 @@ function VerticalBoard({ question, current, completed, value, onChange, disabled
     }
   })
   const cellPosition = current.meta?.position != null ? current.meta.position + 1 : -1
-  const hasInlineCell = kind === writeKind || (isAddition && kind === 'add-carry')
+  const carryIndex = kind === 'add-carry' ? current.meta?.position : kind === 'borrow' ? current.meta?.cursor + 1 : kind === 'borrow-receive' ? current.meta?.position + 1 : null
+  const hasInlineCell = kind === writeKind || carryIndex != null
+  const lastBoard = [...completed].reverse().find((item) => item.meta?.board)?.meta?.board as number[] | undefined
+  const borrowed = (index: number) => (!isAddition && lastBoard && index > 0 && lastBoard[index - 1] !== Number(top[index].trim() || 0) ? lastBoard[index - 1] : undefined)
   const placeLabel = (index: number) => (index === 0 ? (isAddition ? 'simpanan' : '') : PLACE_NAMES[columns - 1 - index])
   const grid = { gridTemplateColumns: `repeat(${columns}, 1fr)` }
   const answerCell = (index: number) => {
@@ -103,11 +107,12 @@ function VerticalBoard({ question, current, completed, value, onChange, disabled
     return <span className={written[index] ? 'filled-cell' : ''}>{written[index] || ''}</span>
   }
   const carryCell = (index: number) => {
-    if (isAddition && kind === 'add-carry' && current.meta?.position === index) return <BoardInput value={value} onChange={onChange} disabled={disabled} />
-    return <span className={carries[index] ? 'filled-cell' : ''}>{carries[index] || ''}</span>
+    if (carryIndex === index) return <BoardInput value={value} onChange={onChange} disabled={disabled} />
+    const shown = isAddition ? carries[index] : borrowed(index)
+    return <span className={shown !== undefined && shown !== '' ? 'filled-cell' : ''}>{shown ?? ''}</span>
   }
   const entryLabel = isFinal ? 'Tulis hasil akhir' : kind === 'add-column' ? 'Hasil kolom' : kind.startsWith('borrow') ? 'Angka setelah pinjam' : 'Tulis hasil langkah'
-  return <div className={`board vertical-board ${question.visual}`}><div className="board-label">CARA BERSUSUN <span className="board-live">● kotak aktif = giliranmu</span></div><div className="place-labels" style={grid}>{top.map((_, index) => <span key={index}>{placeLabel(index)}</span>)}</div>{isAddition && <div className="carry-row" style={grid}>{top.map((_, index) => <span className={kind === 'add-carry' && current.meta?.position === index ? 'active' : ''} key={index}>{carryCell(index)}</span>)}</div>}<div className="number-row" style={grid}>{top.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="number-row operator-row" style={grid}><b>{isAddition ? '+' : '−'}</b>{bottom.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="board-line" /><div className="answer-row" style={grid}>{top.map((_, index) => <span className={cellPosition === index && !hasInlineCell ? 'active-placeholder' : ''} key={index}>{answerCell(index)}</span>)}</div>{!hasInlineCell && <div className="board-entry-row"><span>{entryLabel}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={isFinal ? 'wide-input' : ''} placeholder={isFinal ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> Klik kotak berwarna, lalu tulis jawaban langkahmu</div></div>
+  return <div className={`board vertical-board ${question.visual}`}><div className="board-label">CARA BERSUSUN <span className="board-live">● kotak aktif = giliranmu</span></div><div className="place-labels" style={grid}>{top.map((_, index) => <span key={index}>{placeLabel(index)}</span>)}</div><div className="carry-row" style={grid}>{top.map((_, index) => <span className={carryIndex === index ? 'active' : ''} key={index}>{carryCell(index)}</span>)}</div><div className="number-row" style={grid}>{top.map((char, index) => <span className={borrowed(index) !== undefined ? 'struck' : ''} key={index}>{char.trim()}</span>)}</div><div className="number-row operator-row" style={grid}><b>{isAddition ? '+' : '−'}</b>{bottom.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="board-line" /><div className="answer-row" style={grid}>{top.map((_, index) => <span className={cellPosition === index && !hasInlineCell ? 'active-placeholder' : ''} key={index}>{answerCell(index)}</span>)}</div>{!hasInlineCell && <div className="board-entry-row"><span>{entryLabel}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={isFinal ? 'wide-input' : ''} placeholder={isFinal ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> {isAddition ? 'Klik kotak berwarna, lalu tulis jawaban langkahmu' : 'Angka yang dipinjam dicoret, angka barunya ditulis di kotak atas'}</div></div>
 }
 
 function MultiplicationBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
@@ -117,16 +122,50 @@ function MultiplicationBoard({ question, current, completed, value, onChange, di
   return <div className="board multiplication-board"><div className="board-label">KALI PER KOLOM <span className="board-live">● simpan carry di atas</span></div><div className="multiplication-expression"><span>{question.a}</span><b>×</b><span>{question.b}</span></div><div className="mini-rule" /><div className="carry-strip">{carryStep ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="carry" /> : <span className="carry-guide">{current.kind === 'multiply-column' ? 'hitung kolom ini' : 'ikuti baris hasil'}</span>}</div><div className="partial-lines"><div><small>baris 1</small><strong>{partials[0] || '· · ·'}</strong></div>{question.b! >= 10 && <div className={activeRow === 1 ? 'active-row' : ''}><small>baris 2 digeser ←</small><strong>{partials[1] || '· · ·'}</strong></div>}{completed.some((item) => item.kind === 'partial-sum') && <div className="sum-result"><small>jumlahkan</small><strong>{completed.find((item) => item.kind === 'partial-sum')?.expected}</strong></div>}</div>{!carryStep && <div className="board-entry-row"><span>{current.kind === 'final' ? 'Hasil akhir' : current.kind === 'partial' || current.kind === 'partial-sum' ? 'Isi hasil baris' : 'Hasil kolom ini'}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={['final', 'partial', 'partial-sum'].includes(current.kind) ? 'wide-input' : ''} placeholder={current.kind === 'final' ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> Setiap baris dikerjakan dari kanan ke kiri</div></div>
 }
 
+type DivRow = { kind: 'product' | 'rem'; text: string; end: number; ruleEnd?: number; ruleLen?: number }
+
 function DivisionBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
-  const quotient = completed.filter((item) => item.kind === 'divide').map((item) => item.expected).join('')
-  const inputStep = <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" />
-  return <div className="board division-board"><div className="board-label">PEMBAGIAN BERSUSUN <span className="board-live">● ikuti 4 langkah</span></div><div className="division-head"><strong>{quotient || '· · ·'}</strong><span className="division-bracket">⌞</span><b>{question.a}</b></div><div className="division-divisor">{question.b}</div><div className="division-working"><div className="flow-pills"><span className={current.kind === 'divide' ? 'active' : ''}>1 Bagi</span><span className={current.kind === 'multiply-back' ? 'active' : ''}>2 Kali</span><span className={current.kind === 'subtract' ? 'active' : ''}>3 Kurangi</span><span className={current.kind === 'bring-down' ? 'active' : ''}>4 Turunkan</span></div><div className="division-scratch"><small>{current.kind === 'divide' ? 'angka hasil bagi' : current.kind === 'multiply-back' ? 'hasil kali balik' : current.kind === 'subtract' ? 'sisa sementara' : current.kind === 'bring-down' ? 'angka baru' : 'jawaban langkah ini'}</small>{inputStep}</div></div><div className="board-caption"><span className="caption-dot" /> Urutannya selalu: bagi · kali · kurang · turunkan</div></div>
+  const dividend = String(question.a).split('')
+  const n = dividend.length
+  const quotient: string[] = Array(n).fill('')
+  const rows: DivRow[] = []
+  completed.forEach((item) => {
+    const index = item.meta?.index as number
+    if (item.kind === 'divide') quotient[index] = String(item.expected)
+    if (item.kind === 'multiply-back') rows.push({ kind: 'product', text: String(item.expected), end: index })
+    if (item.kind === 'subtract') rows.push({ kind: 'rem', text: String(item.expected), end: index, ruleEnd: index, ruleLen: String(item.meta?.product).length })
+    if (item.kind === 'bring-down' && rows.length) Object.assign(rows[rows.length - 1], { text: String(item.expected), end: index + 1 })
+  })
+  const cursor = current.meta?.index != null ? (current.kind === 'bring-down' ? current.meta.index + 1 : current.meta.index) : n - 1
+  const grid = { gridTemplateColumns: `var(--ld-d) repeat(${n + 1}, var(--ld-c))` } as CSSProperties
+  const cellsOf = (row: DivRow) => {
+    const start = row.end - row.text.length + 1
+    return Array.from({ length: n + 1 }, (_, col) => {
+      const digit = col - 1 >= start && col - 1 <= row.end ? row.text[col - 1 - start] : col === start && row.kind === 'product' ? '−' : ''
+      const rule = row.kind === 'rem' && row.ruleEnd != null && col - 1 > row.ruleEnd - (row.ruleLen ?? 0) && col - 1 <= row.ruleEnd
+      return <i className={rule ? 'ld-rule' : ''} key={col}>{digit}</i>
+    })
+  }
+  const label = current.kind === 'divide' ? 'angka hasil bagi' : current.kind === 'multiply-back' ? 'hasil kali balik' : current.kind === 'subtract' ? 'sisa sementara' : current.kind === 'bring-down' ? 'angka baru setelah diturunkan' : current.kind === 'division-final' ? 'hasil bagi' : 'sisa pembagian'
+  return <div className="board division-board"><div className="board-label">PEMBAGIAN BERSUSUN <span className="board-live">● ikuti 4 langkah</span></div><div className="ld-scroll"><div className="ld">
+    <div className="ld-row" style={grid}><i />{['', ...quotient].map((digit, col) => <i className="ld-q" key={col}>{digit}</i>)}</div>
+    <div className="ld-row" style={grid}><i className="ld-divisor">{question.b}</i>{['', ...dividend].map((digit, col) => <i className={`ld-top ${col > 0 && col - 1 <= cursor ? 'taken' : ''}`} key={col}>{digit}</i>)}</div>
+    {rows.map((row, index) => <div className="ld-row" style={grid} key={index}><i />{cellsOf(row)}</div>)}
+  </div></div><div className="division-working"><div className="flow-pills"><span className={current.kind === 'divide' ? 'active' : ''}>1 Bagi</span><span className={current.kind === 'multiply-back' ? 'active' : ''}>2 Kali</span><span className={current.kind === 'subtract' ? 'active' : ''}>3 Kurangi</span><span className={current.kind === 'bring-down' ? 'active' : ''}>4 Turunkan</span></div><div className="division-scratch"><small>{label}</small><BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /></div></div><div className="board-caption"><span className="caption-dot" /> Urutannya selalu: bagi · kali · kurang · turunkan</div></div>
 }
 
 function TreeBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
-  const branches = completed.filter((item) => item.kind === 'tree-factor').map((item) => ({ current: item.meta?.current, factor: item.expected, next: item.meta?.next }))
-  const activeFactor = current.kind === 'tree-factor' ? { current: current.meta?.current, factor: '?', next: '?' } : current.kind === 'tree-quotient' ? { current: current.meta?.current, factor: current.meta?.factor, next: value || '?' } : null
-  return <div className="board tree-board"><div className="board-label">POHON FAKTOR <span className="board-live">● hubungkan cabangnya</span></div><div className="tree-root">{question.number}</div><div className="tree-line" />{branches.map((branch, index) => <div className="tree-branch" key={`${branch.current}-${index}`}><span>{branch.current}</span><i>↙</i><b>{branch.factor}</b><i>↘</i><span>{branch.next}</span></div>)}{activeFactor && <div className="tree-branch active-branch"><span>{activeFactor.current}</span><i>↙</i><b>{activeFactor.factor}</b><i>↘</i>{current.kind === 'tree-quotient' ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span>{activeFactor.next}</span>}</div>}{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua daun prima</span><BoardInput value={value} onChange={onChange} disabled={disabled} text placeholder="2, 2, 2, 3" /></div>}<div className="prime-legend"><span>2</span><span>3</span><span>5</span><span>7</span><small>mulai dari prima terkecil</small></div><div className="board-caption"><span className="caption-dot" /> Garis menunjukkan bilangan yang sedang dipecah</div></div>
+  const pairs = completed.filter((item) => item.kind === 'tree-factor').map((item) => ({ leaf: String(item.expected), node: String(item.meta?.next) }))
+  const levels = question.steps.filter((item) => item.kind === 'tree-factor').length
+  const picking = current.kind === 'tree-factor'
+  const quotienting = current.kind === 'tree-quotient'
+  const pairStyle = (depth: number) => ({ '--d': depth }) as CSSProperties
+  const nodeClass = (text: string) => `tree-cell ${/^\d+$/.test(text) && isPrime(Number(text)) ? 'tree-leaf' : 'tree-num'}`
+  return <div className="board tree-board"><div className="board-label">POHON FAKTOR <span className="board-live">● bagi terus sampai semua ujung prima</span></div><div className="tree-scroll"><div className="tree-canvas" style={{ '--levels': levels } as CSSProperties}>
+    <div className="tree-root-row"><span className="tree-cell tree-num">{question.number}</span></div>
+    {pairs.map((pair, index) => <div className="tree-pair" style={pairStyle(index)} key={index}><b className="tree-cell tree-leaf">{pair.leaf}</b><span className={nodeClass(pair.node)}>{pair.node}</span></div>)}
+    {(picking || quotienting) && <div className="tree-pair active-pair" style={pairStyle(pairs.length)}><b className={`tree-cell ${quotienting ? 'tree-leaf' : 'tree-ask'}`}>{quotienting ? current.meta?.factor : '?'}</b>{quotienting ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span className="tree-cell tree-ask">?</span>}</div>}
+  </div></div>{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua ujung prima (boleh urutan bebas)</span><BoardInput value={value} onChange={onChange} disabled={disabled} text placeholder="2, 2, 3" /></div>}<div className="prime-legend"><span>2</span><span>3</span><span>5</span><span>7</span><small>pilih prima terkecil yang habis membagi</small></div><div className="board-caption"><span className="caption-dot" /> Kiri: faktor prima · Kanan: hasil bagi yang dipecah lagi</div></div>
 }
 
 function ConceptBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
