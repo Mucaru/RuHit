@@ -197,3 +197,48 @@ button:not(:disabled) { cursor: pointer; }
 
 /* Kotak isian lebar untuk angka panjang (hasil akhir, hasil baris) */
 .board-entry-row .board-input.wide-input { width: min(140px, 46vw); font-size: 20px; }
+
+/* ===== Tahap 2: pengurangan (pinjam) ===== */
+.vertical-board .number-row .struck { color: #b9a9a3; text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: #e07a5f; }
+
+/* ===== Tahap 2: pembagian bersusun (grid, tanpa posisi absolut) ===== */
+.ld-scroll { overflow-x: auto; padding: 14px 0 4px; }
+.ld { --ld-c: clamp(30px, 9vw, 42px); --ld-d: clamp(34px, 10vw, 46px); width: max-content; margin: 0 auto; color: #2d3e47; font-size: clamp(22px, 6.4vw, 30px); font-weight: 800; }
+.ld-row { display: grid; align-items: center; }
+.ld-row > i { display: grid; place-items: center; min-height: 1.35em; font-style: normal; }
+.ld-q { color: #2e7d6d; }
+.ld-divisor { color: #5a79c1; border-right: 3px solid #6886c9; }
+.ld-top { border-top: 3px solid #6886c9; }
+.ld-top.taken { color: #2e7d6d; background: #eaf8ec; }
+.ld-rule { border-top: 2px solid #2d3e47; }
+.division-working { margin-top: 12px; }
+
+/* ===== Tahap 2: pohon faktor (bentuk pohon sungguhan) ===== */
+.tree-scroll { overflow-x: auto; padding: 14px 0 6px; }
+.tree-canvas { --w: 52px; --gap: 26px; --dx: 39px; --len: 45px; --ang: 60.6deg; width: calc((var(--levels) - 1) * var(--dx) + 2 * var(--w) + var(--gap)); margin: 0 auto; }
+.tree-root-row { width: var(--w); margin-left: var(--dx); }
+.tree-pair { position: relative; display: flex; gap: var(--gap); margin: 22px 0 0 calc(var(--d) * var(--dx)); }
+.tree-pair::before, .tree-pair::after { position: absolute; z-index: 1; top: -22px; left: calc(50% - 1px); width: 2px; height: var(--len); border-radius: 2px; background: #a9ccb7; transform-origin: top center; content: ''; }
+.tree-pair::before { transform: rotate(var(--ang)); }
+.tree-pair::after { transform: rotate(calc(var(--ang) * -1)); }
+.tree-cell { position: relative; z-index: 2; display: grid; place-items: center; width: var(--w); height: 40px; border: 2px solid transparent; border-radius: 12px; font-size: 18px; font-weight: 900; }
+.tree-num { border-color: #8bc7a5; color: #277b67; background: #e4f7ea; }
+.tree-leaf { color: #fff; background: #ed9876; }
+.tree-ask { border: 2px dashed #e4aa71; color: #b87b43; background: #fffdf5; }
+.tree-pair .board-input { position: relative; z-index: 2; width: var(--w); height: 40px; padding: 0; }
+@media (max-width: 640px) {
+  .tree-canvas { --w: 42px; --gap: 16px; --dx: 29px; --len: 35px; --ang: 55.4deg; }
+  .tree-cell { height: 36px; font-size: 16px; }
+  .tree-pair .board-input { height: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { .tree-pair, .tree-cell { transition: none; animation: none; } }
+
+/* ===== Tahap 3: dialog keluar & petunjuk ===== */
+.dialog-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 20px; background: rgba(35, 55, 48, .45); }
+.dialog-card { width: min(380px, 100%); padding: 22px 20px; border-radius: 18px; background: #fff; box-shadow: 0 18px 50px rgba(30, 60, 50, .25); text-align: center; }
+.dialog-card h2 { margin: 0 0 8px; color: #31493e; font-size: 20px; }
+.dialog-card p { margin: 0 0 18px; color: #62786d; font-size: 15px; line-height: 1.5; }
+.dialog-actions { display: flex; flex-direction: column; gap: 10px; }
+.dialog-actions button { min-height: 48px; justify-content: center; }
+.hint-button:disabled { opacity: .55; cursor: not-allowed; }
+.feedback p { font-size: 15px; line-height: 1.45; }
