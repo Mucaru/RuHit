@@ -154,7 +154,7 @@ function makeDivision(dividend: number, divisor: number): Question {
   }
   const qNumber = Number(quotient || '0')
   steps.push(step('division-final', `Hasil bagi dari ${dividend} ÷ ${divisor} adalah ...`, qNumber, 'Baca semua angka hasil bagi dari kiri ke kanan.', `Hasil baginya ${qNumber}.`, { quotient: qNumber, remainder, dividend, divisor }))
-  steps.push(step('remainder-final', `Sisa pembagian ${dividend} ÷ ${divisor} adalah ...`, remainder, 'Sisa harus lebih kecil daripada pembagi.', `Sisanya ${remainder}, dan ${remainder} lebih kecil dari ${divisor}.`, { quotient: qNumber, remainder, divisor }))
+  if (remainder !== 0) steps.push(step('remainder-final', `Sisa pembagian ${dividend} ÷ ${divisor} adalah ...`, remainder, 'Sisa harus lebih kecil daripada pembagi.', `Sisanya ${remainder}, dan ${remainder} lebih kecil dari ${divisor}.`, { quotient: qNumber, remainder, divisor }))
   return { id: `division-${dividend}-${divisor}-${sequence}`, activity: 'division', title: activityTitles.division, eyebrow: 'BAGI · KALI · KURANGI · TURUNKAN', a: dividend, b: divisor, visual: 'division', steps }
 }
 
@@ -370,9 +370,13 @@ export function makeSession(activity: Activity, level: number, size: number): Qu
   return session
 }
 
+export const LIST_KINDS = ['tree-final', 'set-a', 'set-b', 'multiple-a', 'multiple-b']
 export const normalizeList = (value: string) => value.split(/[\s,;×x]+/).filter(Boolean).map(Number).sort((x, y) => x - y).join(',')
-export const normalizeText = (value: string) => value.trim().toLowerCase().replace(/[\s×·]/g, '').replace(/\^\^/g, '^')
+export const normalizeText = (value: string) => value.trim().toLowerCase()
+const isWholeNumber = (value: string) => /^-?\d+$/.test(value.trim())
 export const stepMatches = (current: Step, value: string) => {
-  if (['tree-final', 'set-a', 'set-b', 'multiple-a', 'multiple-b'].includes(current.kind)) return normalizeList(value) === normalizeList(current.expected)
+  if (LIST_KINDS.includes(current.kind)) return normalizeList(value) === normalizeList(current.expected)
+  // Angka: "07" dianggap 7, tapi "1 2" bukan 12 (spasi di dalam angka = salah)
+  if (isWholeNumber(current.expected)) return isWholeNumber(value) && Number(value) === Number(current.expected)
   return normalizeText(value) === normalizeText(current.expected)
 }

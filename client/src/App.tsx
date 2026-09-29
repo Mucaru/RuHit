@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { Activity, Question, Step } from './lib/math'
-import { makeSession, stepMatches } from './lib/math'
+import { LIST_KINDS, isPrime, makeSession, stepMatches } from './lib/math'
 import './index.css'
 
 type Screen = 'home' | 'activities' | 'levels' | 'exercise' | 'result'
@@ -28,9 +29,9 @@ const activityMeta: Array<{ id: Activity; icon: string; title: string; descripti
 
 const levelInfo = [
   ['Pemanasan', 'Angka kecil, fokus kenalan dengan langkah.'],
-  ['Mulai lancar', 'Mulai ada carry, pinjam, atau sisa.'],
-  ['Makin jago', 'Angka lebih panjang, tetap pelan-pelan.'],
-  ['Tantangan', 'Campuran langkah untuk menguji strategi.'],
+  ['Mulai lancar', 'Angka mulai lebih panjang, langkah baru mulai muncul.'],
+  ['Makin jago', 'Angka lebih panjang dan langkah lebih banyak.'],
+  ['Tantangan', 'Angka terpanjang, saatnya menguji strategimu.'],
 ]
 
 const levels: Record<Activity, number> = { addition: 4, subtraction: 4, multiplication: 4, division: 4, 'factor-tree': 4, prime: 3, gcd: 3, lcm: 3 }
@@ -95,7 +96,10 @@ function VerticalBoard({ question, current, completed, value, onChange, disabled
     }
   })
   const cellPosition = current.meta?.position != null ? current.meta.position + 1 : -1
-  const hasInlineCell = kind === writeKind || (isAddition && kind === 'add-carry')
+  const carryIndex = kind === 'add-carry' ? current.meta?.position : kind === 'borrow' ? current.meta?.cursor + 1 : kind === 'borrow-receive' ? current.meta?.position + 1 : null
+  const hasInlineCell = kind === writeKind || carryIndex != null
+  const lastBoard = [...completed].reverse().find((item) => item.meta?.board)?.meta?.board as number[] | undefined
+  const borrowed = (index: number) => (!isAddition && lastBoard && index > 0 && lastBoard[index - 1] !== Number(top[index].trim() || 0) ? lastBoard[index - 1] : undefined)
   const placeLabel = (index: number) => (index === 0 ? (isAddition ? 'simpanan' : '') : PLACE_NAMES[columns - 1 - index])
   const grid = { gridTemplateColumns: `repeat(${columns}, 1fr)` }
   const answerCell = (index: number) => {
@@ -103,11 +107,12 @@ function VerticalBoard({ question, current, completed, value, onChange, disabled
     return <span className={written[index] ? 'filled-cell' : ''}>{written[index] || ''}</span>
   }
   const carryCell = (index: number) => {
-    if (isAddition && kind === 'add-carry' && current.meta?.position === index) return <BoardInput value={value} onChange={onChange} disabled={disabled} />
-    return <span className={carries[index] ? 'filled-cell' : ''}>{carries[index] || ''}</span>
+    if (carryIndex === index) return <BoardInput value={value} onChange={onChange} disabled={disabled} />
+    const shown = isAddition ? carries[index] : borrowed(index)
+    return <span className={shown !== undefined && shown !== '' ? 'filled-cell' : ''}>{shown ?? ''}</span>
   }
   const entryLabel = isFinal ? 'Tulis hasil akhir' : kind === 'add-column' ? 'Hasil kolom' : kind.startsWith('borrow') ? 'Angka setelah pinjam' : 'Tulis hasil langkah'
-  return <div className={`board vertical-board ${question.visual}`}><div className="board-label">CARA BERSUSUN <span className="board-live">● kotak aktif = giliranmu</span></div><div className="place-labels" style={grid}>{top.map((_, index) => <span key={index}>{placeLabel(index)}</span>)}</div>{isAddition && <div className="carry-row" style={grid}>{top.map((_, index) => <span className={kind === 'add-carry' && current.meta?.position === index ? 'active' : ''} key={index}>{carryCell(index)}</span>)}</div>}<div className="number-row" style={grid}>{top.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="number-row operator-row" style={grid}><b>{isAddition ? '+' : '−'}</b>{bottom.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="board-line" /><div className="answer-row" style={grid}>{top.map((_, index) => <span className={cellPosition === index && !hasInlineCell ? 'active-placeholder' : ''} key={index}>{answerCell(index)}</span>)}</div>{!hasInlineCell && <div className="board-entry-row"><span>{entryLabel}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={isFinal ? 'wide-input' : ''} placeholder={isFinal ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> Klik kotak berwarna, lalu tulis jawaban langkahmu</div></div>
+  return <div className={`board vertical-board ${question.visual}`}><div className="board-label">CARA BERSUSUN <span className="board-live">● kotak aktif = giliranmu</span></div><div className="place-labels" style={grid}>{top.map((_, index) => <span key={index}>{placeLabel(index)}</span>)}</div><div className="carry-row" style={grid}>{top.map((_, index) => <span className={carryIndex === index ? 'active' : ''} key={index}>{carryCell(index)}</span>)}</div><div className="number-row" style={grid}>{top.map((char, index) => <span className={borrowed(index) !== undefined ? 'struck' : ''} key={index}>{char.trim()}</span>)}</div><div className="number-row operator-row" style={grid}><b>{isAddition ? '+' : '−'}</b>{bottom.map((char, index) => <span key={index}>{char.trim()}</span>)}</div><div className="board-line" /><div className="answer-row" style={grid}>{top.map((_, index) => <span className={cellPosition === index && !hasInlineCell ? 'active-placeholder' : ''} key={index}>{answerCell(index)}</span>)}</div>{!hasInlineCell && <div className="board-entry-row"><span>{entryLabel}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={isFinal ? 'wide-input' : ''} placeholder={isFinal ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> {isAddition ? 'Klik kotak berwarna, lalu tulis jawaban langkahmu' : 'Angka yang dipinjam dicoret, angka barunya ditulis di kotak atas'}</div></div>
 }
 
 function MultiplicationBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
@@ -117,16 +122,50 @@ function MultiplicationBoard({ question, current, completed, value, onChange, di
   return <div className="board multiplication-board"><div className="board-label">KALI PER KOLOM <span className="board-live">● simpan carry di atas</span></div><div className="multiplication-expression"><span>{question.a}</span><b>×</b><span>{question.b}</span></div><div className="mini-rule" /><div className="carry-strip">{carryStep ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="carry" /> : <span className="carry-guide">{current.kind === 'multiply-column' ? 'hitung kolom ini' : 'ikuti baris hasil'}</span>}</div><div className="partial-lines"><div><small>baris 1</small><strong>{partials[0] || '· · ·'}</strong></div>{question.b! >= 10 && <div className={activeRow === 1 ? 'active-row' : ''}><small>baris 2 digeser ←</small><strong>{partials[1] || '· · ·'}</strong></div>}{completed.some((item) => item.kind === 'partial-sum') && <div className="sum-result"><small>jumlahkan</small><strong>{completed.find((item) => item.kind === 'partial-sum')?.expected}</strong></div>}</div>{!carryStep && <div className="board-entry-row"><span>{current.kind === 'final' ? 'Hasil akhir' : current.kind === 'partial' || current.kind === 'partial-sum' ? 'Isi hasil baris' : 'Hasil kolom ini'}</span><BoardInput value={value} onChange={onChange} disabled={disabled} className={['final', 'partial', 'partial-sum'].includes(current.kind) ? 'wide-input' : ''} placeholder={current.kind === 'final' ? 'hasil' : '?'} /></div>}<div className="board-caption"><span className="caption-dot" /> Setiap baris dikerjakan dari kanan ke kiri</div></div>
 }
 
+type DivRow = { kind: 'product' | 'rem'; text: string; end: number; ruleEnd?: number; ruleLen?: number }
+
 function DivisionBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
-  const quotient = completed.filter((item) => item.kind === 'divide').map((item) => item.expected).join('')
-  const inputStep = <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" />
-  return <div className="board division-board"><div className="board-label">PEMBAGIAN BERSUSUN <span className="board-live">● ikuti 4 langkah</span></div><div className="division-head"><strong>{quotient || '· · ·'}</strong><span className="division-bracket">⌞</span><b>{question.a}</b></div><div className="division-divisor">{question.b}</div><div className="division-working"><div className="flow-pills"><span className={current.kind === 'divide' ? 'active' : ''}>1 Bagi</span><span className={current.kind === 'multiply-back' ? 'active' : ''}>2 Kali</span><span className={current.kind === 'subtract' ? 'active' : ''}>3 Kurangi</span><span className={current.kind === 'bring-down' ? 'active' : ''}>4 Turunkan</span></div><div className="division-scratch"><small>{current.kind === 'divide' ? 'angka hasil bagi' : current.kind === 'multiply-back' ? 'hasil kali balik' : current.kind === 'subtract' ? 'sisa sementara' : current.kind === 'bring-down' ? 'angka baru' : 'jawaban langkah ini'}</small>{inputStep}</div></div><div className="board-caption"><span className="caption-dot" /> Urutannya selalu: bagi · kali · kurang · turunkan</div></div>
+  const dividend = String(question.a).split('')
+  const n = dividend.length
+  const quotient: string[] = Array(n).fill('')
+  const rows: DivRow[] = []
+  completed.forEach((item) => {
+    const index = item.meta?.index as number
+    if (item.kind === 'divide') quotient[index] = String(item.expected)
+    if (item.kind === 'multiply-back') rows.push({ kind: 'product', text: String(item.expected), end: index })
+    if (item.kind === 'subtract') rows.push({ kind: 'rem', text: String(item.expected), end: index, ruleEnd: index, ruleLen: String(item.meta?.product).length })
+    if (item.kind === 'bring-down' && rows.length) Object.assign(rows[rows.length - 1], { text: String(item.expected), end: index + 1 })
+  })
+  const cursor = current.meta?.index != null ? (current.kind === 'bring-down' ? current.meta.index + 1 : current.meta.index) : n - 1
+  const grid = { gridTemplateColumns: `var(--ld-d) repeat(${n + 1}, var(--ld-c))` } as CSSProperties
+  const cellsOf = (row: DivRow) => {
+    const start = row.end - row.text.length + 1
+    return Array.from({ length: n + 1 }, (_, col) => {
+      const digit = col - 1 >= start && col - 1 <= row.end ? row.text[col - 1 - start] : col === start && row.kind === 'product' ? '−' : ''
+      const rule = row.kind === 'rem' && row.ruleEnd != null && col - 1 > row.ruleEnd - (row.ruleLen ?? 0) && col - 1 <= row.ruleEnd
+      return <i className={rule ? 'ld-rule' : ''} key={col}>{digit}</i>
+    })
+  }
+  const label = current.kind === 'divide' ? 'angka hasil bagi' : current.kind === 'multiply-back' ? 'hasil kali balik' : current.kind === 'subtract' ? 'sisa sementara' : current.kind === 'bring-down' ? 'angka baru setelah diturunkan' : current.kind === 'division-final' ? 'hasil bagi' : 'sisa pembagian'
+  return <div className="board division-board"><div className="board-label">PEMBAGIAN BERSUSUN <span className="board-live">● ikuti 4 langkah</span></div><div className="ld-scroll"><div className="ld">
+    <div className="ld-row" style={grid}><i />{['', ...quotient].map((digit, col) => <i className="ld-q" key={col}>{digit}</i>)}</div>
+    <div className="ld-row" style={grid}><i className="ld-divisor">{question.b}</i>{['', ...dividend].map((digit, col) => <i className={`ld-top ${col > 0 && col - 1 <= cursor ? 'taken' : ''}`} key={col}>{digit}</i>)}</div>
+    {rows.map((row, index) => <div className="ld-row" style={grid} key={index}><i />{cellsOf(row)}</div>)}
+  </div></div><div className="division-working"><div className="flow-pills"><span className={current.kind === 'divide' ? 'active' : ''}>1 Bagi</span><span className={current.kind === 'multiply-back' ? 'active' : ''}>2 Kali</span><span className={current.kind === 'subtract' ? 'active' : ''}>3 Kurangi</span><span className={current.kind === 'bring-down' ? 'active' : ''}>4 Turunkan</span></div><div className="division-scratch"><small>{label}</small><BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /></div></div><div className="board-caption"><span className="caption-dot" /> Urutannya selalu: bagi · kali · kurang · turunkan</div></div>
 }
 
 function TreeBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
-  const branches = completed.filter((item) => item.kind === 'tree-factor').map((item) => ({ current: item.meta?.current, factor: item.expected, next: item.meta?.next }))
-  const activeFactor = current.kind === 'tree-factor' ? { current: current.meta?.current, factor: '?', next: '?' } : current.kind === 'tree-quotient' ? { current: current.meta?.current, factor: current.meta?.factor, next: value || '?' } : null
-  return <div className="board tree-board"><div className="board-label">POHON FAKTOR <span className="board-live">● hubungkan cabangnya</span></div><div className="tree-root">{question.number}</div><div className="tree-line" />{branches.map((branch, index) => <div className="tree-branch" key={`${branch.current}-${index}`}><span>{branch.current}</span><i>↙</i><b>{branch.factor}</b><i>↘</i><span>{branch.next}</span></div>)}{activeFactor && <div className="tree-branch active-branch"><span>{activeFactor.current}</span><i>↙</i><b>{activeFactor.factor}</b><i>↘</i>{current.kind === 'tree-quotient' ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span>{activeFactor.next}</span>}</div>}{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua daun prima</span><BoardInput value={value} onChange={onChange} disabled={disabled} text placeholder="2, 2, 2, 3" /></div>}<div className="prime-legend"><span>2</span><span>3</span><span>5</span><span>7</span><small>mulai dari prima terkecil</small></div><div className="board-caption"><span className="caption-dot" /> Garis menunjukkan bilangan yang sedang dipecah</div></div>
+  const pairs = completed.filter((item) => item.kind === 'tree-factor').map((item) => ({ leaf: String(item.expected), node: String(item.meta?.next) }))
+  const levels = question.steps.filter((item) => item.kind === 'tree-factor').length
+  const picking = current.kind === 'tree-factor'
+  const quotienting = current.kind === 'tree-quotient'
+  const pairStyle = (depth: number) => ({ '--d': depth }) as CSSProperties
+  const nodeClass = (text: string) => `tree-cell ${/^\d+$/.test(text) && isPrime(Number(text)) ? 'tree-leaf' : 'tree-num'}`
+  return <div className="board tree-board"><div className="board-label">POHON FAKTOR <span className="board-live">● bagi terus sampai semua ujung prima</span></div><div className="tree-scroll"><div className="tree-canvas" style={{ '--levels': levels } as CSSProperties}>
+    <div className="tree-root-row"><span className="tree-cell tree-num">{question.number}</span></div>
+    {pairs.map((pair, index) => <div className="tree-pair" style={pairStyle(index)} key={index}><b className="tree-cell tree-leaf">{pair.leaf}</b><span className={nodeClass(pair.node)}>{pair.node}</span></div>)}
+    {(picking || quotienting) && <div className="tree-pair active-pair" style={pairStyle(pairs.length)}><b className={`tree-cell ${quotienting ? 'tree-leaf' : 'tree-ask'}`}>{quotienting ? current.meta?.factor : '?'}</b>{quotienting ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span className="tree-cell tree-ask">?</span>}</div>}
+  </div></div>{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua ujung prima (boleh urutan bebas)</span><BoardInput value={value} onChange={onChange} disabled={disabled} text placeholder="2, 2, 3" /></div>}<div className="prime-legend"><span>2</span><span>3</span><span>5</span><span>7</span><small>pilih prima terkecil yang habis membagi</small></div><div className="board-caption"><span className="caption-dot" /> Kiri: faktor prima · Kanan: hasil bagi yang dipecah lagi</div></div>
 }
 
 function ConceptBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
@@ -150,18 +189,70 @@ function WorkBoard(props: BoardProps) {
   return <ConceptBoard {...props} />
 }
 
-function Exercise({ question, questionNumber, total, score, onNext, onSkip, onExit }: { question: Question; questionNumber: number; total: number; score: number; onNext: (correct: boolean) => void; onSkip: () => void; onExit: () => void }) {
+const HINT_TIERS = 3
+
+function hintText(step: Step, tier: number) {
+  const expected = String(step.expected)
+  if (tier <= 1) return step.hint
+  if (tier === 2) {
+    if (LIST_KINDS.includes(step.kind)) return `${step.hint} Jawabannya berisi ${expected.split(/[\s,]+/).filter(Boolean).length} angka, dimulai dari ${expected.split(/[\s,]+/)[0]}.`
+    if (/^-?\d+$/.test(expected)) return `${step.hint} Jawabannya terdiri dari ${expected.replace(/\D/g, '').length} angka.`
+    return `${step.hint} Baca pilihan di bawah dengan teliti, lalu pilih yang paling cocok.`
+  }
+  if (step.choices) return `Jawabannya: ${step.choices.find((c) => c.value === expected)?.label ?? expected}. Tekan tombol pilihan itu supaya kamu bisa lanjut.`
+  return `Jawabannya: ${expected}. Ketik lalu tekan Periksa supaya kamu bisa lanjut.`
+}
+
+function wrongMessage(step: Step, answer: string) {
+  const expected = String(step.expected)
+  if (LIST_KINDS.includes(step.kind)) {
+    const got = answer.split(/[\s,;×x]+/).filter(Boolean).length
+    const want = expected.split(/[\s,]+/).filter(Boolean).length
+    if (got < want) return 'Angkamu masih kurang. Adakah yang terlewat?'
+    if (got > want) return 'Angkamu kebanyakan. Periksa lagi daftarnya.'
+    return 'Jumlah angkanya sudah pas, tapi masih ada yang keliru. Periksa satu per satu.'
+  }
+  if (/^-?\d+$/.test(expected)) {
+    if (!/^-?\d+$/.test(answer.trim())) return 'Di sini tulis angka saja, ya.'
+    const diff = Number(answer) - Number(expected)
+    if ((step.kind === 'add-write' || step.kind === 'multiply-write') && Number(answer) > 9) return 'Kotak ini hanya muat 1 angka. Tulis angka satuannya saja, puluhannya disimpan.'
+    if (Math.abs(diff) === 1) return `Hampir tepat! Jawabanmu sedikit ${diff > 0 ? 'kebesaran' : 'kekecilan'}. Hitung ulang pelan-pelan.`
+    if (Math.abs(diff) === 10) return 'Hampir! Perhatikan lagi nilai tempatnya (satuan, puluhan, ratusan).'
+  }
+  return 'Belum tepat. Periksa lagi langkah kecil ini, lalu coba sekali lagi.'
+}
+
+function LeaveDialog({ onStay, onLeave }: { onStay: () => void; onLeave: () => void }) {
+  return <div className="dialog-backdrop" role="presentation" onClick={onStay} onKeyDown={(event) => { if (event.key === 'Escape') onStay() }}><div className="dialog-card" role="dialog" aria-modal="true" aria-labelledby="leave-title" onClick={(event) => event.stopPropagation()}><h2 id="leave-title">Keluar dari sesi?</h2><p>Latihan yang sedang berjalan akan hilang. Kamu bisa mulai lagi kapan saja.</p><div className="dialog-actions"><button type="button" className="primary-button" autoFocus onClick={onStay}>Lanjut latihan</button><button type="button" className="secondary-button" onClick={onLeave}>Ya, keluar</button></div></div></div>
+}
+
+function Exercise({ question, questionNumber, total, score, onNext, onSkip, onExit }: { question: Question; questionNumber: number; total: number; score: number; onNext: (correct: boolean, clean?: boolean) => void; onSkip: () => void; onExit: () => void }) {
   const [stepIndex, setStepIndex] = useState(0)
   const [value, setValue] = useState('')
   const [status, setStatus] = useState<AnswerStatus>('idle')
   const [attempts, setAttempts] = useState(0)
   const [hintLevel, setHintLevel] = useState(0)
+  const [mistakes, setMistakes] = useState(0)
+  const [usedHint, setUsedHint] = useState(false)
+  const panelRef = useRef<HTMLElement>(null)
+  const continueRef = useRef<HTMLButtonElement>(null)
   const current = question.steps[stepIndex]
   const completed = question.steps.slice(0, stepIndex)
-  const progress = Math.round((questionNumber / total) * 100)
-  const textInput = ['tree-final', 'set-a', 'set-b', 'multiple-a', 'multiple-b'].includes(current.kind)
+  const progress = Math.round(((questionNumber - 1 + stepIndex / question.steps.length) / total) * 100)
+  const textInput = LIST_KINDS.includes(current.kind)
   const isLastStep = stepIndex === question.steps.length - 1
-  const feedback = status === 'correct' ? current.coach : status === 'empty' ? 'Kotaknya masih kosong. Coba isi jawabanmu dulu, ya.' : status === 'wrong' ? 'Belum tepat. Periksa lagi langkah kecil ini, lalu coba sekali lagi.' : ''
+  const feedback = status === 'correct' ? current.coach : status === 'empty' ? 'Kotaknya masih kosong. Coba isi jawabanmu dulu, ya.' : status === 'wrong' ? wrongMessage(current, value) : ''
+
+  const focusInput = (select = false) => {
+    const input = panelRef.current?.querySelector<HTMLInputElement>('input:not(:disabled)')
+    input?.focus({ preventScroll: true })
+    if (select) input?.select()
+  }
+  useEffect(() => { focusInput() }, [stepIndex])
+  useEffect(() => {
+    if (status === 'correct') continueRef.current?.focus({ preventScroll: true })
+    else if (status === 'wrong' || status === 'empty') focusInput(true)
+  }, [status])
 
   function updateValue(next: string) {
     setValue(next)
@@ -171,20 +262,20 @@ function Exercise({ question, questionNumber, total, score, onNext, onSkip, onEx
     if (status === 'correct') return
     if (!answer.trim()) { setStatus('empty'); return }
     if (stepMatches(current, answer)) setStatus('correct')
-    else { setStatus('wrong'); setAttempts((old) => old + 1) }
+    else { setStatus('wrong'); setAttempts((old) => old + 1); setMistakes((old) => old + 1) }
   }
   function continueStep() {
-    if (isLastStep) onNext(true)
+    if (isLastStep) onNext(true, mistakes === 0 && !usedHint)
     else { setStepIndex((old) => old + 1); setValue(''); setStatus('idle'); setAttempts(0); setHintLevel(0) }
   }
   function choose(valueToUse: string) { updateValue(valueToUse); submit(valueToUse) }
 
-  return <main className="page exercise-page"><div className="exercise-top"><div><div className="kicker muted">{question.title.toUpperCase()}</div><h1>Kerjakan bersama</h1></div><div className="score-pill"><span>✦</span> Benar <b>{score}</b></div></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div><div className="exercise-meta"><span>Soal <b>{questionNumber}</b> / {total}</span><span className="step-pill">Langkah {stepIndex + 1} / {question.steps.length}</span></div><div className="exercise-layout"><section className="work-panel"><WorkBoard question={question} current={current} completed={completed} value={value} onChange={updateValue} disabled={status === 'correct'} /><div className="prompt-block"><div className="prompt-label"><span /> Giliranmu · {question.eyebrow}</div><h2>{current.prompt}</h2>{attempts >= 2 && status !== 'correct' && <div className="coach-note"><span>✦</span><div><strong>Tarik napas, kita pecah pelan-pelan.</strong><p>Kalau masih bingung, petunjuk di samping bisa dibuka kapan saja.</p></div></div>}</div><form id="answer-form" className="answer-form" onSubmit={(event) => { event.preventDefault(); submit() }}>{current.choices ? <div className="choice-grid">{current.choices.map((choice) => <button type="button" className={`choice ${value === choice.value ? 'selected' : ''}`} key={choice.value} onClick={() => choose(choice.value)} disabled={status === 'correct'}><strong>{choice.label}</strong><small>{choice.helper}</small></button>)}</div> : textInput && <div className="token-row"><span>Bantuan tanda:</span><button type="button" onClick={() => updateValue(`${value}${value ? ', ' : ''}`)}>, koma</button><button type="button" onClick={() => updateValue(`${value} × `)}>× kali</button></div>}<div className="answer-actions"><button type="submit" className="primary-button" disabled={status === 'correct'}>Periksa <span>✓</span></button>{status === 'correct' ? <button type="button" className="secondary-button" onClick={continueStep}>{isLastStep ? (questionNumber === total ? 'Lihat hasil sesi' : 'Soal berikutnya') : 'Lanjut langkah'} <span>→</span></button> : <button type="button" className="skip-button" onClick={onSkip}>Lewati soal</button>}</div></form>{status !== 'idle' && <div className={`feedback feedback-${status}`}><span>{status === 'correct' ? '✓' : status === 'empty' ? '!' : '↺'}</span><p>{feedback}</p></div>}</section><aside className="support-panel"><div className={`hint-card ${hintLevel ? 'open' : ''}`}><div className="hint-heading"><span>✦</span><div><strong>Butuh petunjuk?</strong><small>{hintLevel ? `Petunjuk tahap ${hintLevel}` : 'Belum dibuka'}</small></div></div>{hintLevel ? <p>{current.hint}</p> : <p className="hint-locked">Petunjuk tersembunyi dulu. Coba kerjakan sendiri sebelum membukanya.</p>}<button className="hint-button" type="button" onClick={() => setHintLevel((old) => old >= 3 ? 1 : old + 1)}>{hintLevel >= 3 ? 'Ulangi petunjuk' : hintLevel ? 'Petunjuk berikutnya' : 'Buka petunjuk'} <span>→</span></button></div><div className="support-card"><span>✿</span><p>Kesalahan bukan akhir. Kita gunakan untuk menemukan kolom mana yang perlu diperiksa lagi.</p></div><button className="exit-button" type="button" onClick={onExit}>← Keluar dari sesi</button></aside></div></main>
+  return <main className="page exercise-page"><div className="exercise-top"><div><div className="kicker muted">{question.title.toUpperCase()}</div><h1>Kerjakan bersama</h1></div><div className="score-pill"><span>✦</span> Selesai <b>{score}</b></div></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div><div className="exercise-meta"><span>Soal <b>{questionNumber}</b> / {total}</span><span className="step-pill">Langkah {stepIndex + 1} / {question.steps.length}</span></div><div className="exercise-layout"><section className="work-panel" ref={panelRef}><WorkBoard question={question} current={current} completed={completed} value={value} onChange={updateValue} disabled={status === 'correct'} /><div className="prompt-block"><div className="prompt-label"><span /> Giliranmu · {question.eyebrow}</div><h2>{current.prompt}</h2>{attempts >= 2 && status !== 'correct' && <div className="coach-note"><span>✦</span><div><strong>Tarik napas, kita pecah pelan-pelan.</strong><p>Kalau masih bingung, petunjuk di samping bisa dibuka kapan saja.</p></div></div>}</div><form id="answer-form" className="answer-form" onSubmit={(event) => { event.preventDefault(); submit() }}>{current.choices ? <div className="choice-grid">{current.choices.map((choice) => <button type="button" className={`choice ${value === choice.value ? 'selected' : ''}`} key={choice.value} onClick={() => choose(choice.value)} disabled={status === 'correct'}><strong>{choice.label}</strong><small>{choice.helper}</small></button>)}</div> : textInput && <div className="token-row"><span>Bantuan tanda:</span><button type="button" onClick={() => updateValue(`${value}${value ? ', ' : ''}`)}>, koma</button><button type="button" onClick={() => updateValue(`${value} × `)}>× kali</button></div>}<div className="answer-actions"><button type="submit" className="primary-button" disabled={status === 'correct'}>Periksa <span>✓</span></button>{status === 'correct' ? <button type="button" className="secondary-button" ref={continueRef} onClick={continueStep}>{isLastStep ? (questionNumber === total ? 'Lihat hasil sesi' : 'Soal berikutnya') : 'Lanjut langkah'} <span>→</span></button> : <button type="button" className="skip-button" onClick={onSkip}>Lewati soal</button>}</div></form>{status !== 'idle' && <div className={`feedback feedback-${status}`} role="status"><span>{status === 'correct' ? '✓' : status === 'empty' ? '!' : '↺'}</span><p>{feedback}</p></div>}</section><aside className="support-panel"><div className={`hint-card ${hintLevel ? 'open' : ''}`}><div className="hint-heading"><span>✦</span><div><strong>Butuh petunjuk?</strong><small>{hintLevel ? `Petunjuk tahap ${hintLevel} dari ${HINT_TIERS}` : 'Belum dibuka'}</small></div></div>{hintLevel ? <p>{hintText(current, hintLevel)}</p> : <p className="hint-locked">Petunjuk tersembunyi dulu. Coba kerjakan sendiri sebelum membukanya.</p>}<button className="hint-button" type="button" disabled={hintLevel >= HINT_TIERS || status === 'correct'} onClick={() => { setHintLevel((old) => Math.min(old + 1, HINT_TIERS)); setUsedHint(true) }}>{hintLevel >= HINT_TIERS ? 'Petunjuk habis' : hintLevel ? 'Petunjuk berikutnya' : 'Buka petunjuk'} <span>→</span></button></div><div className="support-card"><span>✿</span><p>Kesalahan bukan akhir. Kita gunakan untuk menemukan kolom mana yang perlu diperiksa lagi.</p></div><button className="exit-button" type="button" onClick={onExit}>← Keluar dari sesi</button></aside></div></main>
 }
 
-function Result({ score, title, onHome, onAgain }: { score: number; title: string; onHome: () => void; onAgain: () => void }) {
-  const perfect = score === SESSION_SIZE
-  return <main className="page result-page"><div className="result-confetti"><span>✦</span><span>＋</span><span>◌</span><span>✿</span><span>×</span></div><section className="result-card"><div className="result-badge">{perfect ? '✦' : '✓'}</div><div className="kicker muted">SESI SELESAI</div><h1>{perfect ? 'Wah, luar biasa!' : 'Kamu sudah berlatih!'}</h1><p>{perfect ? 'Semua langkah kamu lewati dengan tepat.' : 'Setiap langkah tadi jadi bekal baru untukmu.'}</p><div className="result-score"><strong>{score}</strong><span>/ {SESSION_SIZE}</span><small>soal berhasil diselesaikan</small></div><div className="result-note"><span>✦</span><p>Yang paling penting: kamu mencoba, memperbaiki langkah, dan terus belajar.</p></div><div className="result-actions"><button className="primary-button large" type="button" onClick={onAgain}>Latihan {title} lagi <span>↻</span></button><button className="secondary-button" type="button" onClick={onHome}>Kembali ke Home <span>⌂</span></button></div></section><p className="result-footnote">Tidak ada nilai yang mengurangi usahamu. Terus tumbuh, ya! <span>✿</span></p></main>
+function Result({ score, clean, title, onHome, onAgain }: { score: number; clean: number; title: string; onHome: () => void; onAgain: () => void }) {
+  const perfect = clean === SESSION_SIZE
+  return <main className="page result-page"><div className="result-confetti"><span>✦</span><span>＋</span><span>◌</span><span>✿</span><span>×</span></div><section className="result-card"><div className="result-badge">{perfect ? '✦' : '✓'}</div><div className="kicker muted">SESI SELESAI</div><h1>{perfect ? 'Wah, luar biasa!' : 'Kamu sudah berlatih!'}</h1><p>{perfect ? 'Semua soal kamu kerjakan mandiri dan tepat.' : 'Setiap langkah tadi jadi bekal baru untukmu.'}</p><div className="result-score"><strong>{score}</strong><span>/ {SESSION_SIZE}</span><small>soal berhasil diselesaikan</small></div><div className="result-note"><span>✦</span><p><b>{clean}</b> soal dikerjakan mandiri (tanpa salah dan tanpa petunjuk). Yang paling penting: kamu mencoba, memperbaiki langkah, dan terus belajar.</p></div><div className="result-actions"><button className="primary-button large" type="button" onClick={onAgain}>Latihan {title} lagi <span>↻</span></button><button className="secondary-button" type="button" onClick={onHome}>Kembali ke Home <span>⌂</span></button></div></section><p className="result-footnote">Tidak ada nilai yang mengurangi usahamu. Terus tumbuh, ya! <span>✿</span></p></main>
 }
 
 export default function App() {
@@ -194,16 +285,19 @@ export default function App() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
+  const [clean, setClean] = useState(0)
+  const [leaveAction, setLeaveAction] = useState<(() => void) | null>(null)
 
   const currentQuestion = questions[questionIndex]
   const currentMeta = activityMeta.find((item) => item.id === activity)!
   const screenTitle = useMemo(() => screen === 'levels' ? currentMeta.title : screen === 'exercise' ? `${currentMeta.title} · Level ${level}` : screen === 'activities' ? 'Pilih latihan' : 'Ruang Hitung', [screen, currentMeta.title, level])
 
   function startActivity(next: Activity) { setActivity(next); setScreen('levels') }
-  function startSession(nextLevel: number) { setLevel(nextLevel); setQuestions(makeSession(activity, nextLevel, SESSION_SIZE)); setQuestionIndex(0); setScore(0); setScreen('exercise') }
-  function nextQuestion(correct: boolean) { const nextScore = score + (correct ? 1 : 0); if (questionIndex === questions.length - 1) { setScore(nextScore); setScreen('result') } else { setScore(nextScore); setQuestionIndex((old) => old + 1) } }
-  function resetHome() { setQuestions([]); setQuestionIndex(0); setScore(0); setScreen('home') }
+  function startSession(nextLevel: number) { setLevel(nextLevel); setQuestions(makeSession(activity, nextLevel, SESSION_SIZE)); setQuestionIndex(0); setScore(0); setClean(0); setScreen('exercise') }
+  function nextQuestion(correct: boolean, isClean = false) { setScore((old) => old + (correct ? 1 : 0)); setClean((old) => old + (isClean ? 1 : 0)); if (questionIndex === questions.length - 1) setScreen('result'); else setQuestionIndex((old) => old + 1) }
+  function resetHome() { setQuestions([]); setQuestionIndex(0); setScore(0); setClean(0); setScreen('home') }
+  function guard(action: () => void) { if (screen === 'exercise') setLeaveAction(() => action); else action() }
   function goBack() { if (screen === 'activities') setScreen('home'); else if (screen === 'levels') setScreen('activities'); else if (screen === 'exercise') setScreen('levels'); else if (screen === 'result') setScreen('home'); else setScreen('home') }
 
-  return <div className="app-shell">{screen !== 'home' && <AppHeader title={screenTitle} onBack={goBack} onHome={resetHome} />}{screen === 'home' && <Home onOpen={(next) => next ? startActivity(next) : setScreen('activities')} />}{screen === 'activities' && <ActivityPicker onChoose={startActivity} onBack={goBack} />}{screen === 'levels' && <LevelPicker activity={activity} onStart={startSession} onBack={goBack} />}{screen === 'exercise' && currentQuestion && <Exercise key={currentQuestion.id} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} score={score} onNext={nextQuestion} onSkip={() => nextQuestion(false)} onExit={goBack} />}{screen === 'result' && <Result score={score} title={currentMeta.title} onHome={resetHome} onAgain={() => startSession(level)} />}</div>
+  return <div className="app-shell">{screen !== 'home' && <AppHeader title={screenTitle} onBack={() => guard(goBack)} onHome={() => guard(resetHome)} />}{screen === 'home' && <Home onOpen={(next) => next ? startActivity(next) : setScreen('activities')} />}{screen === 'activities' && <ActivityPicker onChoose={startActivity} onBack={goBack} />}{screen === 'levels' && <LevelPicker activity={activity} onStart={startSession} onBack={goBack} />}{screen === 'exercise' && currentQuestion && <Exercise key={`${questionIndex}-${currentQuestion.id}`} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} score={score} onNext={nextQuestion} onSkip={() => nextQuestion(false)} onExit={() => guard(goBack)} />}{screen === 'result' && <Result score={score} clean={clean} title={currentMeta.title} onHome={resetHome} onAgain={() => startSession(level)} />}{leaveAction && <LeaveDialog onStay={() => setLeaveAction(null)} onLeave={() => { const action = leaveAction; setLeaveAction(null); action() }} />}</div>
 }
