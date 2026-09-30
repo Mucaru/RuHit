@@ -53,7 +53,7 @@ function Home({ onOpen }: { onOpen: (activity?: Activity) => void }) {
       <div className="hero-copy"><div className="kicker"><span className="spark-dot" /> KELAS 5 · BELAJAR SAMBIL PAHAM</div><h1>Matematika jadi mudah saat kamu <mark>ikut mengerjakan.</mark></h1><p>Di sini bukan tebak jawaban. Kamu menulis setiap langkah, melihat nilai tempat, dan tahu kenapa jawabanmu benar.</p><div className="hero-actions"><button className="primary-button large" type="button" onClick={() => onOpen('addition')}>Mulai dari penjumlahan <span>→</span></button><button className="ghost-button" type="button" onClick={() => onOpen()}>Lihat semua latihan</button></div><div className="hero-trust"><span>10 soal per sesi</span><i /> <span>bebas coba lagi</span><i /> <span>ada petunjuk</span></div></div>
       <div className="hero-visual"><span className="orbit orbit-a" /><span className="orbit orbit-b" /><div className="floating-note note-top">Tulis langkahmu <b>✎</b></div><div className="worksheet-card"><div className="worksheet-head"><span className="mini-number">1</span><strong>375 + 923</strong><span className="mini-star">✦</span></div><div className="carry-mini"><i /><i /><i /><i /></div><div className="sum-mini"><span /><b>3</b><b>7</b><b>5</b><em>+</em><b>9</b><b>2</b><b>3</b></div><div className="sum-line" /><div className="answer-mini"><i /><i /><i /><i /></div><div className="worksheet-tip">Kotak kecil untuk angka simpanan</div></div><div className="floating-note note-bottom"><span>✓</span> Langkah demi langkah</div><div className="hero-spark spark-one">＋</div><div className="hero-spark spark-two">÷</div></div>
     </section>
-    <section className="home-section"><div className="section-intro"><div><div className="kicker muted">PILIH PETUALANGANMU</div><h2>Mau belajar apa hari ini?</h2></div><span className="topic-count">8 cara belajar</span></div><div className="module-grid">{activityMeta.slice(0, 5).map((item) => <ActivityCard key={item.id} item={item} onClick={() => onOpen(item.id)} />)}</div></section>
+    <section className="home-section"><div className="section-intro"><div><div className="kicker muted">PILIH PETUALANGANMU</div><h2>Mau belajar apa hari ini?</h2></div><span className="topic-count">8 cara belajar</span></div><div className="activity-list">{activityMeta.map((item) => <ActivityCard key={item.id} item={item} onClick={() => onOpen(item.id)} />)}</div></section>
     <section className="principles"><div className="principle"><span>01</span><div><strong>Bukan tebak-tebakan</strong><p>Setiap jawaban punya alasan yang bisa kamu lihat.</p></div></div><div className="principle"><span>02</span><div><strong>Seperti di buku tulis</strong><p>Kolom, carry, pinjaman, dan panah ditunjukkan jelas.</p></div></div><div className="principle"><span>03</span><div><strong>Salah itu petunjuk</strong><p>Feedback membantu menemukan langkah yang perlu diperbaiki.</p></div></div></section>
     <footer className="home-footer">✿ <span>Pelan-pelan tidak apa-apa. Yang penting kamu paham caranya.</span></footer>
   </main>
@@ -223,7 +223,12 @@ function wrongMessage(step: Step, answer: string) {
 }
 
 function LeaveDialog({ onStay, onLeave }: { onStay: () => void; onLeave: () => void }) {
-  return <div className="dialog-backdrop" role="presentation" onClick={onStay} onKeyDown={(event) => { if (event.key === 'Escape') onStay() }}><div className="dialog-card" role="dialog" aria-modal="true" aria-labelledby="leave-title" onClick={(event) => event.stopPropagation()}><h2 id="leave-title">Keluar dari sesi?</h2><p>Latihan yang sedang berjalan akan hilang. Kamu bisa mulai lagi kapan saja.</p><div className="dialog-actions"><button type="button" className="primary-button" autoFocus onClick={onStay}>Lanjut latihan</button><button type="button" className="secondary-button" onClick={onLeave}>Ya, keluar</button></div></div></div>
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onStay() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onStay])
+  return <div className="dialog-backdrop" role="presentation" onClick={onStay}><div className="dialog-card" role="dialog" aria-modal="true" aria-labelledby="leave-title" onClick={(event) => event.stopPropagation()}><h2 id="leave-title">Keluar dari sesi?</h2><p>Latihan yang sedang berjalan akan hilang. Kamu bisa mulai lagi kapan saja.</p><div className="dialog-actions"><button type="button" className="primary-button" autoFocus onClick={onStay}>Lanjut latihan</button><button type="button" className="secondary-button" onClick={onLeave}>Ya, keluar</button></div></div></div>
 }
 
 function Exercise({ question, questionNumber, total, score, onNext, onSkip, onExit }: { question: Question; questionNumber: number; total: number; score: number; onNext: (correct: boolean, clean?: boolean) => void; onSkip: () => void; onExit: () => void }) {
@@ -282,6 +287,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('home')
   const [activity, setActivity] = useState<Activity>('addition')
   const [level, setLevel] = useState(1)
+  const [origin, setOrigin] = useState<'home' | 'activities'>('activities')
   const [questions, setQuestions] = useState<Question[]>([])
   const [questionIndex, setQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
@@ -292,12 +298,12 @@ export default function App() {
   const currentMeta = activityMeta.find((item) => item.id === activity)!
   const screenTitle = useMemo(() => screen === 'levels' ? currentMeta.title : screen === 'exercise' ? `${currentMeta.title} · Level ${level}` : screen === 'activities' ? 'Pilih latihan' : 'Ruang Hitung', [screen, currentMeta.title, level])
 
-  function startActivity(next: Activity) { setActivity(next); setScreen('levels') }
+  function startActivity(next: Activity, from: 'home' | 'activities') { setActivity(next); setOrigin(from); setScreen('levels') }
   function startSession(nextLevel: number) { setLevel(nextLevel); setQuestions(makeSession(activity, nextLevel, SESSION_SIZE)); setQuestionIndex(0); setScore(0); setClean(0); setScreen('exercise') }
   function nextQuestion(correct: boolean, isClean = false) { setScore((old) => old + (correct ? 1 : 0)); setClean((old) => old + (isClean ? 1 : 0)); if (questionIndex === questions.length - 1) setScreen('result'); else setQuestionIndex((old) => old + 1) }
   function resetHome() { setQuestions([]); setQuestionIndex(0); setScore(0); setClean(0); setScreen('home') }
   function guard(action: () => void) { if (screen === 'exercise') setLeaveAction(() => action); else action() }
-  function goBack() { if (screen === 'activities') setScreen('home'); else if (screen === 'levels') setScreen('activities'); else if (screen === 'exercise') setScreen('levels'); else if (screen === 'result') setScreen('home'); else setScreen('home') }
+  function goBack() { if (screen === 'activities') setScreen('home'); else if (screen === 'levels') setScreen(origin); else if (screen === 'exercise') setScreen('levels'); else if (screen === 'result') setScreen('home'); else setScreen('home') }
 
-  return <div className="app-shell">{screen !== 'home' && <AppHeader title={screenTitle} onBack={() => guard(goBack)} onHome={() => guard(resetHome)} />}{screen === 'home' && <Home onOpen={(next) => next ? startActivity(next) : setScreen('activities')} />}{screen === 'activities' && <ActivityPicker onChoose={startActivity} onBack={goBack} />}{screen === 'levels' && <LevelPicker activity={activity} onStart={startSession} onBack={goBack} />}{screen === 'exercise' && currentQuestion && <Exercise key={`${questionIndex}-${currentQuestion.id}`} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} score={score} onNext={nextQuestion} onSkip={() => nextQuestion(false)} onExit={() => guard(goBack)} />}{screen === 'result' && <Result score={score} clean={clean} title={currentMeta.title} onHome={resetHome} onAgain={() => startSession(level)} />}{leaveAction && <LeaveDialog onStay={() => setLeaveAction(null)} onLeave={() => { const action = leaveAction; setLeaveAction(null); action() }} />}</div>
+  return <div className="app-shell">{screen !== 'home' && <AppHeader title={screenTitle} onBack={() => guard(goBack)} onHome={() => guard(resetHome)} />}{screen === 'home' && <Home onOpen={(next) => next ? startActivity(next, 'home') : setScreen('activities')} />}{screen === 'activities' && <ActivityPicker onChoose={(next) => startActivity(next, 'activities')} onBack={goBack} />}{screen === 'levels' && <LevelPicker activity={activity} onStart={startSession} onBack={goBack} />}{screen === 'exercise' && currentQuestion && <Exercise key={`${questionIndex}-${currentQuestion.id}`} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} score={score} onNext={nextQuestion} onSkip={() => nextQuestion(false)} onExit={() => guard(goBack)} />}{screen === 'result' && <Result score={score} clean={clean} title={currentMeta.title} onHome={resetHome} onAgain={() => startSession(level)} />}{leaveAction && <LeaveDialog onStay={() => setLeaveAction(null)} onLeave={() => { const action = leaveAction; setLeaveAction(null); action() }} />}</div>
 }

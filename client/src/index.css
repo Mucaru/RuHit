@@ -242,3 +242,23 @@ button:not(:disabled) { cursor: pointer; }
 .dialog-actions button { min-height: 48px; justify-content: center; }
 .hint-button:disabled { opacity: .55; cursor: not-allowed; }
 .feedback p { font-size: 15px; line-height: 1.45; }
+/* ===== Upgrade keterbacaan & sentuhan untuk anak SD (batch 5) ===== */
+html { -webkit-text-size-adjust: 100%; }
+button, .choice { touch-action: manipulation; }
+:focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+@media (max-width: 640px) {
+  /* teks minimal 11-12px, isi utama 13px+ ; target sentuh minimal 44px */
+  .brand small, .exercise-top .kicker, .score-pill, .exercise-meta, .board-caption, .note-top, .note-bottom, .hero-trust, .topic-count, .nav-note, .result-score small, .result-footnote, .home-footer span, .choice small { font-size: 11px; }
+  .place-labels, .flow-pills span { font-size: 10px; }
+  .activity-card p, .card-link, .level-card small, .level-go, .safe-note p, .principle p, .back-link, .text-button, .home-button, .topbar-title, .skip-button, .exit-button, .ghost-button { font-size: 12px; }
+  .hero p, .page-intro p, .feedback p, .hint-card > p, .result-card > p { font-size: 14px; line-height: 1.55; }
+  .activity-card strong, .level-card strong, .principle strong, .choice strong { font-size: 15px; }
+  .prompt-block h2 { font-size: 19px; }
+  .step-pill { padding: 5px 8px; }
+  .text-button, .home-button, .skip-button, .exit-button, .ghost-button { min-height: 44px; }
+  .choice { min-height: 58px; }
+  .number-input input { height: 56px; font-size: 24px; }
+  .number-input.text-mode input { font-size: 16px; } /* 16px mencegah iOS auto-zoom saat fokus */
+  .primary-button.large, .answer-actions .primary-button, .answer-actions .secondary-button, .result-actions .primary-button, .result-actions .secondary-button { min-height: 48px; font-size: 13px; }
+}
