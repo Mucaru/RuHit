@@ -1,0 +1,3 @@
+export function BoardInput({ value, onChange, text = false, disabled, className = '', placeholder = '?' }: { value: string; onChange: (value: string) => void; text?: boolean; disabled: boolean; className?: string; placeholder?: string }) {
+  return <input className={`board-input ${text ? 'board-input-text' : ''} ${className}`} form="answer-form" value={value} disabled={disabled} inputMode={text ? 'text' : 'numeric'} autoComplete="off" placeholder={placeholder} aria-labelledby="step-prompt" onChange={(event) => onChange(text ? event.target.value : event.target.value.replace(/\D/g, ''))} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); (document.getElementById('answer-form') as HTMLFormElement | null)?.requestSubmit() } }} />
+}

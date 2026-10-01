@@ -40,7 +40,6 @@ const activityTitles: Record<Activity, string> = {
 const placeNames = ['satuan', 'puluhan', 'ratusan', 'ribuan']
 const digit = (value: number, position: number) => Math.floor(value / 10 ** position) % 10
 const digits = (value: number, width = String(value).length) => String(value).padStart(width, '0').split('').map(Number)
-const id = (kind: string, index: number) => `${kind}-${index}`
 
 function step(kind: string, prompt: string, expected: number | string, hint: string, coach: string, meta: Record<string, any> = {}, choices?: Choice[]): Step {
   return { id: `${kind}-${Math.random().toString(36).slice(2, 8)}`, kind, prompt, expected: String(expected), hint, coach, meta, choices }
@@ -296,6 +295,11 @@ const generators: Record<Activity, (level: number) => Pair> = {
       return [divisor * rand(Math.ceil(lo / divisor), Math.floor(hi / divisor)), divisor]
     }
     const [lo, hi, dMin, dMax] = level === 3 ? [100, 999, 2, 9] : [200, 999, 11, 25]
+    // ~30% soal habis dibagi, supaya anak tidak mengira pembagian selalu ada sisa
+    if (Math.random() < 0.3) {
+      const exactDivisor = rand(dMin, dMax)
+      return [exactDivisor * rand(Math.ceil(lo / exactDivisor), Math.floor(hi / exactDivisor)), exactDivisor]
+    }
     let pair: Pair = [lo + 1, dMin]
     for (let i = 0; i < 300; i += 1) {
       const divisor = rand(dMin, dMax), dividend = rand(lo, hi)
@@ -320,12 +324,15 @@ const generators: Record<Activity, (level: number) => Pair> = {
   gcd: (level) => {
     const [min, max] = at([[6, 24], [12, 36], [24, 60]], level)
     let pair: Pair = [min, min * 2]
+    // variasi kasus khusus: pasangan berkelipatan (level 2+) dan pasangan tanpa faktor bersama selain 1 (level 3)
+    const special: 'multiple' | 'coprime' | null = level >= 3 && Math.random() < 0.2 ? 'coprime' : level >= 2 && Math.random() < 0.2 ? 'multiple' : null
     for (let i = 0; i < 300; i += 1) {
       const x = rand(min, max), y = rand(min, max)
       if (x === y) continue
       const [a, b] = x < y ? [x, y] : [y, x]
       pair = [a, b]
-      if (gcd(a, b) > 1 && b % a !== 0) break
+      const common = gcd(a, b)
+      if (special === 'coprime' ? common === 1 : special === 'multiple' ? b % a === 0 : common > 1 && b % a !== 0) break
     }
     return pair
   },

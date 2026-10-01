@@ -262,3 +262,23 @@ button, .choice { touch-action: manipulation; }
   .number-input.text-mode input { font-size: 16px; } /* 16px mencegah iOS auto-zoom saat fokus */
   .primary-button.large, .answer-actions .primary-button, .answer-actions .secondary-button, .result-actions .primary-button, .result-actions .secondary-button { min-height: 48px; font-size: 13px; }
 }
+
+/* ===== Perbaikan tabrakan & kotak jawaban (dari screenshot) ===== */
+.board-caption { position: static; margin-top: 14px; padding: 0 8px; flex-wrap: wrap; text-align: center; line-height: 1.4; }
+.prime-legend { flex-wrap: wrap; }
+.prime-legend small { flex-basis: 100%; margin: 4px 0 0; text-align: center; }
+.score-pill small { margin-left: 1px; opacity: .7; font-weight: 700; }
+.progress-track > span { min-width: 6px; transition: width .35s ease; }
+
+/* ===== Kontras teks minimal 4.5:1 (WCAG AA) ===== */
+.board-caption, .prime-legend small, .hint-locked { color: #5b6f64; }
+.kicker.muted { color: #5b6f64; }
+.tree-final-entry { color: #7a5a3d; }
+.tree-ask { color: #94602a; }
+
+/* ===== Layar error ramah anak ===== */
+.error-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f8faf5; }
+.error-card { max-width: 420px; text-align: center; background: #fffdf5; border: 1.5px solid #dfe8dc; border-radius: 24px; padding: 32px 24px; box-shadow: 0 10px 30px rgba(40, 70, 55, .08); }
+.error-card h1 { font-size: 24px; margin: 12px 0 8px; }
+.error-card p { font-size: 15px; line-height: 1.55; color: #4a5f54; margin: 0 0 20px; }
+.error-emoji { font-size: 48px; }
