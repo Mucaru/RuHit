@@ -27,6 +27,8 @@ export function wrongMessage(step: Step, answer: string) {
   if (/^-?\d+$/.test(expected)) {
     if (!/^-?\d+$/.test(answer.trim())) return 'Di sini tulis angka saja, ya.'
     const diff = Number(answer) - Number(expected)
+    const shift = Number(step.meta?.placeValue ?? 1)
+    if (step.kind === 'partial' && shift > 1 && Number(answer) * shift === Number(expected)) return 'Hampir! Baris ini bergeser ke kiri, jangan lupa tulis 0 di paling kanan.'
     if ((step.kind === 'add-write' || step.kind === 'multiply-write') && Number(answer) > 9) return 'Kotak ini hanya muat 1 angka. Tulis angka satuannya saja, puluhannya disimpan.'
     if (Math.abs(diff) === 1) return `Hampir tepat! Jawabanmu sedikit ${diff > 0 ? 'kebesaran' : 'kekecilan'}. Hitung ulang pelan-pelan.`
     if (Math.abs(diff) === 10) return 'Hampir! Perhatikan lagi nilai tempatnya (satuan, puluhan, ratusan).'

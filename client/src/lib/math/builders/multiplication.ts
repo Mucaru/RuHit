@@ -13,15 +13,17 @@ export function buildMultiplication(a: number, b: number): Question {
     const placeValue = 10 ** row
     let carry = 0
 
+    // Cara sekolah: baris ke-2 dan seterusnya dimulai dengan menulis 0 di kolom satuan (geser ke kiri).
     if (row > 0) {
+      const zeros = '0'.repeat(row)
       steps.push(
         makeStep({
-          kind: 'place-value',
-          prompt: `Angka ${multiplier} berada di kolom ${PLACE_NAMES[row]}. Nilainya adalah ...`,
-          expected: multiplier * placeValue,
-          hint: `Lihat posisi angka ${multiplier} di bilangan ${b}.`,
-          coach: `${multiplier} pada tempat ${PLACE_NAMES[row]} bernilai ${multiplier * placeValue}.`,
-          meta: { row, multiplier, placeValue },
+          kind: 'place-zero',
+          prompt: `Angka ${multiplier} ada di kolom ${PLACE_NAMES[row]}, jadi baris ini bergeser ke kiri. Tulis angka berapa di kolom satuan baris ini?`,
+          expected: 0,
+          hint: `Baris ini digeser ${row} tempat, jadi bagian kanan diisi 0 dulu.`,
+          coach: `Betul, tulis ${zeros} di kanan dulu. Setelah itu kalikan ${a} × ${multiplier} mulai dari kolom di sebelahnya.`,
+          meta: { row, multiplier, placeValue, width },
         })
       )
     }
@@ -85,13 +87,15 @@ export function buildMultiplication(a: number, b: number): Question {
         kind: 'partial',
         prompt: singleRow
           ? `Baca semua angka di baris itu. Hasil akhir ${a} × ${b} adalah ...`
-          : 'Hasil kali parsial baris ini adalah ...',
+          : row === 0
+            ? 'Hasil kali baris pertama adalah ...'
+            : `Hasil kali baris ini (baca lengkap dengan ${'0'.repeat(row)} di kanan) adalah ...`,
         expected: partial,
         hint: singleRow
           ? 'Baca semua angka hasil dari kiri ke kanan, termasuk simpanan paling kiri.'
           : row === 0
-            ? 'Baca hasil perkalian pertama dari kanan ke kiri.'
-            : 'Baris kedua bergeser satu tempat ke kiri.',
+            ? 'Baca semua angka di baris pertama dari kiri ke kanan.'
+            : `Baca semua angka baris ini dari kiri ke kanan, termasuk ${'0'.repeat(row)} di paling kanan.`,
         coach: singleRow ? `Hebat! ${a} × ${b} = ${a * b}.` : `Hasil baris ini ${partial}.`,
         meta: { row, partial, placeValue, width },
       })

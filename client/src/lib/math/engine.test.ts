@@ -118,6 +118,21 @@ describe('perkalian', () => {
       }
     })
   })
+  it('baris ke-2 dimulai dengan menulis 0, dan hasil barisnya berakhir 0', () => {
+    forEachLevel('multiplication', (_, list) => {
+      for (const q of list.filter((x) => x.b! >= 10)) {
+        const zero = stepsOf(q, 'place-zero')
+        expect(zero.length).toBe(1)
+        expect(zero[0].expected).toBe('0')
+        expect(stepsOf(q, 'place-value').length).toBe(0)
+        const second = stepsOf(q, 'partial')[1]
+        expect(second.expected.endsWith('0')).toBe(true)
+        expect(num(second.expected)).toBe(q.a! * Math.floor(q.b! / 10) * 10)
+        // 0 ditulis tepat sebelum kolom pertama baris itu
+        expect(q.steps[q.steps.indexOf(zero[0]) + 1].kind).toBe('multiply-column')
+      }
+    })
+  })
   it('pengali tidak memuat 0; angka 0 pada soal hanya di L2 dan L4', () => {
     forEachLevel('multiplication', (level, list) => {
       let withZero = 0
