@@ -17,6 +17,7 @@ export function hintText(step: Step, tier: number) {
 
 export function wrongMessage(step: Step, answer: string) {
   const expected = String(step.expected)
+  if (step.kind === 'tree-factor' && step.meta?.current) return `${answer.trim()} tidak habis membagi ${step.meta.current}. Pilih bilangan prima yang bisa membagi habis ${step.meta.current}, tanpa sisa.`
   if (LIST_KINDS.includes(step.kind)) {
     const got = answer.split(/[\s,;×x]+/).filter(Boolean).length
     const want = expected.split(/[\s,]+/).filter(Boolean).length

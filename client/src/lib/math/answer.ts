@@ -18,6 +18,7 @@ export const normalizeText = (value: string) => value.trim().toLowerCase()
 const isWholeNumber = (value: string) => /^-?\d+$/.test(value.trim())
 
 export function stepMatches(step: Step, value: string) {
+  if (step.accepts?.some((alt) => (isWholeNumber(alt) ? isWholeNumber(value) && Number(value) === Number(alt) : normalizeText(value) === normalizeText(alt)))) return true
   if (LIST_KINDS.includes(step.kind)) return normalizeList(value) === normalizeList(step.expected)
   // Angka: "07" dianggap 7, tapi "1 2" bukan 12 (spasi di dalam angka = salah)
   if (isWholeNumber(step.expected)) return isWholeNumber(value) && Number(value) === Number(step.expected)

@@ -45,9 +45,10 @@ type StepInput = {
   coach: string
   meta?: Record<string, any>
   choices?: Choice[]
+  accepts?: Array<number | string>
 }
 
-export function makeStep({ kind, prompt, expected, hint, coach, meta = {}, choices }: StepInput): Step {
+export function makeStep({ kind, prompt, expected, hint, coach, meta = {}, choices, accepts }: StepInput): Step {
   return {
     id: `${kind}-${Math.random().toString(36).slice(2, 8)}`,
     kind,
@@ -57,5 +58,6 @@ export function makeStep({ kind, prompt, expected, hint, coach, meta = {}, choic
     coach,
     meta,
     choices,
+    accepts: accepts?.map(String),
   }
 }

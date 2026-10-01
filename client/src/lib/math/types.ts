@@ -20,6 +20,8 @@ export type Step = {
   coach: string
   meta?: Record<string, any>
   choices?: Choice[]
+  /** Jawaban lain yang juga dianggap benar (selain `expected`). */
+  accepts?: string[]
 }
 
 export type Question = {
@@ -33,6 +35,11 @@ export type Question = {
   other?: number
   visual: 'addition' | 'subtraction' | 'multiplication' | 'division' | 'tree' | 'concept'
   steps: Step[]
+  /**
+   * Dipanggil saat anak menjawab benar dengan jawaban alternatif (bukan `expected`).
+   * Mengembalikan langkah pengganti mulai dari langkah itu sampai akhir, atau null kalau tidak perlu diubah.
+   */
+  branch?: (step: Step, answer: string) => Step[] | null
 }
 
 /** Pasangan angka hasil generator (soal satu angka hanya memakai elemen pertama). */
