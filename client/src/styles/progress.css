@@ -81,7 +81,7 @@
 .report-row { display: grid; grid-template-columns: minmax(140px, 1.4fr) repeat(4, minmax(78px, 1fr)); gap: 8px; align-items: center; padding: 10px 14px; border-radius: 14px; background: var(--paper); border: 2px solid var(--line); min-width: 460px; }
 .report-row > span { font-size: 15px; }
 .report-row > span:first-child { font-weight: 800; }
-.report-row small { display: block; font-size: 13px; color: var(--ink-soft); }
+.report-row small { display: block; font-size: 14px; color: var(--ink-soft); }
 .report-row em { font-style: normal; font-size: 14px; color: var(--ink-soft); }
 .report-row .untouched { opacity: .85; }
 .danger-zone { padding-top: 12px; border-top: 2px dashed var(--line); }
