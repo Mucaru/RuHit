@@ -1,3 +1,5 @@
+import '@fontsource-variable/dm-sans/wght.css'
+import '@fontsource-variable/fraunces/wght.css'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import { ErrorBoundary } from './components/ErrorBoundary'

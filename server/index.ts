@@ -7,13 +7,12 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Font DM Sans & Fraunces masih dimuat dari Google Fonts (lihat client/src/index.css).
-// Kalau font sudah di-host sendiri, hapus dua entri Google di style-src dan font-src.
+// Font DM Sans & Fraunces di-host sendiri (@fontsource-variable), tidak ada permintaan ke domain lain.
 const CSP = [
   "default-src 'self'",
   "script-src 'self'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data:",
   "connect-src 'self'",
   "object-src 'none'",
