@@ -106,7 +106,7 @@ export function buildMultiplication(a: number, b: number): Question {
     steps.push(
       makeStep({
         kind: 'partial-sum',
-        prompt: `Jumlahkan hasil parsial ${partials.join(' + ')}. Hasil akhir ${a} × ${b} adalah ...`,
+        prompt: `Jumlahkan hasil tiap baris: ${partials.join(' + ')}. Hasil akhir ${a} × ${b} adalah ...`,
         expected: a * b,
         hint: 'Pastikan angka nol pada baris puluhan tetap sejajar.',
         coach: `Hebat! ${a} × ${b} = ${a * b}.`,
