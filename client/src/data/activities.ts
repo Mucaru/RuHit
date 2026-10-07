@@ -1,9 +1,9 @@
 import type { Activity } from '../lib/math'
 
 export const activityMeta: Array<{ id: Activity; icon: string; title: string; description: string; tone: string; label?: string }> = [
-  { id: 'addition', icon: '+', title: 'Penjumlahan bersusun', description: 'Susun angka, simpan carry, lalu baca hasilnya.', tone: 'mint', label: 'Paling dasar' },
+  { id: 'addition', icon: '+', title: 'Penjumlahan bersusun', description: 'Susun angka, catat simpanannya, lalu baca hasilnya.', tone: 'mint', label: 'Paling dasar' },
   { id: 'subtraction', icon: '−', title: 'Pengurangan bersusun', description: 'Belajar meminjam dengan panah dan kolom nilai tempat.', tone: 'peach' },
-  { id: 'multiplication', icon: '×', title: 'Perkalian bersusun', description: 'Kali per kolom, simpan carry, dan susun hasil parsial.', tone: 'lavender', label: 'Favorit' },
+  { id: 'multiplication', icon: '×', title: 'Perkalian bersusun', description: 'Kali per kolom, catat simpanannya, lalu jumlahkan hasil tiap baris.', tone: 'lavender', label: 'Favorit' },
   { id: 'division', icon: '÷', title: 'Pembagian bersusun', description: 'Ikuti urutan bagi, kali, kurang, lalu turunkan.', tone: 'blue' },
   { id: 'factor-tree', icon: '⌁', title: 'Pohon faktor', description: 'Pecah bilangan sampai semua daunnya prima.', tone: 'yellow', label: 'Cara utama faktor' },
   { id: 'prime', icon: '✦', title: 'Bilangan prima', description: 'Periksa apakah hanya punya dua faktor.', tone: 'mint' },

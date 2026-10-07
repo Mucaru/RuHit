@@ -1,6 +1,6 @@
 import type { Question, Step } from './lib/math'
 
-export type Screen = 'home' | 'activities' | 'levels' | 'exercise' | 'result'
+export type Screen = 'home' | 'activities' | 'levels' | 'exercise' | 'result' | 'report'
 export type AnswerStatus = 'idle' | 'correct' | 'wrong' | 'empty'
 
 export type BoardProps = {
