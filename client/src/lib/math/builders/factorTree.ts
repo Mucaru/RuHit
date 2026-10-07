@@ -14,7 +14,7 @@ function branchSteps(current: number, index: number, chosen?: number): Step[] {
   if (factors.length <= 1) return [] // sudah prima: tidak ada cabang lagi
   const factor = chosen ?? factors[0]
   const next = current / factor
-  const validPrimes = [...new Set(factors)]
+  const validPrimes = Array.from(new Set(factors))
 
   return [
     makeStep({
