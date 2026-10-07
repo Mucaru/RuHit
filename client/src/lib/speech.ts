@@ -35,3 +35,9 @@ export function speak(text: string, onEnd?: () => void) {
 export function stopSpeaking() {
   if (canSpeak()) window.speechSynthesis.cancel()
 }
+
+/** Teks yang dibacakan untuk SATU langkah: hanya kalimat langkah yang sedang tampil (plus pilihan jika ada), bukan ringkasan soal utuh. */
+export function stepSpeech(step: { prompt: string; choices?: { label: string }[] }) {
+  const choices = step.choices?.length ? ` Pilihannya: ${step.choices.map((choice) => choice.label).join(', ')}.` : ''
+  return `${step.prompt}${choices}`
+}

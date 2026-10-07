@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
-import { LIST_KINDS, questionSummary, stepMatches } from '../lib/math'
+import { LIST_KINDS, stepMatches } from '../lib/math'
 import type { Question } from '../lib/math'
 import { WorkBoard } from '../components/boards/WorkBoard'
 import { HINT_TIERS, hintText, wrongMessage } from '../lib/feedback'
-import { canSpeak, speak, stopSpeaking } from '../lib/speech'
+import { canSpeak, speak, stepSpeech, stopSpeaking } from '../lib/speech'
 import type { AnswerStatus } from '../types'
 
 export function Exercise({ question, questionNumber, total, score, onNext, onSkip, onExit }: { question: Question; questionNumber: number; total: number; score: number; onNext: (outcome: 'clean' | 'helped', mistakes: number) => void; onSkip: (mistakes: number) => void; onExit: () => void }) {
@@ -62,7 +62,7 @@ export function Exercise({ question, questionNumber, total, score, onNext, onSki
   }
   function toggleSpeech() {
     if (speaking) { stopSpeaking(); setSpeaking(false); return }
-    setSpeaking(speak(`${questionSummary(question).label}. ${current.prompt}`, () => setSpeaking(false)))
+    setSpeaking(speak(stepSpeech(current), () => setSpeaking(false)))
   }
   function choose(valueToUse: string) { updateValue(valueToUse); submit(valueToUse) }
 
