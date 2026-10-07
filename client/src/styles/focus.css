@@ -1,0 +1,34 @@
+/* ===== Mode fokus latihan: 1 langkah, 1 aksi utama (dimuat terakhir, menimpa gaya lama) ===== */
+.exercise-page.focus-mode { width: min(760px, calc(100% - 30px)); padding-top: 12px; padding-bottom: 28px; }
+.focus-mode .progress-track { margin-top: 0; }
+.focus-mode .exercise-meta { min-height: 44px; margin: 6px 2px 8px; gap: 12px; }
+.focus-mode .step-pill { margin-left: 6px; }
+.focus-mode .skip-button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 8px; }
+
+.focus-mode .work-panel { display: flex; flex-direction: column; gap: 14px; }
+.focus-mode .prompt-block { padding: 2px 2px 0; }
+.focus-mode .prompt-row { flex-direction: row; align-items: center; gap: 12px; }
+.focus-mode .prompt-block h2 { margin: 6px 0 0; font-size: 22px; line-height: 1.35; }
+.focus-mode .prompt-row h2 { margin: 4px 0 0; }
+.focus-mode .speak-button { width: 48px; min-width: 48px; height: 48px; min-height: 48px; padding: 0; justify-content: center; border-radius: 50%; }
+
+.focus-mode .hint-inline { margin-top: 10px; padding: 10px 12px; border: 1px solid #ecd9a6; border-radius: 12px; background: #fff6df; color: #27352f; }
+.focus-mode .hint-inline strong { display: block; font-size: 14px; }
+.focus-mode .hint-inline p { margin: 4px 0 0; font-size: 15px; line-height: 1.5; }
+
+.focus-mode .feedback { margin-top: 0; }
+.focus-mode .answer-actions { display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: stretch; gap: 10px; }
+.focus-mode .answer-actions .primary-button { flex: 1; min-height: 52px; font-size: 16px; }
+.focus-mode .hint-trigger { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 16px; border: 2px solid #d9b95a; border-radius: 15px; background: #fff3cf; color: #4a3200; font-size: 14px; font-weight: 800; }
+.focus-mode .hint-trigger:hover:not(:disabled) { background: #ffeab0; }
+.focus-mode .hint-trigger:disabled { opacity: .55; cursor: not-allowed; }
+
+/* HP: tombol utama menempel di bawah layar supaya selalu terlihat tanpa scroll */
+@media (max-width: 640px) {
+  .focus-mode .prompt-block h2 { font-size: 19px; }
+  .focus-mode .answer-actions { position: sticky; bottom: 0; z-index: 5; margin: 4px -12px -12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #e1eae1; border-radius: 0 0 19px 19px; background: rgba(255, 254, 249, .97); }
+}
+
+/* Header latihan: hanya Kembali + judul (boleh 2 baris, tidak terpotong) */
+.topbar-focus .topbar-title { max-width: 62%; white-space: normal; text-align: center; line-height: 1.25; }
+.topbar-focus .topbar-spacer { width: 64px; flex: none; }

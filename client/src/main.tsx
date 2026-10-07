@@ -5,6 +5,7 @@ import App from './App'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import './index.css'
 import './styles/progress.css'
+import './styles/focus.css'
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>

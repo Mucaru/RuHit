@@ -31,7 +31,6 @@ export default function App() {
 
   const currentQuestion = questions[questionIndex]
   const currentMeta = activityMeta.find((item) => item.id === activity)!
-  const score = results.filter((item) => item.outcome !== 'skipped').length
   const screenTitle = useMemo(() => screen === 'levels' ? currentMeta.title : screen === 'exercise' ? `${currentMeta.title} · Level ${level}` : screen === 'activities' ? 'Pilih latihan' : screen === 'report' ? 'Laporan belajar' : 'Ruang Hitung', [screen, currentMeta.title, level])
 
   function commit(next: Progress) { setProgress(next); setSaveFailed(!saveProgress(next)) }
@@ -83,11 +82,11 @@ export default function App() {
   }, [])
 
   return <div className="app-shell">
-    {screen !== 'home' && <AppHeader title={screenTitle} onBack={() => guard(goBack)} onHome={() => guard(resetHome)} />}
+    {screen !== 'home' && <AppHeader title={screenTitle} focus={screen === 'exercise'} onBack={() => guard(goBack)} onHome={() => guard(resetHome)} />}
     {screen === 'home' && <Home progress={progress} onOpen={(next) => next ? startActivity(next, 'home') : setScreen('activities')} onReport={() => setScreen('report')} />}
     {screen === 'activities' && <ActivityPicker onChoose={(next) => startActivity(next, 'activities')} onBack={goBack} />}
     {screen === 'levels' && <LevelPicker activity={activity} progress={progress} onStart={startSession} onBack={goBack} />}
-    {screen === 'exercise' && currentQuestion && <Exercise key={`${questionIndex}-${currentQuestion.id}`} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} score={score} onNext={finishQuestion} onSkip={(mistakes) => finishQuestion('skipped', mistakes)} onExit={() => guard(goBack)} />}
+    {screen === 'exercise' && currentQuestion && <Exercise key={`${questionIndex}-${currentQuestion.id}`} question={currentQuestion} questionNumber={questionIndex + 1} total={questions.length} onNext={finishQuestion} onSkip={(mistakes) => finishQuestion('skipped', mistakes)} />}
     {screen === 'result' && summary && <Result summary={summary} title={currentMeta.title} level={level} hasNextLevel={level < levelCounts[activity]} saveFailed={saveFailed} onHome={resetHome} onAgain={() => startSession(level)} onNextLevel={() => startSession(level + 1)} />}
     {screen === 'report' && <Report progress={progress} saveFailed={saveFailed} onReset={resetProgress} onPractice={(next, nextLevel) => { setActivity(next); setOrigin('home'); setLevel(nextLevel); setQuestions(makeSession(next, nextLevel, sessionSize(next, nextLevel))); setQuestionIndex(0); setResults([]); setSummary(null); setScreen('exercise') }} />}
     {showGuide && screen === 'exercise' && <FirstTimeGuide onClose={closeGuide} />}
