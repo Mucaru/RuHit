@@ -1,0 +1,6 @@
+# Samakan line ending di semua OS (repo di Windows boleh CRLF di working tree, di git selalu LF)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
