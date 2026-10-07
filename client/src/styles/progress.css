@@ -1,0 +1,98 @@
+/*
+ * Gaya untuk fitur progres, ringkasan hasil, laporan, tutorial, dan tombol dengar.
+ * Dimuat SETELAH index.css (lihat main.tsx). Aturan: teks >= 14px, target sentuh >= 48px,
+ * kontras teks >= 4.5:1 (WCAG AA). Warna teks sekunder pakai --ink-soft (#4d5c54 = 6.7:1 di atas #f8faf5).
+ */
+:root {
+  --ink-soft: #4d5c54;
+  --green-strong: #0b6f61; /* putih di atasnya 6.1:1; #17b99b lama hanya 2.5:1 */
+  --star-on-fill: #f5c85b;
+  --star-on-stroke: #9a6200;
+  --star-off: #7c8a82;
+}
+
+/* Perbaikan kontras tombol utama: sebelumnya putih di atas #17b99b (2.5:1, gagal AA). */
+.primary-button { background: var(--green-strong); box-shadow: 0 8px 18px rgba(11, 111, 97, .22); font-size: 16px; }
+.primary-button:hover:not(:disabled) { background: #095c51; box-shadow: 0 12px 23px rgba(11, 111, 97, .28); }
+.secondary-button, .ghost-button { font-size: 16px; }
+
+/* Footer beranda: teks lama 11px dan abu muda. */
+.home-footer { display: grid; justify-items: center; gap: 10px; }
+.home-footer span { margin-left: 0; color: var(--ink-soft); font-size: 15px; }
+.report-link { min-height: 48px; padding: 0 18px; border-radius: 14px; background: transparent; border: 2px solid var(--line); color: var(--ink); font-size: 15px; font-weight: 700; }
+
+/* Bintang */
+.star { fill: transparent; stroke: var(--star-off); }
+.star.on { fill: var(--star-on-fill); stroke: var(--star-on-stroke); }
+.flame { fill: #ffb199; stroke: #b34a2f; }
+.star-row { display: flex; gap: 4px; align-items: center; }
+.star-row.large { justify-content: center; gap: 10px; margin: 8px 0 4px; }
+
+/* Level */
+.level-chip { font-style: normal; font-size: 14px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+.level-chip.done { background: #d9f3e6; color: #0b5a3a; }
+.level-chip.next { background: #fff0c2; color: #6b4300; }
+.level-card.recommended { outline: 3px solid var(--star-on-stroke); outline-offset: 2px; }
+.level-card .star-row { margin: 10px 0 2px; }
+
+/* Ringkasan beranda */
+.progress-strip { display: flex; gap: 12px; margin: 0 0 20px; }
+.progress-strip > div { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 18px; border-radius: 16px; background: var(--paper); border: 2px solid var(--line); }
+.progress-strip b { font-size: 24px; }
+.progress-strip span { font-size: 15px; color: var(--ink-soft); }
+
+/* Hasil sesi */
+.streak-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #ffe3d9; color: #7a2d17; font-size: 16px; font-weight: 800; }
+.review-box { margin: 18px 0; padding: 16px 18px; border-radius: 18px; background: var(--paper); border: 2px solid var(--line); text-align: left; }
+.review-box h2 { margin: 0 0 10px; font-size: 18px; }
+.review-box ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.review-box li { display: flex; justify-content: space-between; gap: 12px; font-size: 17px; }
+.review-box li b { color: var(--green-strong); white-space: nowrap; }
+.review-hint { margin: 10px 0 0; font-size: 14px; color: var(--ink-soft); }
+.save-warning { margin: 12px 0; padding: 12px 14px; border-radius: 12px; background: #fff0c2; color: #5a3a00; font-size: 15px; }
+
+/* Tombol dengar */
+.prompt-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.prompt-row h2 { flex: 1; margin: 0; }
+.speak-button { flex: none; display: inline-flex; align-items: center; gap: 8px; min-width: 48px; min-height: 48px; padding: 0 16px; border-radius: 14px; background: #e3f4ef; color: #0b5a4e; border: 2px solid #b9e0d6; font-size: 16px; font-weight: 800; }
+.speak-button[aria-pressed="true"] { background: #fff0c2; border-color: var(--star-on-stroke); color: #5a3a00; }
+
+/* Tutorial pertama kali */
+.guide-card { max-width: 440px; }
+.guide-steps { list-style: none; margin: 16px 0 20px; padding: 0; display: grid; gap: 14px; text-align: left; }
+.guide-steps li { display: flex; gap: 14px; align-items: flex-start; }
+.guide-steps li > span { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--green-strong); color: #fff; font-weight: 800; font-size: 18px; }
+.guide-steps strong { font-size: 18px; }
+.guide-steps p { margin: 2px 0 0; font-size: 16px; color: var(--ink-soft); }
+
+/* Laporan orang tua / guru */
+.report-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.report-stats > div { padding: 16px; border-radius: 16px; background: var(--paper); border: 2px solid var(--line); text-align: center; }
+.report-stats b { display: block; font-size: 30px; }
+.report-stats span { font-size: 15px; color: var(--ink-soft); }
+.report-empty { font-size: 17px; color: var(--ink-soft); }
+.report-section { margin: 24px 0; }
+.report-section h2 { margin: 0 0 12px; font-size: 20px; }
+.report-weak, .report-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.report-weak li, .report-history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: var(--paper); border: 2px solid var(--line); }
+.report-history small, .report-weak small { display: block; font-size: 14px; color: var(--ink-soft); }
+.review-line { margin-top: 2px; }
+.report-table { display: grid; gap: 8px; overflow-x: auto; }
+.report-row { display: grid; grid-template-columns: minmax(140px, 1.4fr) repeat(4, minmax(78px, 1fr)); gap: 8px; align-items: center; padding: 10px 14px; border-radius: 14px; background: var(--paper); border: 2px solid var(--line); min-width: 460px; }
+.report-row > span { font-size: 15px; }
+.report-row > span:first-child { font-weight: 800; }
+.report-row small { display: block; font-size: 13px; color: var(--ink-soft); }
+.report-row em { font-style: normal; font-size: 14px; color: var(--ink-soft); }
+.report-row .untouched { opacity: .85; }
+.danger-zone { padding-top: 12px; border-top: 2px dashed var(--line); }
+.danger-zone p { font-size: 16px; }
+
+@media (max-width: 640px) {
+  .progress-strip { flex-wrap: wrap; }
+  .prompt-row { flex-direction: column; }
+  .report-stats b { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
