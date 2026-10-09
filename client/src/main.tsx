@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import './index.css'
 import './styles/progress.css'
 import './styles/focus.css'
+import './styles/boards.css'
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>

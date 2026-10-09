@@ -1,0 +1,53 @@
+/* ===== Papan perkalian & pembagian bersusun (dimuat terakhir) ===== */
+.board.mul-board, .board.ld-board { min-height: 0; overflow: visible; padding: 2px 0 0; border: 0; background: none; }
+
+/* --- Perkalian --- */
+.mul-board { --mc: clamp(44px, 13.5vw, 56px); color: #293542; font-size: clamp(28px, 8.4vw, 36px); font-weight: 800; }
+.mul-row { display: grid; justify-content: center; align-items: center; }
+.mul-row > span, .mul-row > b { display: grid; place-items: center; min-width: 0; height: calc(var(--mc) * .92); }
+.mc-digit { border-radius: 10px; }
+.mc-hl { background: #e6f5ec; color: #0b6b58; }
+.mc-op { color: #b14f23; font-size: .8em; }
+.mul-line { width: calc(var(--mc) * var(--cols)); height: 3px; margin: 3px auto; border-radius: 3px; background: #29333b; }
+.mul-partial > span { height: calc(var(--mc) * .86); font-size: .86em; }
+.mul-partial.is-current .mc-slot:not(.mc-active):not(.mc-filled) { border-color: #9fbac2; }
+.mc-slot { border: 2px dashed #c3d4d9; border-radius: 10px; background: #fafdfb; }
+.mc-filled { border: 2px solid #4b8f6e; background: #eaf8ec; color: #1f6b57; }
+.mc-active { border: 2px solid #c95f16; background: #fff4e0; box-shadow: 0 0 0 3px rgba(242, 180, 109, .25); }
+.mc-carry { height: calc(var(--mc) * .62) !important; font-size: .55em; color: #b14f23; }
+.mc-scratch { min-height: calc(var(--mc) * .8); }
+.mc-bubble { position: relative; width: 100%; border-radius: 12px; background: #fffdf3; }
+.mc-bubble::after { content: ''; position: absolute; right: 18%; bottom: -7px; width: 12px; height: 12px; border-right: 2px solid #c95f16; border-bottom: 2px solid #c95f16; background: #fffdf3; transform: rotate(45deg); }
+.mul-board .mc-slot .board-input, .mul-board .mc-bubble .board-input, .ld-board .ldb-entry .board-input {
+  width: 100%; height: 100%; min-height: 0; padding: 0 2px; border: 0; border-radius: 8px; background: transparent; box-shadow: none; color: #0b6b58; font-size: inherit; font-weight: 800; text-align: center; transform: none;
+}
+.mul-board .mc-bubble .board-input { border: 2px solid #c95f16; background: #fffdf3; font-size: .7em; }
+.mul-board .mc-slot .board-input:focus, .mul-board .mc-bubble .board-input:focus, .ld-board .ldb-entry .board-input:focus { outline: 3px solid #0d7964; outline-offset: 1px; box-shadow: none; transform: none; }
+.mul-board .mc-wide .board-input { text-align: right; padding-right: 14px; font-size: .86em; }
+.mul-result > span { height: calc(var(--mc) * .86); }
+
+/* --- Pembagian (porogapit) --- */
+.ld-board { --lc: clamp(42px, 12.5vw, 54px); color: #293542; font-size: clamp(28px, 8.2vw, 36px); font-weight: 800; }
+.ldb-scroll { overflow-x: auto; padding: 4px 0; }
+.ldb { width: max-content; margin: 0 auto; }
+.ldb-row { display: grid; align-items: center; }
+.ldb-row > i, .ldb-row > span { display: grid; place-items: center; min-width: 0; height: calc(var(--lc) * .95); font-style: normal; }
+.ldb-side { justify-items: end !important; padding-right: 8px; color: #3556a8; }
+.ldb-divisor { padding-right: 10px; }
+.ldb-q { color: #0b6b58; }
+.ldb-slot { border: 2px dashed #c3d4d9; border-radius: 10px; background: #fafdfb; }
+.ldb-filled { color: #0b6b58; }
+.ldb-top .ldb-digit { border-top: 3px solid #5f7fc4; }
+.ldb-top .ldb-first { border-left: 3px solid #5f7fc4; }
+.ldb-digit.taken { background: #eaf8ec; }
+.ldb-digit.drop { background: #fff1d6; outline: 2px dashed #c95f16; outline-offset: -3px; }
+.ldb-rulerow > i { height: 0 !important; }
+.ldb-rulerow > i.ldb-rule { border-top: 3px solid #29333b; }
+.ldb-entry { border: 2px solid #c95f16 !important; border-radius: 10px; background: #fff4e0; box-shadow: 0 0 0 3px rgba(242, 180, 109, .25); }
+.ldb-entry.ldb-q { height: calc(var(--lc) * .95); }
+.ldb-answer { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; font-size: 18px; color: #3d4f47; }
+.ldb-answer .board-input { width: 96px; height: 46px; font-size: 24px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .mc-active, .ldb-entry { animation: soft-pulse 1.8s ease-in-out infinite; }
+}
