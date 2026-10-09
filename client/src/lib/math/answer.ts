@@ -1,7 +1,7 @@
 import type { Step } from './types'
 
 /** Langkah yang jawabannya berupa daftar angka (urutan bebas). */
-export const LIST_KINDS = ['tree-final', 'set-a', 'set-b', 'multiple-a', 'multiple-b']
+export const LIST_KINDS = ['tree-final', 'set-a', 'set-b', 'multiple-a', 'multiple-b', 'prime-factors']
 
 const LIST_SEPARATORS = /[\s,;×x]+/
 
