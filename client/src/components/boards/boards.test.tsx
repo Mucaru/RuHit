@@ -5,6 +5,9 @@ import { buildDivision } from '../../lib/math/builders/division'
 import { buildMultiplication } from '../../lib/math/builders/multiplication'
 import { DivisionBoard } from './DivisionBoard'
 import { MultiplicationBoard } from './MultiplicationBoard'
+import { VerticalBoard } from './VerticalBoard'
+import { buildAddition } from '../../lib/math/builders/addition'
+import { buildSubtraction } from '../../lib/math/builders/subtraction'
 
 afterEach(() => cleanup())
 
@@ -113,5 +116,25 @@ describe('fuzz papan: semua langkah dari soal acak tetap punya tepat satu input'
         })
       }
     })
+  })
+})
+
+describe('VerticalBoard (penjumlahan/pengurangan): satu tempat input', () => {
+  const pairs: Array<['add' | 'sub', number, number]> = [['add', 375, 923], ['add', 98, 35], ['add', 5003, 1789], ['sub', 702, 358], ['sub', 91, 58], ['sub', 5003, 1789]]
+  it.each(pairs)('%s %i %i: tiap langkah tepat satu input, tanpa kotak terpisah', (op, a, b) => {
+    const q = op === 'add' ? buildAddition(a, b) : buildSubtraction(a, b)
+    q.steps.forEach((_, i) => {
+      const { container, unmount } = renderStep(VerticalBoard as any, q as any, i)
+      expect(container.querySelectorAll('input').length, `${q.id} langkah ${i} (${q.steps[i].kind})`).toBe(1)
+      expect(container.querySelector('.board-entry-row')).toBeNull()
+      expect(container.querySelector('.board-caption')).toBeNull()
+      unmount()
+    })
+  })
+  it('langkah jumlah kolom: kotak hitung berada di atas kolom yang aktif', () => {
+    const q = buildAddition(375, 923)
+    const { container } = renderStep(VerticalBoard as any, q as any, 0)
+    const labels = [...container.querySelector('.place-labels')!.children]
+    expect(labels.findIndex((el) => el.querySelector('input'))).toBe(3) // kolom satuan (paling kanan)
   })
 })
