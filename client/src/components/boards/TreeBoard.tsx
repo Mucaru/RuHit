@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react'
 import { isPrime } from '../../lib/math'
+import { TREE_PRIMES } from '../../lib/math/builders/factorTree'
 import { BoardInput } from './BoardInput'
+import { ListInput } from './ListInput'
 import type { BoardProps } from '../../types'
 
 export function TreeBoard({ question, current, completed, value, onChange, disabled }: BoardProps) {
@@ -14,5 +16,5 @@ export function TreeBoard({ question, current, completed, value, onChange, disab
     <div className="tree-root-row"><span className="tree-cell tree-num">{question.number}</span></div>
     {pairs.map((pair, index) => <div className="tree-pair" style={pairStyle(index)} key={index}><b className="tree-cell tree-leaf">{pair.leaf}</b><span className={nodeClass(pair.node)}>{pair.node}</span></div>)}
     {(picking || quotienting) && <div className="tree-pair active-pair" style={pairStyle(pairs.length)}><b className={`tree-cell ${quotienting ? 'tree-leaf' : 'tree-ask'}`}>{quotienting ? current.meta?.factor : '?'}</b>{quotienting ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span className="tree-cell tree-ask">?</span>}</div>}
-  </div></div>{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua ujung prima (boleh urutan bebas)</span><BoardInput value={value} onChange={onChange} disabled={disabled} text placeholder="2, 2, 3" /></div>}<div className="prime-legend"><span>2</span><span>3</span><span>5</span><span>7</span><small>pilih prima yang habis membagi</small></div></div>
+  </div></div>{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua ujung prima (boleh urutan bebas)</span><ListInput value={value} onChange={onChange} disabled={disabled} /></div>}<div className="prime-legend">{TREE_PRIMES.map((prime) => <span key={prime}>{prime}</span>)}<small>pilih prima yang habis membagi</small></div></div>
 }

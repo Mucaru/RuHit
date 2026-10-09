@@ -69,3 +69,30 @@
 .vertical-board .vb-bubble .board-input:focus { outline: 3px solid #0d7964; outline-offset: 1px; transform: none; }
 .vb-final { display: flex; justify-content: flex-end; width: min(440px, 100%); margin: 8px auto 0; }
 .vb-final .board-input { width: 100%; height: 48px; padding-right: 14px; font-size: 24px; text-align: right; }
+
+/* ---- Batch 4 ---- */
+/* header latihan: "Kembali" tidak boleh patah jadi dua baris di layar 360px */
+.topbar-focus .text-button { flex: none; white-space: nowrap; }
+.topbar-focus .topbar-title { flex: 1 1 auto; min-width: 0; max-width: none; padding-inline: 8px; }
+.topbar-focus .topbar-spacer { width: 0; }
+/* kalimat langkah: bagi baris rata supaya "= ..." tidak tinggal sendirian */
+#step-prompt { text-wrap: balance; }
+/* pembagian: kunci scroll vertikal (scrollbar abu-abu di kanan papan) */
+.ldb-scroll { overflow-y: hidden; padding: 8px 6px; }
+/* sel simpanan penjumlahan: target sentuh minimal 44px */
+.vertical-board .carry-row > span { min-width: 44px; min-height: 44px; justify-self: center; }
+
+/* daftar angka (FPB, KPK, faktor, ujung pohon faktor) */
+.set-pair > div.is-active { border-color: #af5112; background: #fff8e9; box-shadow: 0 0 0 3px rgba(242, 180, 109, .13); }
+.board-entry-list { display: grid; gap: 8px; width: min(440px, 100%); margin: 12px auto 8px; padding: 10px; border: 1px dashed #bed8c7; border-radius: 12px; background: rgba(255, 255, 255, .62); }
+.board-entry-list > span { color: #5f7168; font-size: 14px; font-weight: 800; }
+.list-input { display: grid; gap: 8px; width: 100%; }
+.list-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.list-chip { display: inline-flex; align-items: center; gap: 4px; min-width: 44px; min-height: 44px; padding: 0 10px; justify-content: center; border: 2px solid #33794f; border-radius: 10px; background: #e7f8e9; color: #1f5f4b; font-size: 18px; font-weight: 900; cursor: pointer; }
+.list-chip:disabled { cursor: default; opacity: 1; }
+.list-entry { display: flex; gap: 8px; align-items: center; }
+.list-entry .list-draft { flex: 1 1 auto; width: auto; min-width: 0; height: 48px; font-size: 22px; }
+.list-add { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 48px; padding: 0 14px; border: 2px solid #0d7964; border-radius: 10px; background: #fff; color: #0d7964; font-size: 15px; font-weight: 800; cursor: pointer; }
+.list-add:disabled { border-color: #c9d6cd; color: #8a978f; cursor: default; }
+.list-count { color: #5f7168; font-size: 13px; font-weight: 700; }
+.tree-final-entry { flex-direction: column; align-items: stretch; }

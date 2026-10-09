@@ -65,8 +65,14 @@ describe("penjumlahan", () => {
   it("angka yang ditulis tiap kolom membentuk hasil yang benar", () => {
     forEachLevel("addition", (_, list) => {
       for (const q of list) {
-        const writes = stepsOf(q, "add-write")
-          .map(s => s.expected)
+        // angka tiap kolom: langkah tulis (jumlah >= 10) atau langsung dari jumlah kolom (0-9)
+        const writes = stepsOf(q, "add-column")
+          .map(col => {
+            const write = q.steps.find(
+              s => s.kind === "add-write" && s.meta!.position === col.meta!.position
+            );
+            return write ? write.expected : col.expected;
+          })
           .reverse()
           .join("");
         const leftCarry = stepsOf(q, "add-carry").find(
@@ -182,8 +188,8 @@ describe("pohon faktor: prima apa pun yang valid diterima", () => {
           .filter(s => s.kind === "tree-factor")
           .forEach((s, idx) => {
             const current = s.meta!.current as number;
-            const dividing = [2, 3, 5, 7].filter(p => current % p === 0);
-            for (const p of [2, 3, 5, 7])
+            const dividing = [2, 3, 5, 7, 11, 13].filter(p => current % p === 0);
+            for (const p of [2, 3, 5, 7, 11, 13])
               expect(stepMatches(s, String(p))).toBe(dividing.includes(p));
             for (const p of dividing.filter(x => x !== Number(s.expected))) {
               const at = q.steps.indexOf(s);
@@ -209,6 +215,21 @@ describe("pohon faktor: prima apa pun yang valid diterima", () => {
           });
       }
     });
+  });
+});
+
+describe("pohon faktor: prima 11 dan 13", () => {
+  it("L1-L2 hanya prima <= 7; L3-L4 kadang memuat 11/13 dan semua faktor <= 13", () => {
+    let big = 0;
+    forEachLevel("factor-tree", (level, list) => {
+      for (const q of list) {
+        const f = primeFactors(q.number!);
+        expect(f.every(x => x <= (level >= 3 ? 13 : 7))).toBe(true);
+        if (f.some(x => x === 11 || x === 13)) big += 1;
+        expect(q.steps.at(-1)!.kind).toBe("tree-final");
+      }
+    });
+    expect(big).toBeGreaterThan(0);
   });
 });
 
