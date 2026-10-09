@@ -16,6 +16,8 @@ export function VerticalBoard({ question, current, completed, value, onChange, d
   completed.forEach((item) => {
     const position = item.meta?.position ?? 0
     if (item.kind === 'add-write' || item.kind === 'subtract-column') written[position + 1] = item.expected
+    // jumlah kolom 0-9 tidak punya langkah tulis terpisah: angkanya langsung muncul di bawah kolom
+    if (item.kind === 'add-column' && Number(item.expected) < 10) written[position + 1] = item.expected
     if (item.kind === 'add-carry') {
       carries[position] = item.expected
       if (position === 0) written[0] = item.expected
@@ -30,7 +32,7 @@ export function VerticalBoard({ question, current, completed, value, onChange, d
   const grid = { gridTemplateColumns: `repeat(${columns}, 1fr)` }
   const answerCell = (index: number) => {
     const inline = kind === writeKind && cellPosition === index
-    const cls = inline ? '' : written[index] ? 'filled-cell' : cellPosition === index && !hasInlineCell ? 'active-placeholder' : ''
+    const cls = inline ? '' : written[index] ? 'filled-cell' : cellPosition === index && !hasInlineCell && kind !== 'add-column' ? 'active-placeholder' : ''
     return <span className={cls} key={index}>{inline ? <BoardInput value={value} onChange={onChange} disabled={disabled} /> : written[index] || ''}</span>
   }
   const carryCell = (index: number) => {

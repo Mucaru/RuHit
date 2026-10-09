@@ -35,18 +35,25 @@ export function buildAddition(a: number, b: number): Question {
         prompt: `Jumlahkan kolom ${place}: ${top} + ${bottom}${carryText} = ...`,
         expected: raw,
         hint: `Lihat dua angka di kolom ${place}.`,
-        coach: `Jumlah kolom ini ${raw}.${carry ? ' Sudah termasuk angka yang disimpan dari kanan.' : ''}`,
+        coach: raw < 10
+          ? `Jumlah kolom ini ${raw}, langsung ditulis di bawah kolom ${place}.`
+          : `Jumlah kolom ini ${raw}.${carry ? ' Sudah termasuk angka yang disimpan dari kanan.' : ''}`,
         meta: { position, top, bottom, carryIn: carry, place, width },
-      }),
-      makeStep({
-        kind: 'add-write',
-        prompt: `Angka berapa yang ditulis di kolom ${place}?`,
-        expected: raw % 10,
-        hint: 'Kalau hasilnya dua digit, tulis angka satuannya di bawah.',
-        coach: `Tulis angka satuan dari ${raw}, yaitu ${raw % 10}.`,
-        meta: { position, place, raw, width },
       })
     )
+    // Hasil 0-9 sudah menjadi angka yang ditulis: tidak perlu mengetik angka yang sama dua kali.
+    if (raw >= 10) {
+      steps.push(
+        makeStep({
+          kind: 'add-write',
+          prompt: `Angka berapa yang ditulis di kolom ${place}?`,
+          expected: raw % 10,
+          hint: 'Hasilnya dua digit: tulis angka satuannya di bawah, puluhannya disimpan.',
+          coach: `Tulis angka satuan dari ${raw}, yaitu ${raw % 10}.`,
+          meta: { position, place, raw, width },
+        })
+      )
+    }
 
     carry = Math.floor(raw / 10)
     if (carry > 0) {
