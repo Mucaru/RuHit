@@ -2,7 +2,9 @@ import { ACTIVITY_TITLES, makeStep } from '../helpers'
 import { isPrime, primeFactors } from '../numbers'
 import type { Choice, Question, Step } from '../types'
 
-const PRIME_CHOICES: Choice[] = [2, 3, 5, 7].map((value) => ({
+/** Prima yang boleh dipilih anak. Generator L3-L4 memakai 11 dan 13; L1-L2 hanya sampai 7. */
+export const TREE_PRIMES = [2, 3, 5, 7, 11, 13]
+const PRIME_CHOICES: Choice[] = TREE_PRIMES.map((value) => ({
   value: String(value),
   label: String(value),
   helper: isPrime(value) ? 'bilangan prima' : '',
@@ -22,7 +24,7 @@ function branchSteps(current: number, index: number, chosen?: number): Step[] {
       prompt: `Pilih satu bilangan prima yang bisa membagi habis ${current}.`,
       expected: factor,
       accepts: validPrimes,
-      hint: 'Coba bilangan prima 2, 3, 5, atau 7. Pilih yang habis membagi, tanpa sisa.',
+      hint: 'Coba bilangan prima kecil dulu: 2, 3, 5, 7, 11, atau 13. Pilih yang habis membagi, tanpa sisa.',
       coach: `${factor} adalah bilangan prima dan habis membagi ${current}. Bagus!`,
       meta: { current, factor, next, index },
       choices: PRIME_CHOICES,

@@ -7,7 +7,8 @@ import type { Activity, Pair } from './types'
 type Generator = (level: number) => Pair
 type Range = [min: number, max: number]
 
-const smooth = (n: number) => primeFactors(n).every((factor) => factor <= 7)
+const smooth = (n: number, maxPrime = 7) => primeFactors(n).every((factor) => factor <= maxPrime)
+const hasBigPrime = (n: number) => primeFactors(n).some((factor) => factor === 11 || factor === 13)
 const ordered = (x: number, y: number): [number, number] => (x < y ? [x, y] : [y, x])
 
 /** Penjumlahan: L1 tanpa simpanan, L2 satu simpanan, L3 satu-dua simpanan, L4 dua+ simpanan. */
@@ -75,9 +76,17 @@ const division: Generator = (level) => {
   )
 }
 
+/** Pohon faktor: L1-L2 prima sampai 7; L3-L4 sekitar 40% soal memuat 11 atau 13 (semua faktor tetap <= 13). */
 const factorTree: Generator = (level) => {
   const [min, max] = atLevel<Range>([[12, 30], [32, 60], [60, 100], [100, 150]], level)
-  return [search(() => rand(min, max), (n) => !isPrime(n) && smooth(n), 12)]
+  const wantBig = level >= 3 && Math.random() < 0.4
+  return [
+    search(
+      () => rand(min, max),
+      (n) => !isPrime(n) && (level >= 3 ? smooth(n, 13) && hasBigPrime(n) === wantBig : smooth(n)),
+      level >= 3 ? 66 : 12
+    ),
+  ]
 }
 
 const prime: Generator = (level) => {
