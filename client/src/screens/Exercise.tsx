@@ -78,7 +78,7 @@ export function Exercise({ question, questionNumber, total, onNext, onSkip }: { 
     </div>
     <section className="work-panel" ref={panelRef}>
       <div className="prompt-block">
-        <div className="prompt-label"><span /> Giliranmu · {question.eyebrow}</div>
+        <p className="sr-only">Giliranmu · {question.eyebrow}</p>
         <div className="prompt-row">
           <h2 id="step-prompt">{current.prompt}</h2>
           {canSpeak() && <button type="button" className="speak-button" onClick={toggleSpeech} aria-pressed={speaking} aria-label={speaking ? 'Berhenti membaca' : 'Dengarkan langkah ini'} title={speaking ? 'Berhenti' : 'Dengarkan'}>{speaking ? <VolumeX size={24} aria-hidden="true" /> : <Volume2 size={24} aria-hidden="true" />}</button>}
