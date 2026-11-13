@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  font-family: 'DM Sans Variable', 'Trebuchet MS', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --paper: #fffaf0;
+  --paper-deep: #f5eedf;
+  --paper-white: #fffefb;
+  --ink: #202a2b;
+  --muted: #5b6663;
+  --line: #d8d0c0;
+  --line-strong: #283334;
+  --orange: #ed6b3d;
+  --orange-dark: #bd4825;
+  --blue: #28799a;
+  --green: #357b59;
+  --yellow: #f2c85b;
+  --red: #b84a3a;
+  --shadow-hard: 5px 5px 0 #263234;
+  --shadow-soft: 0 4px 0 rgba(38, 50, 52, .12);
+  --radius-card: 18px;
+  --radius-small: 10px;
+  --content-width: 1080px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+}

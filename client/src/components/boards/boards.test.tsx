@@ -135,6 +135,6 @@ describe('VerticalBoard (penjumlahan/pengurangan): satu tempat input', () => {
     const q = buildAddition(375, 923)
     const { container } = renderStep(VerticalBoard as any, q as any, 0)
     const labels = [...container.querySelector('.place-labels')!.children]
-    expect(labels.findIndex((el) => el.querySelector('input'))).toBe(3) // kolom satuan (paling kanan)
+    expect(labels.findIndex((el) => el.querySelector('input'))).toBe(labels.length - 1) // kolom satuan (paling kanan); papan memberi satu kolom ekstra untuk simpanan
   })
 })

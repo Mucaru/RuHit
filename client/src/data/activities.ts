@@ -6,7 +6,7 @@ export const activityMeta: Array<{ id: Activity; icon: string; title: string; de
   { id: 'multiplication', icon: '×', title: 'Perkalian bersusun', description: 'Kali per kolom, catat simpanannya, lalu jumlahkan hasil tiap baris.', tone: 'lavender', label: 'Favorit' },
   { id: 'division', icon: '÷', title: 'Pembagian bersusun', description: 'Ikuti urutan bagi, kali, kurang, lalu turunkan.', tone: 'blue' },
   { id: 'factor-tree', icon: '⌁', title: 'Pohon faktor', description: 'Pecah bilangan sampai semua daunnya prima.', tone: 'yellow', label: 'Cara utama faktor' },
-  { id: 'prime', icon: '✦', title: 'Bilangan prima', description: 'Periksa apakah hanya punya dua faktor.', tone: 'mint' },
+  { id: 'prime', icon: 'P', title: 'Bilangan prima', description: 'Periksa apakah hanya punya dua faktor.', tone: 'mint' },
   { id: 'gcd', icon: '∩', title: 'FPB', description: 'Temukan faktor bersama yang paling besar.', tone: 'peach' },
   { id: 'lcm', icon: '↗', title: 'KPK', description: 'Cari kelipatan bersama yang paling kecil.', tone: 'blue' },
 ]

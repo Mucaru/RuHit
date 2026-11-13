@@ -71,7 +71,7 @@ export function Exercise({ question, questionNumber, total, onNext, onSkip }: { 
 
   return <main className="page exercise-page focus-mode">
     <h1 className="sr-only">{question.title}, soal {questionNumber} dari {total}</h1>
-    <div className="progress-track" role="progressbar" aria-label="Kemajuan sesi latihan" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><span style={{ width: `${progress}%` }} /></div>
+    <progress className="exercise-progress" value={progress} max={100} aria-label="Kemajuan sesi latihan" />
     <div className="exercise-meta">
       <span>Soal <b>{questionNumber}</b> / {total} <span className="step-pill">Langkah {stepIndex + 1} / {steps.length}</span></span>
       {status !== 'correct' && <button type="button" className="skip-button" onClick={() => onSkip(mistakes)}><SkipForward size={18} aria-hidden="true" /> Lewati soal</button>}
@@ -84,7 +84,7 @@ export function Exercise({ question, questionNumber, total, onNext, onSkip }: { 
           {canSpeak() && <button type="button" className="speak-button" onClick={toggleSpeech} aria-pressed={speaking} aria-label={speaking ? 'Berhenti membaca' : 'Dengarkan langkah ini'} title={speaking ? 'Berhenti' : 'Dengarkan'}>{speaking ? <VolumeX size={24} aria-hidden="true" /> : <Volume2 size={24} aria-hidden="true" />}</button>}
         </div>
         {hintLevel > 0 && <div className="hint-inline" role="note"><strong>Petunjuk {hintLevel} dari {HINT_TIERS}</strong><p>{hintText(current, hintLevel)}</p></div>}
-        {attempts >= 2 && status !== 'correct' && <div className="coach-note"><span>✦</span><div><strong>Tarik napas, kita pecah pelan-pelan.</strong><p>Kalau masih bingung, tekan tombol Petunjuk.</p></div></div>}
+        {attempts >= 2 && status !== 'correct' && <div className="coach-note"><span className="coach-label">BIJI</span><div><strong>Tarik napas, kita pecah pelan-pelan.</strong><p>Kalau masih bingung, tekan tombol Petunjuk.</p></div></div>}
       </div>
       <WorkBoard question={{ ...question, steps }} current={current} completed={completed} value={value} onChange={updateValue} disabled={status === 'correct'} />
       <form id="answer-form" className="answer-form" onSubmit={(event) => { event.preventDefault(); submit() }}>

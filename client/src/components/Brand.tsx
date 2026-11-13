@@ -1,3 +1,11 @@
-export function Brand() {
-  return <div className="brand"><span className="brand-mark"><b>＋</b><i>×</i></span><span><strong>ruang hitung</strong><small>MATEMATIKA KELAS 5</small></span></div>
+export function Brand({ compact = false }: { compact?: boolean }) {
+  return (
+    <a className={`brand ${compact ? 'brand-compact' : ''}`} href="/" aria-label="Ruang Hitung, beranda">
+      <img className="brand-symbol" src="/brand/logo.svg" alt="" width="44" height="44" />
+      <span className="brand-copy">
+        <strong><span className="brand-a">ruang</span> <span className="brand-b">hitung</span></strong>
+        {!compact && <small>BELAJAR BARENG BIJI</small>}
+      </span>
+    </a>
+  )
 }
