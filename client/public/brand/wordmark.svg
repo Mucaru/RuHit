@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 90" role="img" aria-labelledby="title">
+  <title id="title">Ruang Hitung</title>
+  <g transform="translate(4 4)">
+    <rect x="0" y="0" width="82" height="82" rx="18" fill="#fffaf0" stroke="#202a2b" stroke-width="5"/>
+    <path d="M18 24h46M18 42h46M18 60h46" stroke="#202a2b" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="28" cy="24" r="7" fill="#ed6b3d" stroke="#202a2b" stroke-width="2.5"/><circle cx="55" cy="42" r="7" fill="#28799a" stroke="#202a2b" stroke-width="2.5"/><circle cx="36" cy="60" r="7" fill="#f2c85b" stroke="#202a2b" stroke-width="2.5"/>
+  </g>
+  <text x="105" y="50" font-family="Arial, sans-serif" font-size="43" font-weight="900" letter-spacing="-2" fill="#202a2b">ruang hitung</text>
+  <text x="108" y="73" font-family="Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="3" fill="#5b6663">MATEMATIKA SD</text>
+</svg>
