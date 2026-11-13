@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
 const STEPS = [
-  { title: 'Isi kotak yang menyala', text: 'Kotak yang bergerak itu giliranmu.' },
-  { title: 'Tekan Periksa', text: 'Salah? Tidak apa-apa, coba lagi.' },
-  { title: 'Bingung? Buka Petunjuk', text: 'Petunjuk ada di samping. Tombol Dengar bisa membacakan soal.' },
+  { title: 'Baca soal dan lihat gambarnya', text: 'Gambar membantu kamu membayangkan angka dan bentuk.' },
+  { title: 'Ketuk angka atau pilihan', text: 'Gunakan papan angka di layar. Tidak perlu membuka keyboard HP.' },
+  { title: 'Bingung? Minta bantuan', text: 'Petunjuk muncul bertahap. Tombol Dengarkan bisa membacakan soal.' },
 ]
 
 export function FirstTimeGuide({ onClose }: { onClose: () => void }) {

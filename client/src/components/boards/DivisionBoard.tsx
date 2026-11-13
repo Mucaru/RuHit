@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { BoardInput } from './BoardInput'
 import type { BoardProps } from '../../types'
 
@@ -27,17 +27,19 @@ export function DivisionBoard({ question, current, completed, value, onChange, d
   })
 
   const input = (placeholder = '?') => <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder={placeholder} />
-  const grid: CSSProperties = { gridTemplateColumns: `var(--lc) repeat(${n}, var(--lc))` }
+  const gridClass = `ldb-grid-${Math.min(6, Math.max(1, n))}`
+  const colClass = (column: number) => `ldb-col-${column}`
+  const spanClass = (span: number) => `ldb-span-${Math.min(6, Math.max(1, span))}`
   const entryCell = (e: Entry) => (
-    <span key="entry" className="ldb-entry" style={{ gridColumn: `${e.start + 2} / span ${e.end - e.start + 1}` }}>{input()}</span>
+    <span key="entry" className={`ldb-entry ${colClass(e.start + 2)} ${spanClass(e.end - e.start + 1)}`}>{input()}</span>
   )
 
   const renderRow = (key: string, digits: Record<number, string>, signAt: number | null, entry?: Entry) => (
-    <div className="ldb-row" style={grid} key={key}>
-      <i className="ldb-side" style={{ gridColumn: 1 }}>{signAt === -1 ? '−' : ''}</i>
+    <div className={`ldb-row ${gridClass}`} key={key}>
+      <i className={`ldb-side ${colClass(1)}`}>{signAt === -1 ? '−' : ''}</i>
       {Array.from({ length: n }, (_, j) => {
         if (entry && j >= entry.start && j <= entry.end) return j === entry.start ? entryCell(entry) : null
-        return <i key={j} className={digits[j] ? 'ldb-filled' : ''} style={{ gridColumn: j + 2 }}>{digits[j] ?? (signAt === j ? '−' : '')}</i>
+        return <i key={j} className={`${digits[j] ? 'ldb-filled' : ''} ${colClass(j + 2)}`}>{digits[j] ?? (signAt === j ? '−' : '')}</i>
       })}
     </div>
   )
@@ -48,9 +50,9 @@ export function DivisionBoard({ question, current, completed, value, onChange, d
     return out
   }
   const ruleRow = (key: string, ruleEnd: number, ruleLen: number) => (
-    <div className="ldb-row ldb-rulerow" style={grid} key={key} aria-hidden="true">
-      <i style={{ gridColumn: 1 }} />
-      {Array.from({ length: n }, (_, j) => <i key={j} className={j > ruleEnd - ruleLen && j <= ruleEnd ? 'ldb-rule' : ''} style={{ gridColumn: j + 2 }} />)}
+    <div className={`ldb-row ldb-rulerow ${gridClass}`} key={key} aria-hidden="true">
+      <i className={colClass(1)} />
+      {Array.from({ length: n }, (_, j) => <i key={j} className={`${j > ruleEnd - ruleLen && j <= ruleEnd ? 'ldb-rule' : ''} ${colClass(j + 2)}`} />)}
     </div>
   )
 
@@ -88,20 +90,20 @@ export function DivisionBoard({ question, current, completed, value, onChange, d
   return (
     <div className="board ld-board">
       <div className="ldb-scroll">
-        <div className="ldb" style={{ '--n': n } as CSSProperties}>
-          <div className="ldb-row" style={grid}>
-            <i className="ldb-side" style={{ gridColumn: 1 }} />
+        <div className={`ldb ldb-columns-${n}`}>
+          <div className={`ldb-row ${gridClass}`}>
+            <i className={`ldb-side ${colClass(1)}`} />
             {Array.from({ length: n }, (_, j) => {
               const active = kind === 'divide' && idx === j
-              if (active) return <span key={j} className="ldb-entry ldb-q" style={{ gridColumn: j + 2 }}>{input()}</span>
-              if (quotient[j]) return <i key={j} className="ldb-q ldb-filled" style={{ gridColumn: j + 2 }}>{quotient[j]}</i>
-              return <i key={j} className={j >= firstIdx ? 'ldb-q ldb-slot' : ''} style={{ gridColumn: j + 2 }} />
+              if (active) return <span key={j} className={`ldb-entry ldb-q ${colClass(j + 2)}`}>{input()}</span>
+              if (quotient[j]) return <i key={j} className={`ldb-q ldb-filled ${colClass(j + 2)}`}>{quotient[j]}</i>
+              return <i key={j} className={`${j >= firstIdx ? 'ldb-q ldb-slot' : ''} ${colClass(j + 2)}`} />
             })}
           </div>
-          <div className="ldb-row ldb-top" style={grid}>
-            <i className="ldb-side ldb-divisor" style={{ gridColumn: 1 }}>{question.b}</i>
+          <div className={`ldb-row ldb-top ${gridClass}`}>
+            <i className={`ldb-side ldb-divisor ${colClass(1)}`}>{question.b}</i>
             {dividend.map((digit, j) => (
-              <i key={j} className={`ldb-digit ${j === 0 ? 'ldb-first' : ''} ${j <= cursor ? 'taken' : ''} ${nextDigit === j ? 'drop' : ''}`} style={{ gridColumn: j + 2 }}>{digit}</i>
+              <i key={j} className={`ldb-digit ${j === 0 ? 'ldb-first' : ''} ${j <= cursor ? 'taken' : ''} ${nextDigit === j ? 'drop' : ''} ${colClass(j + 2)}`}>{digit}</i>
             ))}
           </div>
           {body}

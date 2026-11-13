@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { isPrime } from '../../lib/math'
 import { TREE_PRIMES } from '../../lib/math/builders/factorTree'
 import { BoardInput } from './BoardInput'
@@ -10,11 +9,10 @@ export function TreeBoard({ question, current, completed, value, onChange, disab
   const levels = question.steps.filter((item) => item.kind === 'tree-factor').length
   const picking = current.kind === 'tree-factor'
   const quotienting = current.kind === 'tree-quotient'
-  const pairStyle = (depth: number) => ({ '--d': depth }) as CSSProperties
   const nodeClass = (text: string) => `tree-cell ${/^\d+$/.test(text) && isPrime(Number(text)) ? 'tree-leaf' : 'tree-num'}`
-  return <div className="board tree-board"><div className="tree-scroll"><div className="tree-canvas" style={{ '--levels': levels } as CSSProperties}>
+  return <div className="board tree-board"><div className="tree-scroll"><div className={`tree-canvas tree-levels-${Math.min(8, Math.max(1, levels))}`}>
     <div className="tree-root-row"><span className="tree-cell tree-num">{question.number}</span></div>
-    {pairs.map((pair, index) => <div className="tree-pair" style={pairStyle(index)} key={index}><b className="tree-cell tree-leaf">{pair.leaf}</b><span className={nodeClass(pair.node)}>{pair.node}</span></div>)}
-    {(picking || quotienting) && <div className="tree-pair active-pair" style={pairStyle(pairs.length)}><b className={`tree-cell ${quotienting ? 'tree-leaf' : 'tree-ask'}`}>{quotienting ? current.meta?.factor : '?'}</b>{quotienting ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span className="tree-cell tree-ask">?</span>}</div>}
+    {pairs.map((pair, index) => <div className={`tree-pair tree-depth-${Math.min(index, 8)}`} key={index}><b className="tree-cell tree-leaf">{pair.leaf}</b><span className={nodeClass(pair.node)}>{pair.node}</span></div>)}
+    {(picking || quotienting) && <div className={`tree-pair active-pair tree-depth-${Math.min(pairs.length, 8)}`}><b className={`tree-cell ${quotienting ? 'tree-leaf' : 'tree-ask'}`}>{quotienting ? current.meta?.factor : '?'}</b>{quotienting ? <BoardInput value={value} onChange={onChange} disabled={disabled} placeholder="?" /> : <span className="tree-cell tree-ask">?</span>}</div>}
   </div></div>{current.kind === 'tree-final' && <div className="tree-final-entry"><span>Semua ujung prima (boleh urutan bebas)</span><ListInput value={value} onChange={onChange} disabled={disabled} /></div>}<div className="prime-legend">{TREE_PRIMES.map((prime) => <span key={prime}>{prime}</span>)}<small>pilih prima yang habis membagi</small></div></div>
 }
