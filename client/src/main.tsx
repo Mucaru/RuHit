@@ -2,14 +2,19 @@ import '@fontsource-variable/dm-sans/wght.css'
 import '@fontsource-variable/fraunces/wght.css'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import { ErrorBoundary } from './components/ErrorBoundary'
-import './index.css'
-import './styles/progress.css'
-import './styles/focus.css'
+import './styles/legacy-worksheet.css'
+import './styles/legacy-board-layout.css'
+import './styles/legacy-accessibility.css'
 import './styles/boards.css'
+import './styles/focus.css'
+import './styles/progress.css'
+import './styles/legacy-exercise.css'
+import './styles/tokens.css'
+import './styles/base.css'
+import './styles/layout.css'
+import './styles/learning.css'
+import './styles/report.css'
+import './styles/playful.css'
 
-createRoot(document.getElementById('root')!).render(
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>,
-)
+const root = document.getElementById('root')
+if (root) createRoot(root).render(<App />)
