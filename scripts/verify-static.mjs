@@ -18,7 +18,7 @@ async function walk(directory) {
   for (const entry of entries) {
     const relative = path.join(directory, entry.name)
     if (entry.isDirectory()) files.push(...await walk(relative))
-    else if (/\.(?:ts|tsx)$/.test(entry.name)) files.push(relative)
+    else if (/\.(?:ts|tsx)$/.test(entry.name)) files.push(relative.replaceAll('\\', '/'))
   }
   return files
 }
