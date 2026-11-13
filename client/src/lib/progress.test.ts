@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STORAGE_KEY, emptyProgress, isMastered, loadProgress, parseProgress, recommendedLevel, recordSession, saveProgress, starsFor, streakOf } from './progress'
+import { STORAGE_KEY, dueLeitnerCards, emptyProgress, isMastered, loadProgress, parseProgress, recommendedLevel, recordLearningSession, recordSession, saveProgress, starsFor, streakOf } from './progress'
 import type { QuestionResult, StorageLike } from './progress'
 
 const memory = (initial: Record<string, string> = {}): StorageLike & { data: Record<string, string> } => {
@@ -90,5 +90,75 @@ describe('penyimpanan', () => {
   it('bintang di data tersimpan dijepit 0..3', () => {
     const raw = JSON.stringify({ v: 1, levels: { 'addition:1': { plays: 1, bestStars: 99, bestClean: 1, total: 10, lastPlayed: '2026-10-07' } }, history: [], days: [] })
     expect(parseProgress(raw).levels['addition:1'].bestStars).toBe(3)
+  })
+})
+
+describe('migrasi dan validasi progres v2', () => {
+  it('memigrasikan progres v1 tanpa membuang catatan level yang valid', () => {
+    const raw = JSON.stringify({ v: 1, levels: { 'addition:1': { plays: 3, bestStars: 2, bestClean: 7, total: 10, lastPlayed: '2026-10-07' } }, history: [], days: ['2026-10-07'] })
+    const migrated = parseProgress(raw)
+    expect(migrated.v).toBe(2)
+    expect(migrated.levels['addition:1'].plays).toBe(3)
+    expect(migrated.topics).toEqual({})
+  })
+
+  it('membatasi data lokal yang terlalu besar atau tidak sesuai schema', () => {
+    const raw = JSON.stringify({
+      v: 2,
+      levels: { 'addition:1': { plays: 1e12, bestStars: 99, bestClean: -4, total: 5000, lastPlayed: 'bad' }, '<img>': { bestStars: 3 } },
+      topics: { pecahan: { plays: 1e12, correct: -5, helped: 2, total: 9999, mastery: 99, lastPlayed: '2026-10-07' }, '<script>': { mastery: 4 } },
+      leitner: { 'pecahan-fraction-add': { box: 99, dueDate: '2026-10-08', lastReviewed: 'bad', correctStreak: 1e12 } },
+      history: [], days: ['2026-10-07'], stickers: ['mastery-pecahan', '<script>'], seenGuide: true,
+    })
+    const parsed = parseProgress(raw)
+    expect(parsed.levels['addition:1'].plays).toBe(10000)
+    expect(parsed.levels['addition:1'].bestStars).toBe(3)
+    expect(parsed.levels['addition:1'].bestClean).toBe(0)
+    expect(parsed.topics.pecahan.mastery).toBe(4)
+    expect(parsed.leitner['pecahan-fraction-add'].box).toBe(5)
+    expect(parsed.stickers).toEqual(['mastery-pecahan'])
+  })
+})
+
+describe('penguasaan topik dan kotak Leitner', () => {
+  it('meningkatkan mastery setelah latihan baik dan menjadwalkan pengulangan', () => {
+    const now = day(2026, 10, 7)
+    const recorded = recordLearningSession(emptyProgress(), {
+      topicId: 'pecahan-operasi', total: 8, attempted: 8, correct: 8, helped: 0, skipped: 0,
+      questionIds: [{ id: 'pecahan-operasi-fraction-add-same', mastered: true, skipped: false }],
+    }, now)
+    expect(recorded.summary.mastery).toBe(1)
+    expect(recorded.progress.topics['pecahan-operasi'].total).toBe(8)
+    expect(recorded.progress.leitner['pecahan-operasi-fraction-add-same'].box).toBe(2)
+    expect(recorded.progress.leitner['pecahan-operasi-fraction-add-same'].dueDate).toBe('2026-10-08')
+    expect(dueLeitnerCards(recorded.progress, day(2026, 10, 8))).toContain('pecahan-operasi-fraction-add-same')
+  })
+
+
+
+  it('tidak menurunkan penguasaan atau kotak review ketika anak melewati soal', () => {
+    const first = recordLearningSession(emptyProgress(), {
+      topicId: 'pecahan-operasi', total: 8, attempted: 8, correct: 8, helped: 0, skipped: 0,
+      questionIds: [{ id: 'pecahan-operasi-fraction-add-same', mastered: true, skipped: false }],
+    }, day(2026, 10, 7)).progress
+    const skipped = recordLearningSession(first, {
+      topicId: 'pecahan-operasi', total: 8, attempted: 0, correct: 0, helped: 0, skipped: 8,
+      questionIds: [{ id: 'pecahan-operasi-fraction-add-same', mastered: false, skipped: true }],
+    }, day(2026, 10, 8)).progress
+    expect(skipped.topics['pecahan-operasi'].mastery).toBe(1)
+    expect(skipped.leitner['pecahan-operasi-fraction-add-same'].box).toBe(2)
+  })
+
+  it('mengembalikan kotak ke awal jika topik belum dikuasai', () => {
+    const first = recordLearningSession(emptyProgress(), {
+      topicId: 'pecahan-operasi', total: 8, attempted: 8, correct: 8, helped: 0, skipped: 0,
+      questionIds: [{ id: 'pecahan-operasi-fraction-add-same', mastered: true, skipped: false }],
+    }, day(2026, 10, 7)).progress
+    const second = recordLearningSession(first, {
+      topicId: 'pecahan-operasi', total: 8, attempted: 8, correct: 3, helped: 5, skipped: 0,
+      questionIds: [{ id: 'pecahan-operasi-fraction-add-same', mastered: false, skipped: false }],
+    }, day(2026, 10, 8)).progress
+    expect(second.leitner['pecahan-operasi-fraction-add-same'].box).toBe(1)
+    expect(second.topics['pecahan-operasi'].total).toBe(16)
   })
 })
