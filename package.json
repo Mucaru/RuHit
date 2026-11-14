@@ -13,7 +13,8 @@
     "test": "vitest run && node scripts/verify-static.mjs",
     "verify:static": "node scripts/verify-static.mjs",
     "format": "prettier --write client/src docs scripts package.json vite.config.ts",
-    "audit": "pnpm audit --prod"
+    "audit": "pnpm audit --prod",
+    "audit:soal": "vitest run --config vitest.audit.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.3.0",
