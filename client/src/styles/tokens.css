@@ -4,6 +4,9 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  /* Skala teks: body minimal 16px, caption/label minimal 14px. Jangan menulis font-size di bawah 12px. */
+  --fs-body: 16px;
+  --fs-caption: 14px;
   --paper: #fffaf0;
   --paper-deep: #f5eedf;
   --paper-white: #fffefb;

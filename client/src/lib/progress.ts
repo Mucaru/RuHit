@@ -10,6 +10,8 @@ const MAX_REVIEW = 6
 const MAX_TOPICS = 120
 const MAX_CARDS = 240
 const MAX_STICKERS = 24
+export const MIN_GRADE = 1
+export const MAX_GRADE = 6
 
 export type Outcome = 'clean' | 'helped' | 'skipped'
 export type QuestionResult = { label: string; answer: string; outcome: Outcome; mistakes: number }
@@ -35,10 +37,12 @@ export type Progress = {
   days: string[]
   stickers: string[]
   seenGuide: boolean
+  /** Kelas terakhir yang dibuka (1-6); null kalau belum pernah memilih. */
+  lastGrade: number | null
 }
 export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
-export const emptyProgress = (): Progress => ({ v: 2, levels: {}, topics: {}, leitner: {}, history: [], days: [], stickers: [], seenGuide: false })
+export const emptyProgress = (): Progress => ({ v: 2, levels: {}, topics: {}, leitner: {}, history: [], days: [], stickers: [], seenGuide: false, lastGrade: null })
 
 export function safeStorage(): StorageLike | null {
   try {
@@ -60,6 +64,8 @@ const validDate = (value: unknown): value is string => {
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
 }
 const safeKey = (value: string, pattern: RegExp) => pattern.test(value)
+/** Kelas dari localStorage: bukan angka valid -> null; angka di luar 1-6 dijepit ke batasnya. */
+const readGrade = (value: unknown): number | null => typeof value === 'number' && Number.isFinite(value) ? clamp(Math.floor(value), MIN_GRADE, MAX_GRADE) : null
 
 function readLevels(raw: unknown): Record<string, LevelRecord> {
   const levels: Record<string, LevelRecord> = {}
@@ -152,6 +158,7 @@ export function parseProgress(raw: string | null): Progress {
       days: Array.isArray(data.days) ? [...new Set(data.days.filter(validDate))].slice(-MAX_DAYS) : [],
       stickers,
       seenGuide: data.seenGuide === true,
+      lastGrade: readGrade(data.lastGrade),
     }
   } catch {
     return emptyProgress()
@@ -191,6 +198,15 @@ export function clearProgress(storage: StorageLike | null = safeStorage()): void
     // Storage can be disabled or quota-limited; the UI remains usable.
   }
 }
+
+/** Simpan kelas terakhir. Mengembalikan objek yang sama kalau tidak ada perubahan (aman dipakai di effect tanpa loop). */
+export function setLastGrade(progress: Progress, grade: number): Progress {
+  const next = readGrade(grade)
+  return next === null || next === progress.lastGrade ? progress : { ...progress, lastGrade: next }
+}
+
+/** True kalau anak sudah pernah mengerjakan sesuatu (bukan sekadar membuka halaman). */
+export const hasProgress = (progress: Progress) => progress.history.length > 0 || Object.keys(progress.topics).length > 0 || Object.keys(progress.levels).length > 0
 
 export function starsFor(clean: number, score: number, total: number): number {
   if (total <= 0) return 0

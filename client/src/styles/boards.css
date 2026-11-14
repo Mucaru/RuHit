@@ -7,23 +7,23 @@
 .mul-row > span, .mul-row > b { display: grid; place-items: center; min-width: 0; height: calc(var(--mc) * .92); }
 .mc-digit { border-radius: 10px; }
 .mc-hl { background: #e6f5ec; color: #0b6b58; }
-.mc-op { color: #b14f23; font-size: .8em; }
+.mc-op { color: #b14f23; font-size: max(.8em, var(--fs-caption)); }
 .mul-line { width: calc(var(--mc) * var(--cols)); height: 3px; margin: 3px auto; border-radius: 3px; background: #29333b; }
-.mul-partial > span { height: calc(var(--mc) * .86); font-size: .86em; }
+.mul-partial > span { height: calc(var(--mc) * .86); font-size: max(.86em, var(--fs-caption)); }
 .mul-partial.is-current .mc-slot:not(.mc-active):not(.mc-filled) { border-color: #9fbac2; }
 .mc-slot { border: 2px dashed #c3d4d9; border-radius: 10px; background: #fafdfb; }
 .mc-filled { border: 2px solid #4b8f6e; background: #eaf8ec; color: #1f6b57; }
 .mc-active { border: 2px solid #c95f16; background: #fff4e0; box-shadow: 0 0 0 3px rgba(242, 180, 109, .25); }
-.mc-carry { height: calc(var(--mc) * .62) !important; font-size: .55em; color: #b14f23; }
+.mc-carry { height: calc(var(--mc) * .62) !important; font-size: max(.55em, var(--fs-caption)); color: #b14f23; }
 .mc-scratch { min-height: calc(var(--mc) * .8); }
 .mc-bubble { position: relative; width: 100%; border-radius: 12px; background: #fffdf3; }
 .mc-bubble::after { content: ''; position: absolute; right: 18%; bottom: -7px; width: 12px; height: 12px; border-right: 2px solid #c95f16; border-bottom: 2px solid #c95f16; background: #fffdf3; transform: rotate(45deg); }
 .mul-board .mc-slot .board-input, .mul-board .mc-bubble .board-input, .ld-board .ldb-entry .board-input {
   width: 100%; height: 100%; min-height: 0; padding: 0 2px; border: 0; border-radius: 8px; background: transparent; box-shadow: none; color: #0b6b58; font-size: inherit; font-weight: 800; text-align: center; transform: none;
 }
-.mul-board .mc-bubble .board-input { border: 2px solid #c95f16; background: #fffdf3; font-size: .7em; }
+.mul-board .mc-bubble .board-input { border: 2px solid #c95f16; background: #fffdf3; font-size: max(.7em, var(--fs-caption)); }
 .mul-board .mc-slot .board-input:focus, .mul-board .mc-bubble .board-input:focus, .ld-board .ldb-entry .board-input:focus { outline: 3px solid #0d7964; outline-offset: 1px; box-shadow: none; transform: none; }
-.mul-board .mc-wide .board-input { text-align: right; padding-right: 14px; font-size: .86em; }
+.mul-board .mc-wide .board-input { text-align: right; padding-right: 14px; font-size: max(.86em, var(--fs-caption)); }
 .mul-result > span { height: calc(var(--mc) * .86); }
 
 /* --- Pembagian (porogapit) --- */
@@ -94,7 +94,7 @@
 .list-entry .list-draft { flex: 1 1 auto; width: auto; min-width: 0; height: 48px; font-size: 22px; }
 .list-add { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 48px; padding: 0 14px; border: 2px solid #0d7964; border-radius: 10px; background: #fff; color: #0d7964; font-size: 15px; font-weight: 800; cursor: pointer; }
 .list-add:disabled { border-color: #c9d6cd; color: #8a978f; cursor: default; }
-.list-count { color: #5f7168; font-size: 13px; font-weight: 700; }
+.list-count { color: #5f7168; font-size: var(--fs-caption); font-weight: 700; }
 .tree-final-entry { flex-direction: column; align-items: stretch; }
 
 /* Layout papan bersusun tanpa inline style: posisi grid dipilih lewat kelas statis. */

@@ -4,18 +4,18 @@ button, .choice { touch-action: manipulation; }
 :focus-visible { outline: 3px solid #f59e0b; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 @media (max-width: 640px) {
-.brand small, .exercise-meta, .board-caption, .note-top, .note-bottom, .hero-trust, .topic-count, .nav-note, .result-score small, .result-footnote, .home-footer span, .choice small { font-size: 14px; }
+.brand small, .exercise-meta, .board-caption, .note-top, .note-bottom, .hero-trust, .topic-count, .nav-note, .result-score small, .result-footnote, .home-footer span, .choice small { font-size: var(--fs-body); }
   .place-labels, .flow-pills span { font-size: 14px; }
 .activity-card p, .card-link, .level-card small, .level-go, .safe-note p, .principle p, .back-link, .text-button, .home-button, .topbar-title, .skip-button, .ghost-button { font-size: 14px; }
-.hero p, .page-intro p, .feedback p, .result-card > p { font-size: 14px; line-height: 1.55; }
-  .activity-card strong, .level-card strong, .principle strong, .choice strong { font-size: 15px; }
+.hero p, .page-intro p, .feedback p, .result-card > p { font-size: var(--fs-body); line-height: 1.55; }
+  .activity-card strong, .level-card strong, .principle strong, .choice strong { font-size: var(--fs-body); }
   .prompt-block h2 { font-size: 19px; }
   .step-pill { padding: 5px 8px; }
 .text-button, .home-button, .skip-button, .ghost-button { min-height: 44px; }
   .choice { min-height: 58px; }
   .number-input input { height: 56px; font-size: 24px; }
   .number-input.text-mode input { font-size: 16px; } /* 16px mencegah iOS auto-zoom saat fokus */
-  .primary-button.large, .answer-actions .primary-button, .answer-actions .secondary-button, .result-actions .primary-button, .result-actions .secondary-button { min-height: 48px; font-size: 14px; }
+  .primary-button.large, .answer-actions .primary-button, .answer-actions .secondary-button, .result-actions .primary-button, .result-actions .secondary-button { min-height: 48px; font-size: var(--fs-body); }
 }
 
 /* ===== Perbaikan tabrakan & kotak jawaban (dari screenshot) ===== */
@@ -32,5 +32,5 @@ button, .choice { touch-action: manipulation; }
 .error-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f8faf5; }
 .error-card { max-width: 420px; text-align: center; background: #fffdf5; border: 1.5px solid #dfe8dc; border-radius: 24px; padding: 32px 24px; box-shadow: 0 10px 30px rgba(40, 70, 55, .08); }
 .error-card h1 { font-size: 24px; margin: 12px 0 8px; }
-.error-card p { font-size: 15px; line-height: 1.55; color: #4a5f54; margin: 0 0 20px; }
+.error-card p { font-size: var(--fs-body); line-height: 1.55; color: #4a5f54; margin: 0 0 20px; }
 .error-emoji { font-size: 48px; }

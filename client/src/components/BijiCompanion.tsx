@@ -4,6 +4,7 @@ import type { MascotExpression, MascotMotion } from './Mascot'
 import { cheers, gentleWrong, idleNudges, introFor, offerHelp, pickLine, streakCheers, tapLines } from '../data/biji-lines'
 import { solutionSteps } from '../lib/learning/solutions'
 import type { LearningQuestion } from '../lib/learning/types'
+import { canSpeak, speak, stopSpeaking } from '../lib/speech'
 
 type Props = {
   question: LearningQuestion
@@ -14,15 +15,6 @@ type Props = {
   guided: boolean
   /** Dipanggil saat anak memakai bantuan Biji, supaya soal tidak dihitung "mandiri". */
   onHelpUsed: (kind: 'steps' | 'answer') => void
-}
-
-function speak(text: string) {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'id-ID'
-  utterance.rate = 0.9
-  window.speechSynthesis.speak(utterance)
 }
 
 /**
@@ -50,7 +42,7 @@ export function BijiCompanion({ question, questionNumber, status, mistakes, stre
     return () => window.clearTimeout(handle)
   }, [status, open, nudged, questionNumber, mistakes])
 
-  useEffect(() => () => { if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel() }, [])
+  useEffect(() => () => stopSpeaking(), [])
 
   const lastIndex = steps.length - 1
   const atFinal = stepIndex === lastIndex
@@ -108,7 +100,7 @@ export function BijiCompanion({ question, questionNumber, status, mistakes, stre
               <button type="button" className="biji-close" onClick={() => setOpen(false)}>Tutup bantuan</button>
             </>
           )}
-          <button type="button" className="biji-speak" onClick={() => speak(readAloud)} aria-label="Dengarkan Biji bicara"><span aria-hidden="true">🔊</span> Dengarkan</button>
+          {canSpeak() && <button type="button" className="biji-speak" onClick={() => speak(readAloud)} aria-label="Dengarkan Biji bicara"><span aria-hidden="true">🔊</span> Dengarkan</button>}
         </div>
         {open && <ol className="biji-progress" aria-label="Kemajuan langkah">{steps.map((item, index) => <li key={item.title + index} className={index === stepIndex ? 'is-current' : index < stepIndex ? 'is-done' : ''}><span className="sr-only">{item.title}</span></li>)}</ol>}
       </div>

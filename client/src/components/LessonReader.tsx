@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Mascot } from './Mascot'
 import { VisualAid } from './VisualAid'
 import { findExample } from '../data/lesson-pecahan'
 import type { LessonChapter } from '../data/lesson-pecahan'
 import { solutionSteps } from '../lib/learning/solutions'
+import { canSpeak, speak, stopSpeaking } from '../lib/speech'
 
 /** Materi bab per bab: cerita, gambar, langkah dari Biji, lalu latihan khusus bab itu. */
 export function LessonReader({ chapters, topicId, slug }: { chapters: LessonChapter[]; topicId: string; slug: string }) {
@@ -13,8 +14,16 @@ export function LessonReader({ chapters, topicId, slug }: { chapters: LessonChap
   const example = useMemo(() => findExample(chapter, topicId).question, [chapter, topicId])
   const steps = useMemo(() => solutionSteps(example), [example])
   const shown = Math.min(revealed, steps.length)
+  const [speaking, setSpeaking] = useState(false)
 
-  function choose(index: number) { setActive(index); setRevealed(1) }
+  useEffect(() => () => stopSpeaking(), [])
+
+  function choose(index: number) { stopSpeaking(); setSpeaking(false); setActive(index); setRevealed(1) }
+
+  function toggleSpeech() {
+    if (speaking) { stopSpeaking(); setSpeaking(false); return }
+    setSpeaking(speak(`${chapter.title}. ${chapter.idea} ${chapter.story}`, () => setSpeaking(false)))
+  }
 
   return (
     <section className="lesson-reader" aria-labelledby="lesson-reader-title">
@@ -33,6 +42,7 @@ export function LessonReader({ chapters, topicId, slug }: { chapters: LessonChap
         <header className="chapter-head">
           <span className="chapter-emoji chapter-emoji-large" aria-hidden="true">{chapter.emoji}</span>
           <div><p className="eyebrow">BAB {active + 1} DARI {chapters.length}</p><h3>{chapter.title}</h3></div>
+          {canSpeak() && <button type="button" className="button button-secondary lesson-listen" onClick={toggleSpeech} aria-pressed={speaking}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span> {speaking ? 'Berhenti' : 'Dengarkan'}</button>}
         </header>
 
         <div className="chapter-idea"><Mascot expression="excited" size="small" motion="float" label="Biji" /><p><strong>Intinya:</strong> {chapter.idea}</p></div>

@@ -126,12 +126,12 @@ export const topics: Topic[] = [
 ]
 
 export const classPlan: Record<number, { phase: Fase; title: string; note: string }> = {
-  1: { phase: 'A', title: 'Kelas 1', note: 'Urutan belajar usulan dari CP Fase A.' },
-  2: { phase: 'A', title: 'Kelas 2', note: 'Urutan belajar usulan dari CP Fase A.' },
-  3: { phase: 'B', title: 'Kelas 3', note: 'Urutan belajar usulan dari CP Fase B.' },
-  4: { phase: 'B', title: 'Kelas 4', note: 'Urutan belajar usulan dari CP Fase B.' },
-  5: { phase: 'C', title: 'Kelas 5', note: 'Bagian awal Fase C; pembagian materi ini usulan urutan belajar.' },
-  6: { phase: 'C', title: 'Kelas 6', note: 'Bagian lanjutan Fase C; pembagian materi ini usulan urutan belajar.' },
+  1: { phase: 'A', title: 'Kelas 1', note: 'Mulai dari dasar, pelan-pelan dan selangkah demi selangkah.' },
+  2: { phase: 'A', title: 'Kelas 2', note: 'Memperkuat dasar sambil mencoba soal yang sedikit lebih baru.' },
+  3: { phase: 'B', title: 'Kelas 3', note: 'Naik satu tahap, tetap dengan contoh dan latihan yang ramah.' },
+  4: { phase: 'B', title: 'Kelas 4', note: 'Makin lancar menghitung dan mengenali pola.' },
+  5: { phase: 'C', title: 'Kelas 5', note: 'Waktunya kenalan lebih dekat dengan pecahan, persen, dan bangun ruang.' },
+  6: { phase: 'C', title: 'Kelas 6', note: 'Mengulang dan memperkuat materi yang sudah dikenal.' },
 }
 
 export function topicsForClass(grade: number): Topic[] {

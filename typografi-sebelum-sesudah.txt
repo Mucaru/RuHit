@@ -1,0 +1,149 @@
+LAPORAN TIPOGRAFI RuHit 3.0.0 (14 Nov 2026)
+
+== SEBELUM: font-size di bawah 12px (px/rem, em dihitung 16px) ==
+base.css:16  [.eyebrow]  11px
+boards.css:17  [.mc-carry]  .55em
+boards.css:24  [.mul-board .mc-bubble .board-input]  .7em
+layout.css:6  [.brand-copy small]  9px
+layout.css:20  [.home-promises]  11px
+layout.css:43  [.class-card-label]  10px
+layout.css:56  [.grade-stamp small]  9px
+layout.css:68  [.topic-card-copy small]  11px
+layout.css:70  [.topic-progress]  10px
+layout.css:82  [.curriculum-note]  11px
+layout.css:92  [.worked-example-heading small]  11px
+layout.css:95  [.example-step span]  10px
+layout.css:105  [.site-nav a]  11px
+layout.css:110  [.home-note]  10px
+layout.css:118  [.quick-stats span]  10px
+layout.css:134  [.step-number]  11px
+layout.css:140  [.sticker-chip]  10px
+learning.css:12  [.question-meta > span]  11px
+learning.css:20  [.visual-fraction small]  10px
+learning.css:24  [.place-value-cell small]  8px
+learning.css:29  [.number-line-point small]  10px
+learning.css:30  [.number-line-caption]  10px
+learning.css:44  [.chart-column small]  10px
+learning.css:86  [.place-value-cell small]  7px
+learning.css:95  [.shape-visual small]  10px
+learning.css:113  [.angle-visual small, .volume-visual small]  10px
+legacy-exercise.css:5  [.step-pill]  10px
+legacy-exercise.css:23  [.choice strong]  10px
+legacy-exercise.css:31  [.skip-button]  11px
+legacy-exercise.css:33  [.token-row > span]  11px
+legacy-exercise.css:34  [.token-row button]  11px
+legacy-exercise.css:36  [.board-label]  11px
+legacy-exercise.css:37  [.board-caption]  11px
+legacy-exercise.css:48  [.coach-label]  8px
+playful.css:161  [.fm-group small]  11px
+playful.css:200  [.chapter-number]  10px
+report.css:6  [.report-stats span]  10px
+report.css:13  [.report-topic small]  10px
+report.css:14  [.report-topic .button]  11px
+report.css:44  [.history-list small]  10px
+report.css:58  [.legacy-level-number]  10px
+report.css:60  [.legacy-level-tag]  9px
+report.css:68  [.legacy-review p]  10px
+report.css:75  [.guide-steps p]  11px
+-> 44 deklarasi
+
+== SEBELUM: sisa yang 12 sampai 13,99px =
+base.css:31  [.text-link]  13px
+base.css:32  [.back-link]  13px
+base.css:37  [.site-footer]  12px
+boards.css:10  [.mc-op]  .8em
+boards.css:12  [.mul-partial > span]  .86em
+boards.css:26  [.mul-board .mc-wide .board-input]  .86em
+boards.css:97  [.list-count]  13px
+layout.css:10  [.site-nav a]  13px
+layout.css:14  [.home-note]  12px
+layout.css:22  [.hero-mascot-area p]  12px
+layout.css:23  [.mascot-caption]  13px
+layout.css:35  [.quick-stats span]  12px
+layout.css:39  [.section-aside]  12px
+layout.css:52  [.home-footer-card p]  12px
+layout.css:65  [.topic-number]  12px
+layout.css:73  [.legacy-section p:not(.eyebrow)]  13px
+layout.css:75  [.legacy-card]  12px
+layout.css:81  [.learning-objectives li]  13px
+layout.css:85  [.lesson-step p:not(.eyebrow)]  12px
+layout.css:86  [.step-number]  13px
+layout.css:96  [.example-step p]  13px
+layout.css:97  [.worked-example ol]  13px
+layout.css:138  [.sticker-collection strong]  13px
+learning.css:3  [.practice-count]  13px
+learning.css:13  [.sound-button]  12px
+learning.css:50  [.visual-note]  12px
+learning.css:51  [.answer-label]  12px
+learning.css:57  [.keypad-action]  12px
+learning.css:62  [.hint-card strong]  12px
+learning.css:63  [.hint-card p]  13px
+learning.css:65  [.feedback strong]  13px
+learning.css:66  [.feedback p]  12px
+learning.css:72  [.skip-link]  12px
+learning.css:79  [.mastery-label, .sticker-earned]  12px
+legacy-exercise.css:3  [.exercise-meta]  12px
+legacy-exercise.css:11  [.speak-button]  12px
+legacy-exercise.css:14  [.hint-inline strong]  12px
+legacy-exercise.css:15  [.hint-inline p]  13px
+legacy-exercise.css:17  [.coach-note strong]  12px
+legacy-exercise.css:18  [.coach-note p]  12px
+legacy-exercise.css:23  [.choice strong]  13px
+legacy-exercise.css:25  [.primary-button, .secondary-button, .hint-trigge]  13px
+playful.css:53  [.speech]  13px
+playful.css:83  [.biji-actions .button]  13px
+playful.css:84  [.biji-close, .biji-speak]  12px
+playful.css:145  [.fm-label, .fm-caption]  13px
+playful.css:196  [.chapter-tab]  12px
+playful.css:237  [.hero-biji-note]  12px
+report.css:12  [.report-topic strong]  13px
+report.css:16  [.mastered-list li]  12px
+report.css:18  [.report-positive]  13px
+report.css:20  [.report-note p]  12px
+report.css:23  [.save-warning]  12px
+report.css:43  [.history-list strong]  12px
+report.css:47  [.reset-link]  12px
+report.css:50  [.reset-confirm p]  12px
+report.css:57  [.legacy-level-card small]  12px
+report.css:66  [.legacy-review li]  12px
+report.css:69  [.streak-note]  12px
+report.css:73  [.dialog-card p]  13px
+report.css:74  [.guide-steps strong]  13px
+404-before.css:3  [.eyebrow]  12px
+-> 62 deklarasi
+
+== SESUDAH: perintah grep yang bisa kamu jalankan sendiri ==
+
+$ grep -nE "font-size: *([0-9]|1[01])(\.[0-9]+)?px" client/src/styles/*.css client/public/404.css
+(tidak ada hasil)
+
+$ grep -nE "font-size: *[0-9.]+em" client/src/styles/*.css
+(tidak ada hasil; em di boards.css kini max(Xem, var(--fs-caption)))
+
+$ grep -n "var(--fs-" client/src/styles/*.css | wc -l
+138
+
+== SESUDAH: sisa literal 14-15px (sengaja, papan bersusun dan label) ==
+boards.css:88  [.board-entry-list > span]  14px
+boards.css:95  [.list-add]  15px
+learning.css:53  [.answer-display::placeholder]  14px
+legacy-accessibility.css:8  [.place-labels, .flow-pills span]  14px
+legacy-accessibility.css:9  [.activity-card p, .card-link, .level-card small,]  14px
+legacy-worksheet.css:3  [.board-live]  14px
+legacy-worksheet.css:8  [.board-input-text]  14px
+legacy-worksheet.css:22  [.board-entry-row > span]  14px
+legacy-worksheet.css:25  [.carry-guide]  14px
+legacy-worksheet.css:35  [.tree-final-entry]  14px
+legacy-worksheet.css:41  [.token-row > span]  14px
+legacy-worksheet.css:44  [.board-live]  14px
+legacy-worksheet.css:47  [.board-input]  15px
+legacy-worksheet.css:48  [.board-input-text]  14px
+legacy-worksheet.css:50  [.board-entry-row > span]  14px
+playful.css:219  [.chapter-step-number]  15px
+progress.css:32  [.level-chip]  14px
+progress.css:72  [.report-stats span]  15px
+progress.css:78  [.report-history small, .report-weak small]  14px
+progress.css:84  [.report-row small]  14px
+progress.css:85  [.report-row em]  14px
+report.css:45  [.history-stars]  14px
+404.css:3  [.eyebrow]  14px

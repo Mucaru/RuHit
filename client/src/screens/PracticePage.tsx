@@ -14,6 +14,7 @@ import type { Progress, QuestionResult, SessionSummary } from '../lib/progress'
 import { dueLeitnerCards, levelRecord, recordLearningSession, recordSession, recommendedLevel } from '../lib/progress'
 import { makeSession } from '../lib/math'
 import type { Activity } from '../lib/math'
+import { canSpeak, speak, stopSpeaking } from '../lib/speech'
 
 export function PracticePage({ slug, grade, progress, onProgress, saveFailed }: { slug: string; grade: number; progress: Progress; onProgress: (progress: Progress) => void; saveFailed: boolean }) {
   const legacyTopic = legacyTopicBySlug(slug)
@@ -133,17 +134,10 @@ function LearningPractice({ topicId, slug, grade, progress, onProgress, saveFail
     setAnswer('')
   }, [index])
 
-  useEffect(() => () => {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
-  }, [])
+  useEffect(() => () => stopSpeaking(), [])
 
   function speakPrompt() {
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(`${question.prompt}. ${hintLevel > 0 ? question.hints[hintLevel - 1] : ''}`)
-    utterance.lang = 'id-ID'
-    utterance.rate = 0.9
-    window.speechSynthesis.speak(utterance)
+    speak(`${question.prompt}. ${hintLevel > 0 ? question.hints[hintLevel - 1] : ''}`)
   }
 
   function updateAnswer(value: string) {
@@ -219,7 +213,7 @@ function LearningPractice({ topicId, slug, grade, progress, onProgress, saveFail
       <div className="practice-topline"><div><p className="eyebrow">{topic.title.toUpperCase()}</p><h1>{guided ? 'Kita kerjakan bareng.' : 'Sekarang giliranmu.'}</h1></div><span className="practice-count">{index + 1} / {questionCount}</span></div>
       <progress className="session-progress" value={index + (status === 'correct' ? 1 : 0)} max={questionCount} aria-label="Kemajuan latihan" />
       <section className="question-card paper-card"><Confetti burst={burst} />
-        <div className="question-meta"><span>SOAL {String(index + 1).padStart(2, '0')}</span><button type="button" className="sound-button" onClick={speakPrompt} aria-label="Bacakan soal">Dengarkan</button></div>
+        <div className="question-meta"><span>SOAL {String(index + 1).padStart(2, '0')}</span>{canSpeak() && <button type="button" className="sound-button" onClick={speakPrompt} aria-label="Bacakan soal">Dengarkan</button>}</div>
         <h2>{question.prompt}</h2>
         <VisualAid question={question} />
         <BijiCompanion question={question} questionNumber={index + 1} status={status} mistakes={mistakes} streak={streak} guided={guided} onHelpUsed={() => setUsedHint(true)} />

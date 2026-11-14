@@ -7,7 +7,7 @@ import { ReportPage } from './screens/ReportPage'
 import { PrivacyPage } from './screens/PrivacyPage'
 import { legacyTopicBySlug } from './data/legacy-topics'
 import { topicBySlug } from './data/kurikulum'
-import { clearProgress, emptyProgress, loadProgress, saveProgress } from './lib/progress'
+import { MAX_GRADE, MIN_GRADE, clearProgress, emptyProgress, loadProgress, saveProgress, setLastGrade } from './lib/progress'
 import type { Progress } from './lib/progress'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
@@ -37,6 +37,14 @@ function AppContent() {
   }, [])
 
   const parts = routeParts()
+  // Ingat kelas terakhir yang dibuka (halaman kelas atau topik) supaya beranda bisa menawarkan "Lanjutkan".
+  const routeGrade = parts[0] === 'kelas' && (parts.length === 2 || parts.length === 3) ? Number(parts[1]) : null
+  useEffect(() => {
+    if (routeGrade === null || !Number.isInteger(routeGrade) || routeGrade < MIN_GRADE || routeGrade > MAX_GRADE) return
+    const next = setLastGrade(progress, routeGrade)
+    if (next !== progress) updateProgress(next)
+  }, [routeGrade, progress, updateProgress])
+
   if (parts.length === 0) return <HomePage progress={progress} onProgress={updateProgress} />
   if (parts[0] === 'kelas' && parts.length === 2) {
     const grade = Number(parts[1])
