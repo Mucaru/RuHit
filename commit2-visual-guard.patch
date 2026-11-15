@@ -1,0 +1,328 @@
+diff -ruN base3/RuHit-master/client/src/audit/audit-soal.audit.ts ruhit/RuHit-master/client/src/audit/audit-soal.audit.ts
+--- base3/RuHit-master/client/src/audit/audit-soal.audit.ts	2026-11-15 09:17:29.853476866 +0000
++++ ruhit/RuHit-master/client/src/audit/audit-soal.audit.ts	2026-11-15 09:17:02.588103546 +0000
+@@ -10,6 +10,7 @@
+ import { topics } from '../data/kurikulum'
+ import { checkAnswer, generateQuestion, solveQuestion } from '../lib/learning/engine'
+ import { solutionSteps } from '../lib/learning/solutions'
++import { placeValueNumbers, usableVisual } from '../lib/learning/visual-guard'
+ import type { LearningQuestion, VisualKind } from '../lib/learning/types'
+ 
+ type Severity = 'tinggi' | 'sedang' | 'rendah'
+@@ -30,26 +31,11 @@
+ const hash = (text: string) => [...text].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261)
+ const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+ const clean = (text: string) => text.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim()
+-const has = (q: LearningQuestion, key: string) => q.params[key] !== undefined
+ 
+ /** Angka yang berdiri sendiri di dalam teks (titik dianggap pemisah ribuan). */
+ const numbersIn = (text: string) => (text.match(/\d[\d.]*\d|\d/g) ?? []).map((item) => Number(item.replace(/\./g, ''))).filter((value) => Number.isFinite(value))
+ const leaks = (text: string, answer: string) => answer.length >= 2 && !/^[A-D]$/i.test(answer) && new RegExp(`(^|[^\\d.,/])${escapeRegExp(answer)}($|[^\\d.,/])`).test(text)
+ 
+-/** Parameter yang dibutuhkan komponen VisualAid. Kalau kosong, komponen memakai nilai bawaan yang menyesatkan. */
+-const visualNeeds: Partial<Record<VisualKind, (q: LearningQuestion) => string | null>> = {
+-  'place-value': (q) => (has(q, 'value') || has(q, 'a') ? null : 'params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan"'),
+-  blocks: (q) => (has(q, 'value') || has(q, 'a') ? null : 'params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan"'),
+-  'number-line': (q) => (Array.isArray(q.params.values) || (has(q, 'a') && has(q, 'b')) ? null : 'tanpa values atau a+b: garis bilangan memakai 0 dan 10'),
+-  grid: (q) => (['columns', 'length', 'side'].some((key) => has(q, key)) && ['rows', 'width', 'height'].some((key) => has(q, key)) ? null : 'tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3'),
+-  chart: (q) => (Array.isArray(q.params.values) || Array.isArray(q.params.counts) ? null : 'tanpa values/counts: diagram memakai data bawaan [3, 5, 2]'),
+-  shape: (q) => (has(q, 'sides') ? null : 'tanpa sides: bangun selalu segiempat'),
+-  position: (q) => (has(q, 'position') ? null : 'tanpa position: bola selalu di kiri'),
+-  pattern: (q) => (has(q, 'first') && has(q, 'second') ? null : 'tanpa first/second: pola bawaan lingkaran-segitiga'),
+-  tally: (q) => (has(q, 'count') ? null : 'tanpa count: turus bawaan 5'),
+-  angle: (q) => (has(q, 'angle') ? null : 'tanpa angle: sudut bawaan 90 derajat'),
+-  volume: (q) => (has(q, 'side') ? null : 'tanpa side: kubus bawaan 3'),
+-}
+ /** Hasil membaca VisualAid.tsx: jenis visual yang tidak sampai ke layar sebagaimana dirancang. */
+ const notRendered: Partial<Record<VisualKind, string>> = {
+   volume: 'VisualAid tidak memanggil VolumeVisual; layar hanya menampilkan "Bayangkan benda di sekitarmu"',
+@@ -57,7 +43,6 @@
+ }
+ /** Hasil membaca FractionModel.tsx: tipe yang punya cabang sendiri, dan tipe yang memakai caption tanpa label. */
+ const fractionSwitch = new Set(['fraction-identify', 'fraction-half-quarter', 'fraction-equivalent', 'fraction-simplify', 'fraction-compare', 'fraction-order', 'fraction-add-same', 'fraction-word-add', 'fraction-subtract-same', 'fraction-word-subtract', 'fraction-add-different', 'fraction-subtract-different', 'fraction-multiply-whole', 'fraction-divide-whole', 'fraction-of-quantity', 'fraction-improper-to-mixed', 'fraction-mixed-to-improper'])
+-const fractionCaptionOnly = new Set(['fraction-add-same', 'fraction-word-add', 'fraction-subtract-same', 'fraction-word-subtract'])
+ 
+ function inspect(q: LearningQuestion): Flag[] {
+   const flags: Flag[] = []
+@@ -87,12 +72,14 @@
+   if (!q.choices && leaks(q.prompt, expected) && expected.length >= 3) add('SOAL-BOCOR', 'sedang', `soal sudah memuat jawaban "${expected}"`)
+   if (new Set(q.hints).size < 3) add('PETUNJUK-SAMA', 'rendah', 'ada petunjuk yang identik')
+ 
+-  const need = visualNeeds[q.visual]?.(q)
+-  if (need) add('VISUAL-PARAMETER', 'tinggi', `${q.visual}: ${need}`)
+-  if ((q.visual === 'place-value' || q.visual === 'blocks') && typeof q.params.a === 'number' && typeof q.params.b === 'number') add('VISUAL-HANYA-SATU', 'tinggi', `visual nilai tempat hanya menggambar a=${q.params.a}, bilangan b=${q.params.b} tidak tampil`)
++  const decision = usableVisual(q)
++  if (decision === 'hidden') add('VISUAL-DISEMBUNYIKAN', 'rendah', `${q.visual}: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya`)
++  else if (q.visual === 'place-value' || q.visual === 'blocks') {
++    const shown = placeValueNumbers(q) ?? []
++    if (shown.some((item) => String(item) === expected.trim())) add('VISUAL-BOCOR', 'tinggi', `tabel nilai tempat menampilkan jawaban "${expected}"`)
++  }
+   if (notRendered[q.visual]) add('VISUAL-TIDAK-TAMPIL', 'sedang', `${q.visual}: ${notRendered[q.visual]}`)
+   if (q.visual === 'fraction-bar' && !fractionSwitch.has(q.typeId)) add('VISUAL-PECAHAN-DEFAULT', 'sedang', 'tipe ini jatuh ke cabang default FractionModel (satu batang saja)')
+-  if (q.visual === 'fraction-bar' && fractionCaptionOnly.has(q.typeId)) add('BATANG-SEMPIT', 'tinggi', 'batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8)')
+   if (q.visual === 'none' && /\b(gambar|lihat|perhatikan|diagram|tabel)\b/i.test(q.prompt)) add('RUJUK-GAMBAR-TANPA-VISUAL', 'sedang', `soal menyebut gambar/tabel tapi visual = none: ${clean(q.prompt).slice(0, 80)}`)
+ 
+   let steps: ReturnType<typeof solutionSteps> = []
+@@ -169,10 +156,9 @@
+   md.push('## 1. Ringkasan', '', `- Kombinasi tanpa temuan apa pun: **${clean_}** dari ${combos.length}`, '', '| Tingkat | Kode | Jumlah soal | Kombinasi terdampak | Contoh |', '|---|---|---|---|---|')
+   for (const [code, row] of codes) md.push(`| ${row.severity} | \`${code}\` | ${row.count} | ${row.combos.size} | ${clean(row.example).slice(0, 110)} |`)
+   md.push('', '## 2. Temuan dari membaca kode (berlaku global)', '')
+-  md.push('1. **Urutan tabel nilai tempat terbalik.** `PlaceValue` memakai `.reverse()` dan tidak membaliknya lagi, jadi 1.058 tampil sebagai 8, 5, 0, 1 (satuan paling kiri). Cara baca angka di buku adalah ribuan paling kiri.')
++  md.push('1. (Sudah diperbaiki di Commit 2) Tabel nilai tempat kini ribuan di kiri; visual yang tidak cocok disembunyikan oleh `visual-guard.ts` (kode VISUAL-DISEMBUNYIKAN).')
+   md.push('2. **Garis bilangan tidak proporsional.** Titik-titiknya disebar rata (`flex: 1`) berapa pun nilainya, padahal teksnya meminta anak memperhatikan letak nilai.')
+   md.push('3. **Kode mati.** `AngleVisual` dan `VolumeVisual` didefinisikan tapi tidak dipanggil `VisualAid`.')
+-  md.push('4. **Batang pecahan bercaption tanpa label** terjepit di kolom `auto` (CSS `.fm-row`), tampil sebagai garis hitam. Terlihat di screenshot soal 5/8 + 1/8.')
+   md.push('', '## 3. Per tipe soal', '')
+   let currentTopic = ''
+   for (const result of results) {
+diff -ruN base3/RuHit-master/client/src/components/VisualAid.test.tsx ruhit/RuHit-master/client/src/components/VisualAid.test.tsx
+--- base3/RuHit-master/client/src/components/VisualAid.test.tsx	1970-01-01 00:00:00.000000000 +0000
++++ ruhit/RuHit-master/client/src/components/VisualAid.test.tsx	2026-11-15 09:17:29.842186591 +0000
+@@ -0,0 +1,53 @@
++// @vitest-environment jsdom
++import { afterEach, describe, expect, it } from 'vitest'
++import { cleanup, render } from '@testing-library/react'
++import { VisualAid } from './VisualAid'
++import type { LearningQuestion, VisualKind } from '../lib/learning/types'
++
++afterEach(() => cleanup())
++
++const q = (typeId: string, visual: VisualKind, params: LearningQuestion['params']): LearningQuestion => ({ id: 't', typeId, topicId: 'uji', params, prompt: '', expected: '', explanation: '', hints: ['', '', ''], misconception: '', visual })
++const digits = (row: Element) => [...row.querySelectorAll('.place-value-cell strong')].map((item) => item.textContent)
++const labels = (row: Element) => [...row.querySelectorAll('.place-value-cell small')].map((item) => item.textContent)
++
++describe('VisualAid: tabel nilai tempat', () => {
++  it('ribuan di kiri dan satuan di kanan (urutan baca biasa)', () => {
++    const { container } = render(<VisualAid question={q('whole-place-value', 'place-value', { value: 1058, position: 0 })} />)
++    const row = container.querySelector('.place-value-row')!
++    expect(digits(row)).toEqual(['1', '0', '5', '8'])
++    expect(labels(row)).toEqual(['Ribuan', 'Ratusan', 'Puluhan', 'Satuan'])
++    expect(container.querySelector('.place-value-name')).toBeNull()
++  })
++
++  it('soal membandingkan menggambar kedua bilangan, A dan B', () => {
++    const { container } = render(<VisualAid question={q('whole-compare', 'place-value', { a: 1058, b: 9812 })} />)
++    const rows = container.querySelectorAll('.place-value-row')
++    expect(rows).toHaveLength(2)
++    expect(digits(rows[0])).toEqual(['1', '0', '5', '8'])
++    expect(digits(rows[1])).toEqual(['9', '8', '1', '2'])
++    expect([...container.querySelectorAll('.place-value-name')].map((item) => item.textContent)).toEqual(['A', 'B'])
++  })
++
++  it('bilangan yang lebih pendek diberi sel kosong supaya tempat yang sama sekolom', () => {
++    const { container } = render(<VisualAid question={q('whole-add', 'place-value', { a: 58, b: 9812 })} />)
++    const rows = container.querySelectorAll('.place-value-row')
++    expect(rows[0].querySelectorAll('.is-empty')).toHaveLength(2)
++    expect(rows[1].querySelectorAll('.is-empty')).toHaveLength(0)
++    expect(labels(rows[0])).toEqual(labels(rows[1]))
++  })
++})
++
++describe('VisualAid: penjaga', () => {
++  it('tidak menggambar apa pun untuk visual yang akan menyesatkan atau membocorkan jawaban', () => {
++    for (const question of [q('whole-compose', 'place-value', { value: 4321, hundreds: 3 }), q('money-change', 'blocks', {}), q('area-square', 'grid', { side: 8 }), q('compare-length', 'chart', {})]) {
++      const { container } = render(<VisualAid question={question} />)
++      expect(container.innerHTML, question.typeId).toBe('')
++      cleanup()
++    }
++  })
++
++  it('kisi yang valid tetap tampil dengan jumlah petak yang benar', () => {
++    const { container } = render(<VisualAid question={q('area-rectangle', 'grid', { length: 6, width: 4 })} />)
++    expect(container.querySelectorAll('.area-grid-cell')).toHaveLength(24)
++  })
++})
+diff -ruN base3/RuHit-master/client/src/components/VisualAid.tsx ruhit/RuHit-master/client/src/components/VisualAid.tsx
+--- base3/RuHit-master/client/src/components/VisualAid.tsx	2026-11-15 09:17:29.848136313 +0000
++++ ruhit/RuHit-master/client/src/components/VisualAid.tsx	2026-11-15 09:16:52.535655395 +0000
+@@ -1,12 +1,26 @@
+ import type { LearningQuestion, VisualKind } from '../lib/learning/types'
++import { placeValueNumbers, usableVisual } from '../lib/learning/visual-guard'
+ import { FractionModel } from './FractionModel'
+ 
++const placeLabels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
++
++/** Tabel nilai tempat dengan urutan baca biasa (ribuan di kiri). Dua bilangan digambar sejajar supaya tempat yang sama berada satu kolom. */
+ function PlaceValue({ question }: { question: LearningQuestion }) {
+-  const value = Number(question.params.value ?? question.params.a ?? 0)
+-  const digits = String(value).split('').reverse()
+-  const labels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
+-  return <div className="place-value-visual" aria-label="Tabel nilai tempat">
+-    {digits.slice(0, 6).map((digit, index) => <div className="place-value-cell" key={`${digit}-${index}`}><strong>{digit}</strong><small>{labels[index]}</small></div>)}
++  const numbers = placeValueNumbers(question) ?? []
++  const width = Math.max(1, ...numbers.map((value) => String(value).length))
++  const labels = placeLabels.slice(0, width).reverse()
++  const names = question.typeId.includes('compare') ? ['A', 'B'] : ['Atas', 'Bawah']
++  return <div className="place-value-group" role="group" aria-label="Tabel nilai tempat">
++    {numbers.map((value, row) => (
++      <div className="place-value-row" key={row}>
++        {numbers.length > 1 && <span className="place-value-name">{names[row]}</span>}
++        <div className="place-value-visual">
++          {String(value).padStart(width, ' ').split('').map((digit, index) => digit === ' '
++            ? <div className="place-value-cell is-empty" key={index}><strong aria-hidden="true">·</strong><small>{labels[index]}</small></div>
++            : <div className="place-value-cell" key={index}><strong>{digit}</strong><small>{labels[index]}</small></div>)}
++        </div>
++      </div>
++    ))}
+   </div>
+ }
+ 
+@@ -81,7 +95,8 @@
+ }
+ 
+ export function VisualAid({ question, kind }: { question: LearningQuestion; kind?: VisualKind }) {
+-  const visual = kind ?? question.visual
++  const visual = kind ?? usableVisual(question)
++  if (visual === 'hidden') return null
+   if (visual === 'fraction-bar') return <FractionModel question={question} />
+   if (visual === 'place-value' || visual === 'blocks') return <PlaceValue question={question} />
+   if (visual === 'number-line') return <NumberLine question={question} />
+diff -ruN base3/RuHit-master/client/src/lib/learning/visual-guard.test.ts ruhit/RuHit-master/client/src/lib/learning/visual-guard.test.ts
+--- base3/RuHit-master/client/src/lib/learning/visual-guard.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ ruhit/RuHit-master/client/src/lib/learning/visual-guard.test.ts	2026-11-15 09:17:29.841497559 +0000
+@@ -0,0 +1,61 @@
++import { describe, expect, it } from 'vitest'
++import { generateQuestion } from './engine'
++import { gridSize, placeValueNumbers, usableVisual } from './visual-guard'
++import type { LearningQuestion, VisualKind } from './types'
++
++const q = (typeId: string, visual: VisualKind, params: LearningQuestion['params']): LearningQuestion => ({ id: 't', typeId, topicId: 'uji', params, prompt: '', expected: '', explanation: '', hints: ['', '', ''], misconception: '', visual })
++const seeded = (seed: number) => { let state = seed; return () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296 } }
++
++describe('visual-guard: tabel nilai tempat', () => {
++  it('whole-compose tidak pernah menggambar tabel (tabelnya adalah jawabannya)', () => {
++    for (let seed = 1; seed <= 50; seed += 1) {
++      const question = generateQuestion('whole-compose', 'uji', seeded(seed), 5, seed % 5)
++      expect(usableVisual(question), question.prompt).toBe('hidden')
++    }
++  })
++
++  it('soal dua bilangan menggambar keduanya, soal satu bilangan menggambar satu', () => {
++    expect(usableVisual(q('whole-compare', 'place-value', { a: 1058, b: 9812 }))).toBe('place-value')
++    expect(placeValueNumbers(q('whole-compare', 'place-value', { a: 1058, b: 9812 }))).toEqual([1058, 9812])
++    expect(placeValueNumbers(q('whole-place-value', 'place-value', { value: 4532, position: 2 }))).toEqual([4532])
++  })
++
++  it('tipe yang nilai tempatnya tidak bermakna atau salah skala disembunyikan', () => {
++    expect(usableVisual(q('decimal-add', 'place-value', { a: 12, b: 88 }))).toBe('hidden')
++    expect(usableVisual(q('money-change', 'blocks', {}))).toBe('hidden')
++    expect(usableVisual(q('ratio-simplify', 'place-value', { a: 12, b: 18 }))).toBe('hidden')
++    expect(usableVisual(q('whole-add', 'place-value', { a: 1234567, b: 5 }))).toBe('hidden')
++    expect(usableVisual(q('whole-add', 'place-value', {}))).toBe('hidden')
++  })
++})
++
++describe('visual-guard: kisi, garis bilangan, diagram', () => {
++  it('kisi hanya tampil kalau kolom dan baris eksplisit dan muat; persegi bersisi 8 tidak lagi jadi 8x3', () => {
++    expect(usableVisual(q('area-square', 'grid', { side: 8 }))).toBe('hidden')
++    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toBe('grid')
++    expect(gridSize(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toEqual({ columns: 6, rows: 4 })
++    expect(usableVisual(q('area-rectangle', 'grid', { length: 12, width: 4 }))).toBe('hidden')
++    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 9 }))).toBe('hidden')
++  })
++
++  it('garis bilangan dan diagram tanpa data sungguhan disembunyikan', () => {
++    expect(usableVisual(q('pattern-additive', 'number-line', { start: 2, step: 3 }))).toBe('hidden')
++    expect(usableVisual(q('whole-order', 'number-line', { values: [5, 2, 9] }))).toBe('number-line')
++    expect(usableVisual(q('decimal-compare', 'number-line', { a: 1.5, b: 2.5 }))).toBe('number-line')
++    expect(usableVisual(q('compare-length', 'chart', {}))).toBe('hidden')
++    expect(usableVisual(q('bar-chart-read', 'chart', { values: [3, 5, 2] }))).toBe('chart')
++    expect(usableVisual(q('bar-chart-read', 'chart', { values: [3] }))).toBe('hidden')
++  })
++
++  it('bangun, posisi, pola, turus: hanya disembunyikan kalau parameternya tidak ada', () => {
++    expect(usableVisual(q('shape-recognition', 'shape', {}))).toBe('hidden')
++    expect(usableVisual(q('shape-recognition', 'shape', { sides: 5 }))).toBe('shape')
++    expect(usableVisual(q('position-objects', 'position', { position: 'kanan' }))).toBe('position')
++    expect(usableVisual(q('pattern-shape', 'pattern', { first: 'lingkaran' }))).toBe('hidden')
++    expect(usableVisual(q('count-objects', 'tally', {}))).toBe('hidden')
++  })
++
++  it('visual lain (pecahan, sudut, volume, none) diteruskan apa adanya', () => {
++    for (const kind of ['fraction-bar', 'angle', 'volume', 'none'] as VisualKind[]) expect(usableVisual(q('apa-saja', kind, {}))).toBe(kind)
++  })
++})
+diff -ruN base3/RuHit-master/client/src/lib/learning/visual-guard.ts ruhit/RuHit-master/client/src/lib/learning/visual-guard.ts
+--- base3/RuHit-master/client/src/lib/learning/visual-guard.ts	1970-01-01 00:00:00.000000000 +0000
++++ ruhit/RuHit-master/client/src/lib/learning/visual-guard.ts	2026-11-15 09:16:52.526020546 +0000
+@@ -0,0 +1,65 @@
++import type { LearningQuestion, VisualKind } from './types'
++
++/** Hasil keputusan: jenis visual yang boleh digambar, atau 'hidden' kalau visual akan menyesatkan atau membocorkan jawaban. */
++export type VisualDecision = VisualKind | 'hidden'
++
++const isNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
++const isCount = (value: unknown, min: number, max: number): value is number => isNumber(value) && Number.isInteger(value) && value >= min && value <= max
++const firstOf = (question: LearningQuestion, keys: string[]) => keys.map((key) => question.params[key]).find((value) => value !== undefined)
++
++/**
++ * Tabel nilai tempat hanya bermakna untuk tipe yang memang membahas bilangan bulat.
++ * Sengaja tidak termasuk: whole-compose (tabelnya adalah jawabannya), desimal (angka disimpan sebagai bilangan bulat berskala),
++ * serta perkalian, pembagian, rasio, uang, dan konversi satuan (nilai tempat tidak membantu dan dulu tampil sebagai "0 Satuan").
++ */
++const placeValueTypes: ReadonlySet<string> = new Set(['whole-place-value', 'whole-compare', 'compare-whole', 'whole-add', 'add-whole', 'whole-subtract', 'subtract-whole'])
++
++/** Bilangan yang digambar di tabel nilai tempat: satu (value) atau dua (a dan b), maksimal 6 digit. Null kalau tidak boleh digambar. */
++export function placeValueNumbers(question: LearningQuestion): number[] | null {
++  if (!placeValueTypes.has(question.typeId)) return null
++  const { value, a, b } = question.params
++  const ok = (item: unknown): item is number => isCount(item, 0, 999999)
++  if (question.typeId !== 'whole-place-value' && ok(a) && ok(b)) return [a, b]
++  if (ok(value)) return [value]
++  if (ok(a)) return [a]
++  return null
++}
++
++/** Ukuran kisi yang sungguh dipakai GridVisual: kolom dari columns/length/side, baris dari rows/width/height. */
++export function gridSize(question: LearningQuestion): { columns: number; rows: number } | null {
++  const columns = firstOf(question, ['columns', 'length', 'side'])
++  const rows = firstOf(question, ['rows', 'width', 'height'])
++  return isCount(columns, 2, 8) && isCount(rows, 2, 6) ? { columns, rows } : null
++}
++
++const numericList = (value: unknown, min: number) => Array.isArray(value) && value.length >= min && value.every(isNumber)
++
++/**
++ * Penjaga: visual yang parameternya tidak lengkap dulu memakai nilai bawaan yang salah
++ * (kisi 8x3 untuk persegi sisi 8, diagram [3, 5, 2] untuk soal pita, "0 Satuan" untuk kembalian).
++ * Lebih baik tidak ada gambar daripada gambar yang salah.
++ */
++export function usableVisual(question: LearningQuestion): VisualDecision {
++  const params = question.params
++  switch (question.visual) {
++    case 'place-value':
++    case 'blocks':
++      return placeValueNumbers(question) ? question.visual : 'hidden'
++    case 'number-line':
++      return numericList(params.values, 2) || (isNumber(params.a) && isNumber(params.b)) ? question.visual : 'hidden'
++    case 'grid':
++      return gridSize(question) ? question.visual : 'hidden'
++    case 'chart':
++      return numericList(params.values, 2) || numericList(params.counts, 2) ? question.visual : 'hidden'
++    case 'shape':
++      return params.sides !== undefined ? question.visual : 'hidden'
++    case 'position':
++      return params.position !== undefined ? question.visual : 'hidden'
++    case 'pattern':
++      return params.first !== undefined && params.second !== undefined ? question.visual : 'hidden'
++    case 'tally':
++      return params.count !== undefined ? question.visual : 'hidden'
++    default:
++      return question.visual
++  }
++}
+diff -ruN base3/RuHit-master/client/src/styles/learning.css ruhit/RuHit-master/client/src/styles/learning.css
+--- base3/RuHit-master/client/src/styles/learning.css	2026-11-15 09:17:29.849735511 +0000
++++ ruhit/RuHit-master/client/src/styles/learning.css	2026-11-15 09:17:02.587646155 +0000
+@@ -21,6 +21,11 @@
+ .place-value-visual { display: flex; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed var(--line); border-radius: 12px; background: #fffdf7; }
+ .place-value-cell { display: flex; min-width: 48px; flex-direction: column; align-items: center; gap: 5px; padding: 7px 4px; border: 1px solid var(--line-strong); border-radius: 7px; background: white; }
+ .place-value-cell strong { font-family: 'Fraunces Variable', Georgia, serif; font-size: 22px; }
++.place-value-group { display: grid; gap: 10px; max-width: 520px; margin: 18px auto 24px; }
++.place-value-row { display: flex; align-items: center; gap: 10px; }
++.place-value-name { min-width: 48px; color: var(--muted); font-size: var(--fs-caption); font-weight: 850; }
++.place-value-group .place-value-visual { flex: 1; min-width: 0; max-width: none; margin: 0; }
++.place-value-cell.is-empty { border-style: dashed; background: transparent; color: var(--muted); }
+ .place-value-cell small { max-width: 100%; color: var(--muted); font-size: var(--fs-caption); font-weight: 800; overflow-wrap: anywhere; text-align: center; }
+ .number-line-visual { position: relative; display: flex; min-height: 100px; align-items: center; justify-content: space-around; gap: 6px; padding: 16px 10px 28px; }
+ .number-line-track { position: absolute; top: 44px; right: 10px; left: 10px; height: 3px; background: var(--line-strong); }

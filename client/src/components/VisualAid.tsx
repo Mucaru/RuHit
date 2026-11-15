@@ -1,12 +1,26 @@
 import type { LearningQuestion, VisualKind } from '../lib/learning/types'
+import { placeValueNumbers, usableVisual } from '../lib/learning/visual-guard'
 import { FractionModel } from './FractionModel'
 
+const placeLabels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
+
+/** Tabel nilai tempat dengan urutan baca biasa (ribuan di kiri). Dua bilangan digambar sejajar supaya tempat yang sama berada satu kolom. */
 function PlaceValue({ question }: { question: LearningQuestion }) {
-  const value = Number(question.params.value ?? question.params.a ?? 0)
-  const digits = String(value).split('').reverse()
-  const labels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
-  return <div className="place-value-visual" aria-label="Tabel nilai tempat">
-    {digits.slice(0, 6).map((digit, index) => <div className="place-value-cell" key={`${digit}-${index}`}><strong>{digit}</strong><small>{labels[index]}</small></div>)}
+  const numbers = placeValueNumbers(question) ?? []
+  const width = Math.max(1, ...numbers.map((value) => String(value).length))
+  const labels = placeLabels.slice(0, width).reverse()
+  const names = question.typeId.includes('compare') ? ['A', 'B'] : ['Atas', 'Bawah']
+  return <div className="place-value-group" role="group" aria-label="Tabel nilai tempat">
+    {numbers.map((value, row) => (
+      <div className="place-value-row" key={row}>
+        {numbers.length > 1 && <span className="place-value-name">{names[row]}</span>}
+        <div className="place-value-visual">
+          {String(value).padStart(width, ' ').split('').map((digit, index) => digit === ' '
+            ? <div className="place-value-cell is-empty" key={index}><strong aria-hidden="true">·</strong><small>{labels[index]}</small></div>
+            : <div className="place-value-cell" key={index}><strong>{digit}</strong><small>{labels[index]}</small></div>)}
+        </div>
+      </div>
+    ))}
   </div>
 }
 
@@ -81,7 +95,8 @@ function TallyVisual({ question }: { question: LearningQuestion }) {
 }
 
 export function VisualAid({ question, kind }: { question: LearningQuestion; kind?: VisualKind }) {
-  const visual = kind ?? question.visual
+  const visual = kind ?? usableVisual(question)
+  if (visual === 'hidden') return null
   if (visual === 'fraction-bar') return <FractionModel question={question} />
   if (visual === 'place-value' || visual === 'blocks') return <PlaceValue question={question} />
   if (visual === 'number-line') return <NumberLine question={question} />

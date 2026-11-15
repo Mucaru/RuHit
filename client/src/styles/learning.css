@@ -21,6 +21,11 @@
 .place-value-visual { display: flex; justify-content: center; gap: 6px; padding: 12px; border: 1.5px dashed var(--line); border-radius: 12px; background: #fffdf7; }
 .place-value-cell { display: flex; min-width: 48px; flex-direction: column; align-items: center; gap: 5px; padding: 7px 4px; border: 1px solid var(--line-strong); border-radius: 7px; background: white; }
 .place-value-cell strong { font-family: 'Fraunces Variable', Georgia, serif; font-size: 22px; }
+.place-value-group { display: grid; gap: 10px; max-width: 520px; margin: 18px auto 24px; }
+.place-value-row { display: flex; align-items: center; gap: 10px; }
+.place-value-name { min-width: 48px; color: var(--muted); font-size: var(--fs-caption); font-weight: 850; }
+.place-value-group .place-value-visual { flex: 1; min-width: 0; max-width: none; margin: 0; }
+.place-value-cell.is-empty { border-style: dashed; background: transparent; color: var(--muted); }
 .place-value-cell small { max-width: 100%; color: var(--muted); font-size: var(--fs-caption); font-weight: 800; overflow-wrap: anywhere; text-align: center; }
 .number-line-visual { position: relative; display: flex; min-height: 100px; align-items: center; justify-content: space-around; gap: 6px; padding: 16px 10px 28px; }
 .number-line-track { position: absolute; top: 44px; right: 10px; left: 10px; height: 3px; background: var(--line-strong); }

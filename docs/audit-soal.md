@@ -6,28 +6,25 @@ Ini temuan HEURISTIK dari data dan hasil membaca kode: bukan bukti bug sampai di
 
 ## 1. Ringkasan
 
-- Kombinasi tanpa temuan apa pun: **34** dari 188
+- Kombinasi tanpa temuan apa pun: **47** dari 188
 
 | Tingkat | Kode | Jumlah soal | Kombinasi terdampak | Contoh |
 |---|---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 1740 | 58 | chart: tanpa values/counts: diagram memakai data bawaan [3, 5, 2] |
-| tinggi | `VISUAL-HANYA-SATU` | 930 | 31 | visual nilai tempat hanya menggambar a=12, bilangan b=11 tidak tampil |
-| tinggi | `BATANG-SEMPIT` | 240 | 8 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat  |
-| tinggi | `PILIHAN-GANDA-SAMA` | 87 | 6 | pilihan duplikat [16 – 15 – 10 \| 10 – 15 – 16 \| 10 – 15 – 16] |
+| tinggi | `VISUAL-BOCOR` | 4 | 3 | tabel nilai tempat menampilkan jawaban "10" |
 | sedang | `SOAL-MONOTON` | 390 | 13 | hanya 2 soal berbeda dari 30 percobaan |
 | sedang | `VISUAL-PECAHAN-DEFAULT` | 270 | 7 | tipe ini jatuh ke cabang default FractionModel (satu batang saja) |
 | sedang | `VISUAL-TIDAK-TAMPIL` | 60 | 2 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudu |
 | sedang | `PETUNJUK-BOCOR` | 22 | 4 | petunjuk 1/2 sudah menyebut jawaban "100" |
 | sedang | `SOAL-BOCOR` | 4 | 2 | soal sudah memuat jawaban "2/5" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 2313 | 78 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `ANGKA-TANPA-TITIK` | 140 | 6 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 789, 4062, 7627. |
 | rendah | `KESULITAN-TIDAK-NAIK` | 81 | 80 | angka terbesar rata-rata level 0 = 20, level 4 = 20 |
 
 ## 2. Temuan dari membaca kode (berlaku global)
 
-1. **Urutan tabel nilai tempat terbalik.** `PlaceValue` memakai `.reverse()` dan tidak membaliknya lagi, jadi 1.058 tampil sebagai 8, 5, 0, 1 (satuan paling kiri). Cara baca angka di buku adalah ribuan paling kiri.
+1. (Sudah diperbaiki di Commit 2) Tabel nilai tempat kini ribuan di kiri; visual yang tidak cocok disembunyikan oleh `visual-guard.ts` (kode VISUAL-DISEMBUNYIKAN).
 2. **Garis bilangan tidak proporsional.** Titik-titiknya disebar rata (`flex: 1`) berapa pun nilainya, padahal teksnya meminta anak memperhatikan letak nilai.
 3. **Kode mati.** `AngleVisual` dan `VolumeVisual` didefinisikan tapi tidak dipanggil `VisualAid`.
-4. **Batang pecahan bercaption tanpa label** terjepit di kolom `auto` (CSS `.fm-row`), tampil sebagai garis hitam. Terlihat di screenshot soal 5/8 + 1/8.
 
 ## 3. Per tipe soal
 
@@ -62,9 +59,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 28 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=12, bilangan b=11 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Bilangan mana yang lebih besar? A: 12 atau B: 11?
   - params: `{"a":12,"b":11}`
@@ -94,9 +89,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 28 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=11, bilangan b=18 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 11 + 18.
   - params: `{"a":11,"b":18}`
@@ -121,9 +114,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=10, bilangan b=17 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 10 + 17.
   - params: `{"a":10,"b":17}`
@@ -150,7 +141,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=20, bilangan b=11 tidak tampil |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 20, level 4 = 20 |
 
 - **Contoh** visual `place-value`: Hitung 20 − 11.
@@ -178,7 +168,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=20, bilangan b=15 tidak tampil |
+| tinggi | `VISUAL-BOCOR` | 1 | tabel nilai tempat menampilkan jawaban "10" |
 
 - **Contoh** visual `place-value`: Hitung 20 − 15.
   - params: `{"a":20,"b":15}`
@@ -301,7 +291,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | chart: tanpa values/counts: diagram memakai data bawaan [3, 5, 2] |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `chart`: Pita A panjangnya 67 cm dan pita B 45 cm. Pita mana yang lebih panjang?
   - params: `{"a":67,"b":45}`
@@ -331,7 +321,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | chart: tanpa values/counts: diagram memakai data bawaan [3, 5, 2] |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 79, level 4 = 60 |
 
 - **Contoh** visual `chart`: Pita A panjangnya 88 cm dan pita B 72 cm. Pita mana yang lebih panjang?
@@ -362,7 +352,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | chart: tanpa values/counts: diagram memakai data bawaan [3, 5, 2] |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `chart`: Karung A beratnya 4 kg dan karung B 8 kg. Karung mana yang lebih berat?
   - params: `{"a":4,"b":8}`
@@ -392,7 +382,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | chart: tanpa values/counts: diagram memakai data bawaan [3, 5, 2] |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `chart`: Karung A beratnya 5 kg dan karung B 20 kg. Karung mana yang lebih berat?
   - params: `{"a":5,"b":20}`
@@ -658,7 +648,9 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 29 berbeda.
 
-Tidak ada temuan otomatis.
+| Tingkat | Kode | Jumlah | Contoh |
+|---|---|---|---|
+| tinggi | `VISUAL-BOCOR` | 2 | tabel nilai tempat menampilkan jawaban "50" |
 
 - **Contoh** visual `place-value`: Pada bilangan 88, berapa nilai angka 8?
   - params: `{"value":88,"position":1}`
@@ -708,7 +700,9 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 29 berbeda.
 
-Tidak ada temuan otomatis.
+| Tingkat | Kode | Jumlah | Contoh |
+|---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Susun bilangan dari 0 ratusan, 1 puluhan, dan 9 satuan.
   - params: `{"thousands":0,"hundreds":0,"tens":1,"ones":9,"value":19}`
@@ -735,6 +729,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 8, level 4 = 7 |
 
 - **Contoh** visual `place-value`: Susun bilangan dari 7 ratusan, 0 puluhan, dan 5 satuan.
@@ -760,9 +755,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 29 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=20, bilangan b=11 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Bilangan mana yang lebih besar? A: 20 atau B: 11?
   - params: `{"a":20,"b":11}`
@@ -790,9 +783,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=8415, bilangan b=5514 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Bilangan mana yang lebih besar? A: 8.415 atau B: 5.514?
   - params: `{"a":8415,"b":5514}`
@@ -822,7 +813,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 12 | pilihan duplikat [16 – 15 – 10 \| 10 – 15 – 16 \| 10 – 15 – 16] |
 | rendah | `ANGKA-TANPA-TITIK` | 18 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 789, 4062, 7627. |
 
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 18, 12, 20.
@@ -834,14 +824,14 @@ Tidak ada temuan otomatis.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 789, 4062, 7627.
   - params: `{"values":[789,4062,7627]}`
-  - pilihan: `789 – 4062 – 7627`, `789 – 4062 – 7627`, `7627 – 4062 – 789`
+  - pilihan: `789 – 4062 – 7627`, `7627 – 4062 – 789`, `789 – 7627 – 4062`
   - jawaban: `789 – 4062 – 7627`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 789 – 4062 – 7627.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 7521, 975, 903.
   - params: `{"values":[7521,975,903]}`
-  - pilihan: `903 – 975 – 7521`, `7521 – 975 – 903`, `7521 – 975 – 903`
+  - pilihan: `903 – 975 – 7521`, `7521 – 975 – 903`, `903 – 7521 – 975`
   - jawaban: `903 – 975 – 7521`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 903 – 975 – 7521.
@@ -853,7 +843,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 12 | pilihan duplikat [2441 – 3730 – 6744 \| 2441 – 3730 – 6744 \| 6744 – 3730 – 2441] |
 | rendah | `ANGKA-TANPA-TITIK` | 30 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 7948, 9011, 6905. |
 
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 7948, 9011, 6905.
@@ -872,7 +861,7 @@ Tidak ada temuan otomatis.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 49695, 49429, 36662.
   - params: `{"values":[49695,49429,36662]}`
-  - pilihan: `49695 – 49429 – 36662`, `36662 – 49429 – 49695`, `49695 – 49429 – 36662`
+  - pilihan: `49695 – 49429 – 36662`, `36662 – 49429 – 49695`, `36662 – 49695 – 49429`
   - jawaban: `36662 – 49429 – 49695`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 36662 – 49429 – 49695.
@@ -884,9 +873,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=13, bilangan b=18 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 13 + 18.
   - params: `{"a":13,"b":18}`
@@ -911,9 +898,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=701, bilangan b=598 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 701 + 598.
   - params: `{"a":701,"b":598}`
@@ -940,7 +925,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=20, bilangan b=14 tidak tampil |
+| tinggi | `VISUAL-BOCOR` | 1 | tabel nilai tempat menampilkan jawaban "10" |
 
 - **Contoh** visual `place-value`: Hitung 20 − 14.
   - params: `{"a":20,"b":14}`
@@ -965,9 +950,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=780, bilangan b=678 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 780 − 678.
   - params: `{"a":780,"b":678}`
@@ -994,7 +977,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=51, bilangan b=10 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 51 × 10.
   - params: `{"a":51,"b":10}`
@@ -1021,7 +1004,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=63, bilangan b=11 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 63 × 11.
   - params: `{"a":63,"b":11}`
@@ -1048,7 +1031,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 565, level 4 = 358 |
 
 - **Contoh** visual `place-value`: Hitung 644 ÷ 7.
@@ -1076,7 +1059,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 800 ÷ 10.
   - params: `{"dividend":800,"divisor":10}`
@@ -1105,7 +1088,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 25, level 4 = 21 |
 
 - **Contoh** visual `number-line`: Tuliskan semua faktor dari 15, urut dari kecil. Pisahkan dengan koma.
@@ -1133,7 +1116,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Apakah 16 bilangan prima?
   - params: `{"n":16}`
@@ -1381,7 +1364,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 7, level 4 = 7 |
 
 - **Contoh** visual `number-line`: Bilangan desimal mana yang lebih besar: 0,6 atau 0,8?
@@ -1412,7 +1395,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 52, level 4 = 49 |
 
 - **Contoh** visual `place-value`: Pada bilangan 81,6, berapa nilai angka persepuluhannya?
@@ -1469,7 +1452,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Pola: 16, 18, 20, ... Angka berikutnya?
   - params: `{"start":16,"step":2}`
@@ -1496,7 +1479,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 26, level 4 = 21 |
 
 - **Contoh** visual `number-line`: Pola: 13, 19, 25, ... Angka berikutnya?
@@ -1524,7 +1507,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=29, bilangan b=81 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 103, level 4 = 74 |
 
 - **Contoh** visual `blocks`: Lengkapi kalimat: 29 + □ = 110.
@@ -1552,7 +1535,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=69, bilangan b=45 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Lengkapi kalimat: 69 + □ = 114.
   - params: `{"a":69,"b":45,"sum":114}`
@@ -1581,8 +1564,8 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
 | sedang | `PETUNJUK-BOCOR` | 3 | petunjuk 1/2 sudah menyebut jawaban "100" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 8, level 4 = 5 |
 
 - **Contoh** visual `blocks`: 4 meter sama dengan berapa sentimeter?
@@ -1610,8 +1593,8 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
 | sedang | `PETUNJUK-BOCOR` | 2 | petunjuk 1/2 sudah menyebut jawaban "100" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 9, level 4 = 5 |
 
 - **Contoh** visual `blocks`: 11 meter sama dengan berapa sentimeter?
@@ -1639,7 +1622,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: 1 kilogram sama dengan berapa gram?
   - params: `{"kg":1}`
@@ -1666,7 +1649,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 4, level 4 = 3 |
 
 - **Contoh** visual `blocks`: 3 kilogram sama dengan berapa gram?
@@ -1694,7 +1677,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 2 panjang, 4 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":2,"width":4,"height":2}`
@@ -1721,7 +1704,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 6, level 4 = 4 |
 
 - **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
@@ -2069,6 +2052,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 9, level 4 = 6 |
 
 - **Contoh** visual `place-value`: Susun bilangan dari 9 ratusan, 4 puluhan, dan 5 satuan.
@@ -2096,6 +2080,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 9, level 4 = 8 |
 
 - **Contoh** visual `place-value`: Susun bilangan dari 5 ribuan, 8 ratusan, 2 puluhan, dan 7 satuan.
@@ -2121,9 +2106,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=6605, bilangan b=2113 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Bilangan mana yang lebih besar? A: 6.605 atau B: 2.113?
   - params: `{"a":6605,"b":2113}`
@@ -2153,7 +2136,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=63745, bilangan b=10358 tidak tampil |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 70993, level 4 = 52370 |
 
 - **Contoh** visual `place-value`: Bilangan mana yang lebih besar? A: 63.745 atau B: 10.358?
@@ -2184,7 +2166,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 6 | pilihan duplikat [5753 – 7523 – 8440 \| 8440 – 7523 – 5753 \| 5753 – 7523 – 8440] |
 | rendah | `ANGKA-TANPA-TITIK` | 30 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 5804, 5037, 6395. |
 
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 5804, 5037, 6395.
@@ -2203,7 +2184,7 @@ Tidak ada temuan otomatis.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 27964, 83788, 88146.
   - params: `{"values":[27964,83788,88146]}`
-  - pilihan: `27964 – 83788 – 88146`, `27964 – 83788 – 88146`, `88146 – 83788 – 27964`
+  - pilihan: `27964 – 83788 – 88146`, `88146 – 83788 – 27964`, `27964 – 88146 – 83788`
   - jawaban: `27964 – 83788 – 88146`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 27964 – 83788 – 88146.
@@ -2215,7 +2196,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 11 | pilihan duplikat [44077 – 55721 – 73815 \| 44077 – 55721 – 73815 \| 73815 – 55721 – 44077] |
 | rendah | `ANGKA-TANPA-TITIK` | 30 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 14690, 94647, 35281. |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 80707, level 4 = 73639 |
 
@@ -2228,14 +2208,14 @@ Tidak ada temuan otomatis.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 8599, 29352, 53775.
   - params: `{"values":[8599,29352,53775]}`
-  - pilihan: `8599 – 29352 – 53775`, `53775 – 29352 – 8599`, `8599 – 29352 – 53775`
+  - pilihan: `53775 – 29352 – 8599`, `8599 – 53775 – 29352`, `8599 – 29352 – 53775`
   - jawaban: `8599 – 29352 – 53775`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 8599 – 29352 – 53775.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 - **Contoh** visual `number-line`: Urutkan dari yang terkecil: 96818, 92981, 50928.
   - params: `{"values":[96818,92981,50928]}`
-  - pilihan: `96818 – 92981 – 50928`, `50928 – 92981 – 96818`, `96818 – 92981 – 50928`
+  - pilihan: `50928 – 96818 – 92981`, `50928 – 92981 – 96818`, `96818 – 92981 – 50928`
   - jawaban: `50928 – 92981 – 96818`
   - petunjuk: 1) Perhatikan jumlah digit. 2) Bandingkan nilai tempat dari kiri. 3) Susun dari nilai paling kecil ke paling besar.
   - penjelasan: Urutan yang benar: 50928 – 92981 – 96818.
@@ -2247,7 +2227,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 75000, level 4 = 66667 |
 
 - **Contoh** visual `blocks`: Di pasar, harga 1 kg jeruk Rp95.000. Kamu membayar Rp120.000. Berapa kembaliannya?
@@ -2275,7 +2255,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Di pasar, harga 1 kg jeruk Rp17.000. Kamu membayar Rp40.000. Berapa kembaliannya?
   - params: `{"price":17000,"paid":40000}`
@@ -2302,9 +2282,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=998, bilangan b=216 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 998 + 216.
   - params: `{"a":998,"b":216}`
@@ -2329,9 +2307,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=93602, bilangan b=42528 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 93.602 + 42.528.
   - params: `{"a":93602,"b":42528}`
@@ -2356,9 +2332,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=754, bilangan b=736 tidak tampil |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 754 − 736.
   - params: `{"a":754,"b":736}`
@@ -2385,7 +2359,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=44013, bilangan b=22433 tidak tampil |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 43773, level 4 = 42176 |
 
 - **Contoh** visual `place-value`: Hitung 44.013 − 22.433.
@@ -2413,7 +2386,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=90, bilangan b=6 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 90 × 6.
   - params: `{"a":90,"b":6}`
@@ -2440,7 +2413,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=16, bilangan b=10 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 16 × 10.
   - params: `{"a":16,"b":10}`
@@ -2467,7 +2440,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 60 ÷ 2.
   - params: `{"dividend":60,"divisor":2}`
@@ -2494,7 +2467,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 3968, level 4 = 3826 |
 
 - **Contoh** visual `place-value`: Hitung 2.000 ÷ 5.
@@ -2524,7 +2497,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 27, level 4 = 24 |
 
 - **Contoh** visual `number-line`: Tuliskan semua faktor dari 37, urut dari kecil. Pisahkan dengan koma.
@@ -2552,7 +2525,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Tuliskan semua faktor dari 45, urut dari kecil. Pisahkan dengan koma.
   - params: `{"n":45}`
@@ -2579,7 +2552,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 40, level 4 = 26 |
 
 - **Contoh** visual `number-line`: Apakah 46 bilangan prima?
@@ -2610,7 +2583,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Apakah 29 bilangan prima?
   - params: `{"n":29}`
@@ -2852,13 +2825,11 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 28 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 21 | pilihan duplikat [1/10 – 4/10 – 9/10 \| 1/10 – 4/10 – 9/10 \| 9/10 – 4/10 – 1/10] |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `fraction-bar`: Urutkan dari terkecil: 1/10, 4/10, 9/10.
   - params: `{"nums":[1,4,9],"d":10}`
-  - pilihan: `1/10 – 4/10 – 9/10`, `1/10 – 4/10 – 9/10`, `9/10 – 4/10 – 1/10`
+  - pilihan: `1/10 – 9/10 – 4/10`, `1/10 – 4/10 – 9/10`, `9/10 – 4/10 – 1/10`
   - jawaban: `1/10 – 4/10 – 9/10`
   - petunjuk: 1) Semua pecahan memiliki penyebut sama. 2) Bandingkan pembilangnya. 3) Urutkan pembilang dari kecil ke besar.
   - penjelasan: Penyebut sama, jadi urutkan pembilangnya: 1/10 – 4/10 – 9/10.
@@ -2872,7 +2843,7 @@ Tidak ada temuan otomatis.
   - langkah Biji: Lihat penyebut > Bandingkan pembilang > Urutkan > Jawabanmu
 - **Contoh** visual `fraction-bar`: Urutkan dari terkecil: 9/10, 3/10, 1/10.
   - params: `{"nums":[9,3,1],"d":10}`
-  - pilihan: `1/10 – 3/10 – 9/10`, `9/10 – 3/10 – 1/10`, `9/10 – 3/10 – 1/10`
+  - pilihan: `1/10 – 3/10 – 9/10`, `9/10 – 3/10 – 1/10`, `1/10 – 9/10 – 3/10`
   - jawaban: `1/10 – 3/10 – 9/10`
   - petunjuk: 1) Semua pecahan memiliki penyebut sama. 2) Bandingkan pembilangnya. 3) Urutkan pembilang dari kecil ke besar.
   - penjelasan: Penyebut sama, jadi urutkan pembilangnya: 1/10 – 3/10 – 9/10.
@@ -2882,9 +2853,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 19 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `PILIHAN-GANDA-SAMA` | 25 | pilihan duplikat [5/6 – 2/6 – 1/6 \| 5/6 – 2/6 – 1/6 \| 1/6 – 2/6 – 5/6] |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `fraction-bar`: Urutkan dari terkecil: 2/4, 1/4, 3/4.
   - params: `{"nums":[2,1,3],"d":4}`
@@ -2902,7 +2871,7 @@ Tidak ada temuan otomatis.
   - langkah Biji: Lihat penyebut > Bandingkan pembilang > Urutkan > Jawabanmu
 - **Contoh** visual `fraction-bar`: Urutkan dari terkecil: 1/8, 6/8, 7/8.
   - params: `{"nums":[1,6,7],"d":8}`
-  - pilihan: `7/8 – 6/8 – 1/8`, `1/8 – 6/8 – 7/8`, `1/8 – 6/8 – 7/8`
+  - pilihan: `7/8 – 6/8 – 1/8`, `1/8 – 7/8 – 6/8`, `1/8 – 6/8 – 7/8`
   - jawaban: `1/8 – 6/8 – 7/8`
   - petunjuk: 1) Semua pecahan memiliki penyebut sama. 2) Bandingkan pembilangnya. 3) Urutkan pembilang dari kecil ke besar.
   - penjelasan: Penyebut sama, jadi urutkan pembilangnya: 1/8 – 6/8 – 7/8.
@@ -3020,7 +2989,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 7, level 4 = 7 |
 
 - **Contoh** visual `fraction-bar`: Hitung 2/10 + 7/10.
@@ -3048,7 +3016,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 7, level 4 = 6 |
 
 - **Contoh** visual `fraction-bar`: Hitung 5/9 + 2/9.
@@ -3074,9 +3041,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `fraction-bar`: Ibu membuat satu kue yang dibagi jadi 6 bagian sama besar. Dewi makan 2/6 bagian dan Citra makan 3/6 bagian. Berapa bagian kue yang sudah dimakan?
   - params: `{"a":2,"b":3,"d":6}`
@@ -3101,9 +3066,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `fraction-bar`: Ibu membuat satu kue yang dibagi jadi 8 bagian sama besar. Gita makan 6/8 bagian dan Hana makan 1/8 bagian. Berapa bagian kue yang sudah dimakan?
   - params: `{"a":6,"b":1,"d":8}`
@@ -3130,7 +3093,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 8, level 4 = 8 |
 
 - **Contoh** visual `fraction-bar`: Hitung 4/8 − 2/8.
@@ -3158,7 +3120,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 7, level 4 = 6 |
 
 - **Contoh** visual `fraction-bar`: Hitung 4/6 − 3/6.
@@ -3186,7 +3147,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | sedang | `SOAL-BOCOR` | 2 | soal sudah memuat jawaban "2/5" |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 8, level 4 = 6 |
 
@@ -3215,7 +3175,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `BATANG-SEMPIT` | 30 | batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8) |
 | sedang | `SOAL-BOCOR` | 2 | soal sudah memuat jawaban "3/10" |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 9, level 4 = 7 |
 
@@ -3610,7 +3569,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 5, level 4 = 4 |
 
 - **Contoh** visual `number-line`: Ubah 6/10 menjadi desimal.
@@ -3638,7 +3597,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Ubah 3/4 menjadi desimal.
   - params: `{"n":3,"d":4}`
@@ -3722,7 +3681,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `number-line`: Bilangan desimal mana yang lebih besar: 0,1 atau 0,6?
   - params: `{"a":1,"c":6}`
@@ -3752,7 +3711,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 8, level 4 = 5 |
 
 - **Contoh** visual `number-line`: Bilangan desimal mana yang lebih besar: 0,2 atau 0,9?
@@ -3841,7 +3800,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 68, level 4 = 51 |
 
 - **Contoh** visual `place-value`: Pada bilangan 78,8, berapa nilai angka persepuluhannya?
@@ -3869,7 +3828,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | place-value: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 60, level 4 = 53 |
 
 - **Contoh** visual `place-value`: Pada bilangan 32,2, berapa nilai angka persepuluhannya?
@@ -3897,7 +3856,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=12, bilangan b=88 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 1,2 + 8,8.
   - params: `{"a":12,"b":88}`
@@ -3924,7 +3883,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=56, bilangan b=78 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 5,6 + 7,8.
   - params: `{"a":56,"b":78}`
@@ -3951,7 +3910,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=46, bilangan b=1 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `place-value`: Hitung 4,6 − 0,1.
   - params: `{"a":46,"b":1}`
@@ -3978,7 +3937,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=92, bilangan b=46 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | place-value: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 7, level 4 = 7 |
 
 - **Contoh** visual `place-value`: Hitung 9,2 − 4,6.
@@ -4182,7 +4141,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=16, bilangan b=24 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 23, level 4 = 18 |
 
 - **Contoh** visual `blocks`: Sederhanakan rasio 16:24.
@@ -4210,7 +4169,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=8, bilangan b=16 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Sederhanakan rasio 8:16.
   - params: `{"a":8,"b":16}`
@@ -4237,7 +4196,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Di kios pasar, 6 bungkus kerupuk harganya Rp36.000. Berapa harga satu bungkus?
   - params: `{"unit":6,"rate":6000,"total":36000}`
@@ -4264,7 +4223,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Di kios pasar, 5 bungkus kerupuk harganya Rp35.000. Berapa harga satu bungkus?
   - params: `{"unit":5,"rate":7000,"total":35000}`
@@ -4291,7 +4250,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=2, bilangan b=6 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Resep sirup memakai 2 sendok sirup untuk 6 gelas air. Jika sirupnya 8 sendok, berapa gelas air yang diperlukan agar rasanya tetap sama?
   - params: `{"a":2,"b":6,"k":4}`
@@ -4318,7 +4277,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-HANYA-SATU` | 30 | visual nilai tempat hanya menggambar a=2, bilangan b=3 tidak tampil |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Resep sirup memakai 2 sendok sirup untuk 3 gelas air. Jika sirupnya 4 sendok, berapa gelas air yang diperlukan agar rasanya tetap sama?
   - params: `{"a":2,"b":3,"k":2}`
@@ -4347,7 +4306,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 74, level 4 = 54 |
 
 - **Contoh** visual `number-line`: Pola: 9, 27, 81, ... Angka berikutnya berapa?
@@ -4375,7 +4334,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 52, level 4 = 45 |
 
 - **Contoh** visual `number-line`: Pola: 5, 10, 20, ... Angka berikutnya berapa?
@@ -4403,7 +4362,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 75, level 4 = 51 |
 
 - **Contoh** visual `blocks`: Lengkapi: 11 × □ = 44.
@@ -4431,7 +4390,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 70, level 4 = 53 |
 
 - **Contoh** visual `blocks`: Lengkapi: 3 × □ = 42.
@@ -4461,7 +4420,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 11 cm. Berapa kelilingnya?
   - params: `{"side":11}`
@@ -4488,7 +4447,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 8 |
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 16 cm. Berapa kelilingnya?
@@ -4516,6 +4475,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 23 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 14, level 4 = 14 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 7 cm × 4 cm. Berapa kelilingnya?
@@ -4543,6 +4503,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 24 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 14, level 4 = 12 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 15 cm × 13 cm. Berapa kelilingnya?
@@ -4570,7 +4531,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 8 |
 
 - **Contoh** visual `grid`: Segitiga memiliki sisi 5 cm, 10 cm, dan 9 cm. Berapa kelilingnya?
@@ -4598,7 +4559,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Segitiga memiliki sisi 5 cm, 6 cm, dan 5 cm. Berapa kelilingnya?
   - params: `{"a":5,"b":6,"c":5}`
@@ -4625,7 +4586,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 12 cm. Berapa luasnya?
   - params: `{"side":12}`
@@ -4652,7 +4613,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 6 cm. Berapa luasnya?
   - params: `{"side":6}`
@@ -4677,7 +4638,9 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 27 berbeda.
 
-Tidak ada temuan otomatis.
+| Tingkat | Kode | Jumlah | Contoh |
+|---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 24 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 4 cm × 8 cm. Berapa luasnya?
   - params: `{"length":4,"width":8}`
@@ -4704,6 +4667,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 22 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 10 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 14 cm × 4 cm. Berapa luasnya?
@@ -4731,7 +4695,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 12, level 4 = 11 |
 
 - **Contoh** visual `grid`: Segitiga memiliki alas 10 cm dan tinggi 10 cm. Berapa luasnya?
@@ -4759,7 +4723,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Segitiga memiliki alas 16 cm dan tinggi 16 cm. Berapa luasnya?
   - params: `{"base":16,"height":16}`
@@ -4786,7 +4750,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Bangun gabungan terdiri dari dua persegi panjang: 4 × 3 cm dan 2 × 2 cm. Berapa luas seluruhnya?
   - params: `{"a":4,"b":3,"c":2,"d":2}`
@@ -4813,7 +4777,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Bangun gabungan terdiri dari dua persegi panjang: 4 × 5 cm dan 3 × 4 cm. Berapa luas seluruhnya?
   - params: `{"a":4,"b":5,"c":3,"d":4}`
@@ -4842,7 +4806,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | angle: tanpa angle: sudut bawaan 90 derajat |
 | sedang | `VISUAL-TIDAK-TAMPIL` | 30 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudut tidak tergambar |
 | sedang | `PETUNJUK-BOCOR` | 9 | petunjuk 1/2 sudah menyebut jawaban "90" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 3 soal berbeda dari 30 percobaan |
@@ -4872,7 +4835,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | angle: tanpa angle: sudut bawaan 90 derajat |
 | sedang | `VISUAL-TIDAK-TAMPIL` | 30 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudut tidak tergambar |
 | sedang | `PETUNJUK-BOCOR` | 8 | petunjuk 1/2 sudah menyebut jawaban "90" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 3 soal berbeda dari 30 percobaan |
@@ -4902,7 +4864,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 1302, level 4 = 1127 |
 
 - **Contoh** visual `number-line`: Angkot berangkat pukul 13.30 dan tiba pukul 14.58. Berapa lama perjalanan dalam menit?
@@ -4930,7 +4892,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | number-line: tanpa values atau a+b: garis bilangan memakai 0 dan 10 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 1281, level 4 = 1238 |
 
 - **Contoh** visual `number-line`: Angkot berangkat pukul 10.03 dan tiba pukul 10.32. Berapa lama perjalanan dalam menit?
@@ -4960,7 +4922,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 5, level 4 = 4 |
 
 - **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
@@ -4988,7 +4950,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":4,"height":3}`
@@ -5015,8 +4977,8 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 6 soal berbeda dari 30 percobaan |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Berapa banyak sisi pada kubus?
   - params: `{"faces":6,"edges":12,"vertices":8,"property":"faces"}`
@@ -5043,8 +5005,8 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | blocks: params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 6 soal berbeda dari 30 percobaan |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `blocks`: Berapa banyak titik sudut pada kubus?
   - params: `{"faces":6,"edges":12,"vertices":8,"property":"vertices"}`
@@ -5073,7 +5035,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 4, level 4 = 4 |
 
 - **Contoh** visual `grid`: Kamu berada di petak (2, 4). Bergerak satu petak ke kiri. Kolom berubah. Berapa kolom barumu?
@@ -5101,7 +5063,7 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| tinggi | `VISUAL-PARAMETER` | 30 | grid: tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3 |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 5, level 4 = 4 |
 
 - **Contoh** visual `grid`: Kamu berada di petak (5, 4). Bergerak satu petak ke kiri. Kolom berubah. Berapa kolom barumu?

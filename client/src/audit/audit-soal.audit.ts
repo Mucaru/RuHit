@@ -10,6 +10,7 @@ import { it } from 'vitest'
 import { topics } from '../data/kurikulum'
 import { checkAnswer, generateQuestion, solveQuestion } from '../lib/learning/engine'
 import { solutionSteps } from '../lib/learning/solutions'
+import { placeValueNumbers, usableVisual } from '../lib/learning/visual-guard'
 import type { LearningQuestion, VisualKind } from '../lib/learning/types'
 
 type Severity = 'tinggi' | 'sedang' | 'rendah'
@@ -30,26 +31,11 @@ function seeded(seed: number) {
 const hash = (text: string) => [...text].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261)
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const clean = (text: string) => text.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim()
-const has = (q: LearningQuestion, key: string) => q.params[key] !== undefined
 
 /** Angka yang berdiri sendiri di dalam teks (titik dianggap pemisah ribuan). */
 const numbersIn = (text: string) => (text.match(/\d[\d.]*\d|\d/g) ?? []).map((item) => Number(item.replace(/\./g, ''))).filter((value) => Number.isFinite(value))
 const leaks = (text: string, answer: string) => answer.length >= 2 && !/^[A-D]$/i.test(answer) && new RegExp(`(^|[^\\d.,/])${escapeRegExp(answer)}($|[^\\d.,/])`).test(text)
 
-/** Parameter yang dibutuhkan komponen VisualAid. Kalau kosong, komponen memakai nilai bawaan yang menyesatkan. */
-const visualNeeds: Partial<Record<VisualKind, (q: LearningQuestion) => string | null>> = {
-  'place-value': (q) => (has(q, 'value') || has(q, 'a') ? null : 'params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan"'),
-  blocks: (q) => (has(q, 'value') || has(q, 'a') ? null : 'params tanpa value/a: tabel nilai tempat menampilkan "0 Satuan"'),
-  'number-line': (q) => (Array.isArray(q.params.values) || (has(q, 'a') && has(q, 'b')) ? null : 'tanpa values atau a+b: garis bilangan memakai 0 dan 10'),
-  grid: (q) => (['columns', 'length', 'side'].some((key) => has(q, key)) && ['rows', 'width', 'height'].some((key) => has(q, key)) ? null : 'tanpa kolom dan baris eksplisit: kisi memakai nilai a/b atau bawaan 4x3'),
-  chart: (q) => (Array.isArray(q.params.values) || Array.isArray(q.params.counts) ? null : 'tanpa values/counts: diagram memakai data bawaan [3, 5, 2]'),
-  shape: (q) => (has(q, 'sides') ? null : 'tanpa sides: bangun selalu segiempat'),
-  position: (q) => (has(q, 'position') ? null : 'tanpa position: bola selalu di kiri'),
-  pattern: (q) => (has(q, 'first') && has(q, 'second') ? null : 'tanpa first/second: pola bawaan lingkaran-segitiga'),
-  tally: (q) => (has(q, 'count') ? null : 'tanpa count: turus bawaan 5'),
-  angle: (q) => (has(q, 'angle') ? null : 'tanpa angle: sudut bawaan 90 derajat'),
-  volume: (q) => (has(q, 'side') ? null : 'tanpa side: kubus bawaan 3'),
-}
 /** Hasil membaca VisualAid.tsx: jenis visual yang tidak sampai ke layar sebagaimana dirancang. */
 const notRendered: Partial<Record<VisualKind, string>> = {
   volume: 'VisualAid tidak memanggil VolumeVisual; layar hanya menampilkan "Bayangkan benda di sekitarmu"',
@@ -57,7 +43,6 @@ const notRendered: Partial<Record<VisualKind, string>> = {
 }
 /** Hasil membaca FractionModel.tsx: tipe yang punya cabang sendiri, dan tipe yang memakai caption tanpa label. */
 const fractionSwitch = new Set(['fraction-identify', 'fraction-half-quarter', 'fraction-equivalent', 'fraction-simplify', 'fraction-compare', 'fraction-order', 'fraction-add-same', 'fraction-word-add', 'fraction-subtract-same', 'fraction-word-subtract', 'fraction-add-different', 'fraction-subtract-different', 'fraction-multiply-whole', 'fraction-divide-whole', 'fraction-of-quantity', 'fraction-improper-to-mixed', 'fraction-mixed-to-improper'])
-const fractionCaptionOnly = new Set(['fraction-add-same', 'fraction-word-add', 'fraction-subtract-same', 'fraction-word-subtract'])
 
 function inspect(q: LearningQuestion): Flag[] {
   const flags: Flag[] = []
@@ -87,12 +72,14 @@ function inspect(q: LearningQuestion): Flag[] {
   if (!q.choices && leaks(q.prompt, expected) && expected.length >= 3) add('SOAL-BOCOR', 'sedang', `soal sudah memuat jawaban "${expected}"`)
   if (new Set(q.hints).size < 3) add('PETUNJUK-SAMA', 'rendah', 'ada petunjuk yang identik')
 
-  const need = visualNeeds[q.visual]?.(q)
-  if (need) add('VISUAL-PARAMETER', 'tinggi', `${q.visual}: ${need}`)
-  if ((q.visual === 'place-value' || q.visual === 'blocks') && typeof q.params.a === 'number' && typeof q.params.b === 'number') add('VISUAL-HANYA-SATU', 'tinggi', `visual nilai tempat hanya menggambar a=${q.params.a}, bilangan b=${q.params.b} tidak tampil`)
+  const decision = usableVisual(q)
+  if (decision === 'hidden') add('VISUAL-DISEMBUNYIKAN', 'rendah', `${q.visual}: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya`)
+  else if (q.visual === 'place-value' || q.visual === 'blocks') {
+    const shown = placeValueNumbers(q) ?? []
+    if (shown.some((item) => String(item) === expected.trim())) add('VISUAL-BOCOR', 'tinggi', `tabel nilai tempat menampilkan jawaban "${expected}"`)
+  }
   if (notRendered[q.visual]) add('VISUAL-TIDAK-TAMPIL', 'sedang', `${q.visual}: ${notRendered[q.visual]}`)
   if (q.visual === 'fraction-bar' && !fractionSwitch.has(q.typeId)) add('VISUAL-PECAHAN-DEFAULT', 'sedang', 'tipe ini jatuh ke cabang default FractionModel (satu batang saja)')
-  if (q.visual === 'fraction-bar' && fractionCaptionOnly.has(q.typeId)) add('BATANG-SEMPIT', 'tinggi', 'batang pecahan tanpa label + caption: .fm-bar terjepit di kolom auto dan tampil sebagai garis hitam (terlihat di screenshot soal 5/8 + 1/8)')
   if (q.visual === 'none' && /\b(gambar|lihat|perhatikan|diagram|tabel)\b/i.test(q.prompt)) add('RUJUK-GAMBAR-TANPA-VISUAL', 'sedang', `soal menyebut gambar/tabel tapi visual = none: ${clean(q.prompt).slice(0, 80)}`)
 
   let steps: ReturnType<typeof solutionSteps> = []
@@ -169,10 +156,9 @@ it('menulis docs/audit-soal.md', () => {
   md.push('## 1. Ringkasan', '', `- Kombinasi tanpa temuan apa pun: **${clean_}** dari ${combos.length}`, '', '| Tingkat | Kode | Jumlah soal | Kombinasi terdampak | Contoh |', '|---|---|---|---|---|')
   for (const [code, row] of codes) md.push(`| ${row.severity} | \`${code}\` | ${row.count} | ${row.combos.size} | ${clean(row.example).slice(0, 110)} |`)
   md.push('', '## 2. Temuan dari membaca kode (berlaku global)', '')
-  md.push('1. **Urutan tabel nilai tempat terbalik.** `PlaceValue` memakai `.reverse()` dan tidak membaliknya lagi, jadi 1.058 tampil sebagai 8, 5, 0, 1 (satuan paling kiri). Cara baca angka di buku adalah ribuan paling kiri.')
+  md.push('1. (Sudah diperbaiki di Commit 2) Tabel nilai tempat kini ribuan di kiri; visual yang tidak cocok disembunyikan oleh `visual-guard.ts` (kode VISUAL-DISEMBUNYIKAN).')
   md.push('2. **Garis bilangan tidak proporsional.** Titik-titiknya disebar rata (`flex: 1`) berapa pun nilainya, padahal teksnya meminta anak memperhatikan letak nilai.')
   md.push('3. **Kode mati.** `AngleVisual` dan `VolumeVisual` didefinisikan tapi tidak dipanggil `VisualAid`.')
-  md.push('4. **Batang pecahan bercaption tanpa label** terjepit di kolom `auto` (CSS `.fm-row`), tampil sebagai garis hitam. Terlihat di screenshot soal 5/8 + 1/8.')
   md.push('', '## 3. Per tipe soal', '')
   let currentTopic = ''
   for (const result of results) {
