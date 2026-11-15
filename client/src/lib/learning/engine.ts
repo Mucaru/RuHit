@@ -42,12 +42,26 @@ const shuffled = (rng: () => number, values: string[]) => [...values].sort(() =>
 
 const build: Record<string, Builder> = {
   'whole-place-value': (rng, grade) => {
-    const value = integer(rng, grade <= 2 ? 10 : grade <= 4 ? 1000 : 100000, grade <= 2 ? 99 : grade <= 4 ? 9999 : 999999)
-    const digits = String(value)
-    const position = integer(rng, 0, digits.length - 1)
+    // Aturan supaya soalnya jelas dan menguji nilai tempat:
+    // 1) semua angka berbeda, jadi "nilai angka 3" tidak ambigu (dulu "bilangan 33, nilai angka 3?");
+    // 2) angka yang ditanyakan bukan 0 (nilainya selalu 0) dan bukan di tempat satuan (nilainya sama dengan angkanya);
+    // 3) bilangan dua angka tidak berakhir 0, supaya jawaban tidak sama dengan bilangan yang sudah tertulis di soal.
+    const length = grade <= 2 ? 2 : grade <= 4 ? 4 : 6
+    const pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    const picked: number[] = []
+    for (let index = 0; index < length; index += 1) {
+      const options = pool.filter((digit) => digit !== 0 || (index !== 0 && !(length === 2 && index === 1)))
+      const digit = options[integer(rng, 0, options.length - 1)]
+      picked.push(digit)
+      pool.splice(pool.indexOf(digit), 1)
+    }
+    const value = Number(picked.join(''))
+    const askable = picked.map((digit, index) => ({ digit, position: length - 1 - index })).filter((item) => item.digit !== 0 && item.position >= 1)
+    const { digit, position } = askable[integer(rng, 0, askable.length - 1)]
     const place = 10 ** position
-    const answer = Math.floor(value / place) % 10 * place
-    return { params: { value, position }, prompt: `Pada bilangan ${value.toLocaleString('id-ID')}, berapa nilai angka ${digits[digits.length - 1 - position]}?`, expected: String(answer), explanation: `Angka itu berada di tempat ${place.toLocaleString('id-ID')}, jadi nilainya ${answer.toLocaleString('id-ID')}.`, hints: ['Cari posisi angka dari kanan.', 'Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya.', 'Kalikan angka tersebut dengan nilai tempatnya.'], misconception: 'Menyebut digitnya saja, bukan nilai digit berdasarkan tempat.', visual: 'place-value' }
+    const answer = digit * place
+    const placeName = ['satuan', 'puluhan', 'ratusan', 'ribuan', 'puluh ribuan', 'ratus ribuan'][position]
+    return { params: { value, position }, prompt: `Pada bilangan ${value.toLocaleString('id-ID')}, berapa nilai angka ${digit}?`, expected: String(answer), explanation: `Angka ${digit} berada di tempat ${placeName}, jadi nilainya ${digit} × ${place.toLocaleString('id-ID')} = ${answer.toLocaleString('id-ID')}.`, hints: ['Cari posisi angka dari kanan.', 'Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya.', 'Kalikan angka tersebut dengan nilai tempatnya.'], misconception: 'Menyebut digitnya saja, bukan nilai digit berdasarkan tempat.', visual: 'place-value' }
   },
   'whole-compose': (rng, grade) => {
     const thousands = grade >= 5 ? integer(rng, 1, 8) : 0

@@ -81,3 +81,25 @@ describe('pilihan ganda tipe urutan', () => {
   }
 })
 
+describe('whole-place-value: soal yang jelas dan menguji nilai tempat', () => {
+  it('angka yang ditanyakan unik, bukan 0, bukan satuan; jawaban beda dari bilangan (900 soal)', () => {
+    for (const grade of [1, 2, 3, 4, 5, 6]) {
+      for (let seed = 1; seed <= 150; seed += 1) {
+        const question = generateQuestion('whole-place-value', 'uji', seeded(seed * 104729 + grade), grade, seed % 5)
+        const value = String(question.params.value)
+        const asked = question.prompt.match(/nilai angka (\d)\?/)?.[1] ?? ''
+        const message = `${question.prompt} -> ${question.expected}`
+        expect(asked, message).not.toBe('')
+        expect(asked, message).not.toBe('0')
+        expect(value.split('').filter((digit) => digit === asked), `angka kembar: ${message}`).toHaveLength(1)
+        const position = Number(question.params.position)
+        expect(position, message).toBeGreaterThanOrEqual(1)
+        expect(value[value.length - 1 - position], message).toBe(asked)
+        expect(question.expected, `jawaban = bilangan: ${message}`).not.toBe(value)
+        expect(question.expected, message).toBe(String(Number(asked) * 10 ** position))
+        expect(checkAnswer(question, question.expected)).toBe(true)
+      }
+    }
+  })
+})
+

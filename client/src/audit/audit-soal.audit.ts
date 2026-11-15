@@ -76,7 +76,9 @@ function inspect(q: LearningQuestion): Flag[] {
   if (decision === 'hidden') add('VISUAL-DISEMBUNYIKAN', 'rendah', `${q.visual}: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya`)
   else if (q.visual === 'place-value' || q.visual === 'blocks') {
     const shown = placeValueNumbers(q) ?? []
-    if (shown.some((item) => String(item) === expected.trim())) add('VISUAL-BOCOR', 'tinggi', `tabel nilai tempat menampilkan jawaban "${expected}"`)
+    const inPrompt = (item: number) => q.prompt.includes(item.toLocaleString('id-ID')) || q.prompt.includes(String(item))
+    // Bocor hanya kalau angka yang tampil BUKAN angka yang sudah tertulis di soal (kebetulan sama dengan operand bukan kebocoran).
+    if (shown.some((item) => String(item) === expected.trim() && !inPrompt(item))) add('VISUAL-BOCOR', 'tinggi', `tabel nilai tempat menampilkan jawaban "${expected}"`)
   }
   if (notRendered[q.visual]) add('VISUAL-TIDAK-TAMPIL', 'sedang', `${q.visual}: ${notRendered[q.visual]}`)
   if (q.visual === 'fraction-bar' && !fractionSwitch.has(q.typeId)) add('VISUAL-PECAHAN-DEFAULT', 'sedang', 'tipe ini jatuh ke cabang default FractionModel (satu batang saja)')
