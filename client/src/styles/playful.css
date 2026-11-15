@@ -142,6 +142,8 @@ h1 span { color: var(--pink); }
 .fraction-model { display: grid; gap: 10px; padding: 16px; border: 3px dashed var(--line-strong); border-radius: 20px; background: #fffdf7; }
 .fm-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
 .fm-row .fm-bar:only-child { grid-column: 1 / -1; }
+/* Batang tanpa label (hanya caption) harus selebar baris; kalau tidak, ia terjepit di kolom auto dan tampil sebagai garis. */
+.fm-row-bare .fm-bar { grid-column: 1 / -1; }
 .fm-label, .fm-caption { font-size: var(--fs-caption); font-weight: 900; white-space: nowrap; }
 .fm-caption { grid-column: 1 / -1; text-align: center; color: var(--muted); }
 .fm-bar { display: grid; gap: 3px; min-width: 0; }

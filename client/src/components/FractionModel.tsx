@@ -11,7 +11,7 @@ export function FractionBarRow({ d, segments, label, caption }: { d: number; seg
   segments.forEach((segment) => { for (let i = 0; i < segment.count; i += 1) cells.push(segment.tone) })
   while (cells.length < cols) cells.push('off')
   return (
-    <div className="fm-row">
+    <div className={label ? 'fm-row' : 'fm-row fm-row-bare'}>
       {label && <span className="fm-label">{label}</span>}
       <div className={`fm-bar fm-cols-${cols}`} role="img" aria-label={caption ?? `${cells.filter((cell) => cell !== 'off').length} dari ${cols} bagian`}>
         {cells.slice(0, cols).map((tone, index) => <span key={index} className={`fm-cell fm-${tone}`} />)}

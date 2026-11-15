@@ -1,0 +1,125 @@
+diff -ruN '--exclude=node_modules' base/RuHit-master/client/src/components/FractionModel.test.tsx ruhit/RuHit-master/client/src/components/FractionModel.test.tsx
+--- base/RuHit-master/client/src/components/FractionModel.test.tsx	1970-01-01 00:00:00.000000000 +0000
++++ ruhit/RuHit-master/client/src/components/FractionModel.test.tsx	2026-11-15 02:23:22.009799534 +0000
+@@ -0,0 +1,21 @@
++// @vitest-environment jsdom
++import { afterEach, describe, expect, it } from 'vitest'
++import { cleanup, render } from '@testing-library/react'
++import { FractionBarRow } from './FractionModel'
++
++afterEach(() => cleanup())
++
++describe('FractionBarRow', () => {
++  it('batang tanpa label diberi kelas fm-row-bare supaya selebar baris (bukan garis sempit)', () => {
++    const { container } = render(<FractionBarRow d={8} segments={[{ count: 5, tone: 'a' }, { count: 1, tone: 'b' }]} caption="5/8 + 1/8" />)
++    expect(container.querySelector('.fm-row')?.classList.contains('fm-row-bare')).toBe(true)
++    expect(container.querySelectorAll('.fm-cell')).toHaveLength(8)
++    expect(container.querySelector('.fm-caption')?.textContent).toBe('5/8 + 1/8')
++  })
++
++  it('batang berlabel memakai tata letak dua kolom biasa', () => {
++    const { container } = render(<FractionBarRow d={4} segments={[{ count: 1, tone: 'a' }]} label="1/4" />)
++    expect(container.querySelector('.fm-row')?.classList.contains('fm-row-bare')).toBe(false)
++    expect(container.querySelector('.fm-label')?.textContent).toBe('1/4')
++  })
++})
+diff -ruN '--exclude=node_modules' base/RuHit-master/client/src/components/FractionModel.tsx ruhit/RuHit-master/client/src/components/FractionModel.tsx
+--- base/RuHit-master/client/src/components/FractionModel.tsx	2026-11-13 03:44:17.000000000 +0000
++++ ruhit/RuHit-master/client/src/components/FractionModel.tsx	2026-11-15 02:23:22.005771661 +0000
+@@ -11,7 +11,7 @@
+   segments.forEach((segment) => { for (let i = 0; i < segment.count; i += 1) cells.push(segment.tone) })
+   while (cells.length < cols) cells.push('off')
+   return (
+-    <div className="fm-row">
++    <div className={label ? 'fm-row' : 'fm-row fm-row-bare'}>
+       {label && <span className="fm-label">{label}</span>}
+       <div className={`fm-bar fm-cols-${cols}`} role="img" aria-label={caption ?? `${cells.filter((cell) => cell !== 'off').length} dari ${cols} bagian`}>
+         {cells.slice(0, cols).map((tone, index) => <span key={index} className={`fm-cell fm-${tone}`} />)}
+diff -ruN '--exclude=node_modules' base/RuHit-master/client/src/lib/learning/engine.test.ts ruhit/RuHit-master/client/src/lib/learning/engine.test.ts
+--- base/RuHit-master/client/src/lib/learning/engine.test.ts	2026-11-13 03:44:17.000000000 +0000
++++ ruhit/RuHit-master/client/src/lib/learning/engine.test.ts	2026-11-15 02:29:23.809548032 +0000
+@@ -61,3 +61,23 @@
+     expect(checkAnswer(question, question.expected.replace(',', '.'))).toBe(true)
+   })
+ })
++
++describe('pilihan ganda tipe urutan', () => {
++  const cases: Array<[string, number[]]> = [['whole-order', [1, 2, 3, 4, 5, 6]], ['fraction-order', [4, 5, 6]]]
++  for (const [typeId, grades] of cases) {
++    it(`${typeId}: tiga pilihan berbeda dan memuat jawaban benar (600 soal)`, () => {
++      for (const grade of grades) {
++        for (let seed = 1; seed <= 100; seed += 1) {
++          const question = generateQuestion(typeId, 'uji', seeded(seed * 7919 + grade), grade, seed % 5)
++          const choices = question.choices ?? []
++          expect(choices, `${typeId} kelas ${grade} seed ${seed}: ${choices.join(' | ')}`).toHaveLength(3)
++          expect(new Set(choices).size, `pilihan kembar: ${choices.join(' | ')}`).toBe(3)
++          expect(choices).toContain(question.expected)
++          if (typeId === 'whole-order') expect(new Set(question.params.values as number[]).size, 'bilangan kembar (dulu bisa membuat loop tak berujung)').toBe(3)
++          expect(checkAnswer(question, question.expected)).toBe(true)
++        }
++      }
++    })
++  }
++})
++
+diff -ruN '--exclude=node_modules' base/RuHit-master/client/src/lib/learning/engine.ts ruhit/RuHit-master/client/src/lib/learning/engine.ts
+--- base/RuHit-master/client/src/lib/learning/engine.ts	2026-11-13 03:44:17.000000000 +0000
++++ ruhit/RuHit-master/client/src/lib/learning/engine.ts	2026-11-15 02:28:59.391389987 +0000
+@@ -26,6 +26,17 @@
+ const factors = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter((v) => n % v === 0)
+ const isPrime = (n: number) => n > 1 && factors(n).length === 2
+ const lcm = (a: number, b: number) => Math.abs(a * b) / gcd(a, b)
++/** Semua urutan dari sebuah daftar (3 item = 6 urutan). */
++const permutations = <T>(items: T[]): T[][] => (items.length <= 1 ? [items] : items.flatMap((item, index) => permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest])))
++/** Jawaban benar + pengecoh pilihan (dipakai berurutan) yang dijamin berbeda satu sama lain; kalau kurang, diisi dari pool. */
++const distinctChoices = (correct: string, preferred: string[], pool: string[], size = 3) => {
++  const result = [correct]
++  for (const item of [...preferred, ...pool]) {
++    if (result.length >= size) break
++    if (!result.includes(item)) result.push(item)
++  }
++  return result
++}
+ const choice = (correct: string, distractors: string[]) => [correct, ...distractors.filter((item) => item !== correct)].slice(0, 3)
+ const shuffled = (rng: () => number, values: string[]) => [...values].sort(() => rng() - 0.5)
+ 
+@@ -58,11 +69,15 @@
+   },
+   'whole-order': (rng, grade) => {
+     const max = grade <= 2 ? 20 : grade <= 4 ? 10000 : 100000
+-    const values = [integer(rng, 10, max), integer(rng, 10, max), integer(rng, 10, max)]
+-    while (new Set(values).size < 3) values[2] = integer(rng, 10, max)
++    // Tiga bilangan berbeda. (Dulu hanya elemen ketiga yang dilempar ulang, sehingga dua angka awal yang kembar membuat loop tak berujung.)
++    const values: number[] = []
++    while (values.length < 3) {
++      const value = integer(rng, 10, max)
++      if (!values.includes(value)) values.push(value)
++    }
+     const sorted = [...values].sort((a, b) => a - b)
+     const expected = sorted.join(' – ')
+-    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: [expected, values.join(' – '), [...sorted].reverse().join(' – ')] }
++    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: distinctChoices(expected, [values.join(' – '), [...sorted].reverse().join(' – ')], permutations(sorted).map((item) => item.join(' – '))) }
+   },
+   'whole-add': (rng, grade) => {
+     const max = grade <= 2 ? 20 : grade <= 4 ? 1000 : 99999
+@@ -113,7 +128,7 @@
+     const d = pick(rng, [4, 5, 6, 8, 10]); const nums = [1, integer(rng, 2, d - 2), d - 1].sort((a, b) => a - b)
+     const values = nums.map((n) => fraction(n, d)); const shuffledValues = shuffled(rng, values)
+     const expected = values.join(' – ')
+-    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: [expected, values.slice().reverse().join(' – '), shuffledValues.join(' – ')] }
++    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: distinctChoices(expected, [values.slice().reverse().join(' – '), shuffledValues.join(' – ')], permutations(values).map((item) => item.join(' – '))) }
+   },
+   'fraction-equivalent': (rng) => {
+     const n = integer(rng, 1, 4); const d = integer(rng, n + 1, 6); const factor = integer(rng, 2, 4)
+diff -ruN '--exclude=node_modules' base/RuHit-master/client/src/styles/playful.css ruhit/RuHit-master/client/src/styles/playful.css
+--- base/RuHit-master/client/src/styles/playful.css	2026-11-14 04:08:22.000000000 +0000
++++ ruhit/RuHit-master/client/src/styles/playful.css	2026-11-15 02:23:22.006064213 +0000
+@@ -142,6 +142,8 @@
+ .fraction-model { display: grid; gap: 10px; padding: 16px; border: 3px dashed var(--line-strong); border-radius: 20px; background: #fffdf7; }
+ .fm-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+ .fm-row .fm-bar:only-child { grid-column: 1 / -1; }
++/* Batang tanpa label (hanya caption) harus selebar baris; kalau tidak, ia terjepit di kolom auto dan tampil sebagai garis. */
++.fm-row-bare .fm-bar { grid-column: 1 / -1; }
+ .fm-label, .fm-caption { font-size: var(--fs-caption); font-weight: 900; white-space: nowrap; }
+ .fm-caption { grid-column: 1 / -1; text-align: center; color: var(--muted); }
+ .fm-bar { display: grid; gap: 3px; min-width: 0; }

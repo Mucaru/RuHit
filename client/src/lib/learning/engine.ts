@@ -26,6 +26,17 @@ const decimal = (n: number) => (n / 10).toFixed(1).replace('.', ',')
 const factors = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter((v) => n % v === 0)
 const isPrime = (n: number) => n > 1 && factors(n).length === 2
 const lcm = (a: number, b: number) => Math.abs(a * b) / gcd(a, b)
+/** Semua urutan dari sebuah daftar (3 item = 6 urutan). */
+const permutations = <T>(items: T[]): T[][] => (items.length <= 1 ? [items] : items.flatMap((item, index) => permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest])))
+/** Jawaban benar + pengecoh pilihan (dipakai berurutan) yang dijamin berbeda satu sama lain; kalau kurang, diisi dari pool. */
+const distinctChoices = (correct: string, preferred: string[], pool: string[], size = 3) => {
+  const result = [correct]
+  for (const item of [...preferred, ...pool]) {
+    if (result.length >= size) break
+    if (!result.includes(item)) result.push(item)
+  }
+  return result
+}
 const choice = (correct: string, distractors: string[]) => [correct, ...distractors.filter((item) => item !== correct)].slice(0, 3)
 const shuffled = (rng: () => number, values: string[]) => [...values].sort(() => rng() - 0.5)
 
@@ -58,11 +69,15 @@ const build: Record<string, Builder> = {
   },
   'whole-order': (rng, grade) => {
     const max = grade <= 2 ? 20 : grade <= 4 ? 10000 : 100000
-    const values = [integer(rng, 10, max), integer(rng, 10, max), integer(rng, 10, max)]
-    while (new Set(values).size < 3) values[2] = integer(rng, 10, max)
+    // Tiga bilangan berbeda. (Dulu hanya elemen ketiga yang dilempar ulang, sehingga dua angka awal yang kembar membuat loop tak berujung.)
+    const values: number[] = []
+    while (values.length < 3) {
+      const value = integer(rng, 10, max)
+      if (!values.includes(value)) values.push(value)
+    }
     const sorted = [...values].sort((a, b) => a - b)
     const expected = sorted.join(' – ')
-    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: [expected, values.join(' – '), [...sorted].reverse().join(' – ')] }
+    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: distinctChoices(expected, [values.join(' – '), [...sorted].reverse().join(' – ')], permutations(sorted).map((item) => item.join(' – '))) }
   },
   'whole-add': (rng, grade) => {
     const max = grade <= 2 ? 20 : grade <= 4 ? 1000 : 99999
@@ -113,7 +128,7 @@ const build: Record<string, Builder> = {
     const d = pick(rng, [4, 5, 6, 8, 10]); const nums = [1, integer(rng, 2, d - 2), d - 1].sort((a, b) => a - b)
     const values = nums.map((n) => fraction(n, d)); const shuffledValues = shuffled(rng, values)
     const expected = values.join(' – ')
-    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: [expected, values.slice().reverse().join(' – '), shuffledValues.join(' – ')] }
+    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: distinctChoices(expected, [values.slice().reverse().join(' – '), shuffledValues.join(' – ')], permutations(values).map((item) => item.join(' – '))) }
   },
   'fraction-equivalent': (rng) => {
     const n = integer(rng, 1, 4); const d = integer(rng, n + 1, 6); const factor = integer(rng, 2, 4)

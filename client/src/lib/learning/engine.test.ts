@@ -61,3 +61,23 @@ describe('generator matematika parametrik kelas 5', () => {
     expect(checkAnswer(question, question.expected.replace(',', '.'))).toBe(true)
   })
 })
+
+describe('pilihan ganda tipe urutan', () => {
+  const cases: Array<[string, number[]]> = [['whole-order', [1, 2, 3, 4, 5, 6]], ['fraction-order', [4, 5, 6]]]
+  for (const [typeId, grades] of cases) {
+    it(`${typeId}: tiga pilihan berbeda dan memuat jawaban benar (600 soal)`, () => {
+      for (const grade of grades) {
+        for (let seed = 1; seed <= 100; seed += 1) {
+          const question = generateQuestion(typeId, 'uji', seeded(seed * 7919 + grade), grade, seed % 5)
+          const choices = question.choices ?? []
+          expect(choices, `${typeId} kelas ${grade} seed ${seed}: ${choices.join(' | ')}`).toHaveLength(3)
+          expect(new Set(choices).size, `pilihan kembar: ${choices.join(' | ')}`).toBe(3)
+          expect(choices).toContain(question.expected)
+          if (typeId === 'whole-order') expect(new Set(question.params.values as number[]).size, 'bilangan kembar (dulu bisa membuat loop tak berujung)').toBe(3)
+          expect(checkAnswer(question, question.expected)).toBe(true)
+        }
+      }
+    })
+  }
+})
+
