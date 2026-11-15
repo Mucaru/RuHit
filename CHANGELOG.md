@@ -8,6 +8,14 @@
 - `solutions.ts` menghasilkan langkah penyelesaian untuk semua tipe soal.
 - Perbaikan: petunjuk menampilkan teks `${...}` mentah, checker desimal koma/titik, pilihan ganda kini diacak, pecahan senilai diterima, tes papan bersusun usang.
 
+### Perapian beranda, tipografi, dan suara (14 Nov 2026)
+- Menu Kelas di header jadi pemilih kelas 1-6 (`SiteHeader`), tampil juga di HP; kelas terakhir disimpan di `Progress.lastGrade` (divalidasi dan dijepit 1-6).
+- Beranda: satu tombol utama, "Lanjutkan belajar" kalau sudah ada progres, "Mulai belajar" kalau belum; ringkasan statistik disembunyikan saat semuanya nol dan diganti ajakan.
+- Tipografi: skala `--fs-body` 16px dan `--fs-caption` 14px, tidak ada font-size di bawah 12px (dijaga `pnpm test`), letter-spacing judul dilonggarkan.
+- Maskot hero dimuat eager dengan `fetchpriority=high`; border putus-putus area maskot hero dihapus; badan `mascot-oops.svg` dan `mascot-almost.svg` tidak lagi menyatu dengan manik.
+- `speak()` digabung ke `lib/speech.ts` (toSpeakable dan suara id-ID); tombol Dengarkan di `LessonReader`.
+- Copy: catatan kelas, label latihan tambahan, dan lencana kelas memakai bahasa anak/orang tua.
+
 ## 2.0.0 — Ruang Hitung learning redesign
 
 - Replaced Express/static-server deployment with native Vite MPA routes and Cloudflare static assets.

@@ -1,40 +1,40 @@
 /* Komponen latihan bersusun lama, dipertahankan dalam lapisan terpisah. */
 .exercise-page { padding-top: 12px; padding-bottom: 36px; }
-.exercise-meta { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 12px; margin: 6px 2px 10px; color: var(--muted); font-size: 12px; }
+.exercise-meta { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 12px; margin: 6px 2px 10px; color: var(--muted); font-size: var(--fs-caption); }
 .exercise-meta b { color: var(--green); }
-.step-pill { display: inline-flex; min-height: 28px; align-items: center; margin-left: 6px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper-deep); font-size: 10px; font-weight: 850; }
+.step-pill { display: inline-flex; min-height: 28px; align-items: center; margin-left: 6px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper-deep); font-size: var(--fs-caption); font-weight: 850; }
 .work-panel { display: flex; flex-direction: column; gap: 14px; padding: 18px; border: 2px solid var(--line-strong); border-radius: 16px; background: var(--paper-white); box-shadow: 4px 4px 0 var(--line-strong); }
 .prompt-block { padding: 2px 2px 0; }
 .prompt-block h2 { margin: 6px 0 0; color: var(--ink); font-size: 20px; line-height: 1.35; }
 .prompt-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .prompt-row h2 { flex: 1; margin: 4px 0 0; }
-.speak-button { display: inline-flex; min-width: 48px; min-height: 48px; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; border: 2px solid var(--line-strong); border-radius: 12px; background: #e3f0f3; color: var(--ink); font-size: 12px; font-weight: 850; }
+.speak-button { display: inline-flex; min-width: 48px; min-height: 48px; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; border: 2px solid var(--line-strong); border-radius: 12px; background: #e3f0f3; color: var(--ink); font-size: var(--fs-body); font-weight: 850; }
 .speak-button[aria-pressed="true"] { background: var(--yellow); }
 .hint-inline { margin-top: 10px; padding: 10px 12px; border-left: 4px solid var(--blue); border-radius: 8px; background: #edf5f5; color: var(--ink); }
-.hint-inline strong { display: block; font-size: 12px; }
-.hint-inline p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
+.hint-inline strong { display: block; font-size: var(--fs-body); }
+.hint-inline p { margin: 4px 0 0; font-size: var(--fs-body); line-height: 1.5; }
 .coach-note { display: flex; gap: 10px; margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--line-strong); border-radius: 10px; background: #fff7df; }
-.coach-note strong { font-size: 12px; }
-.coach-note p { margin: 4px 0 0; font-size: 12px; }
+.coach-note strong { font-size: var(--fs-body); }
+.coach-note p { margin: 4px 0 0; font-size: var(--fs-body); }
 .answer-form { display: flex; flex-direction: column; gap: 12px; }
 .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .choice { display: flex; min-height: 54px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; padding: 10px 12px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: white; text-align: left; }
 .choice.selected { background: var(--yellow); box-shadow: 2px 2px 0 var(--line-strong); }
-.choice strong { font-size: 13px; }.choice small { color: var(--muted); font-size: 10px; }
+.choice strong { font-size: var(--fs-body); }.choice small { color: var(--muted); font-size: var(--fs-caption); }
 .answer-actions { display: flex; flex-wrap: wrap; align-items: stretch; justify-content: flex-end; gap: 9px; }
-.primary-button, .secondary-button, .hint-trigger { display: inline-flex; min-height: 50px; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; border: 2px solid var(--line-strong); border-radius: 11px; font-size: 13px; font-weight: 900; }
+.primary-button, .secondary-button, .hint-trigger { display: inline-flex; min-height: 50px; align-items: center; justify-content: center; gap: 8px; padding: 0 16px; border: 2px solid var(--line-strong); border-radius: 11px; font-size: var(--fs-body); font-weight: 900; }
 .primary-button { flex: 1; color: white; background: var(--orange-dark); box-shadow: 3px 3px 0 var(--line-strong); }
 .primary-button:hover:not(:disabled) { background: var(--orange-dark); }
 .secondary-button { color: var(--ink); background: white; }
 .hint-trigger { background: #fff2c7; }
 .hint-trigger:disabled { opacity: .5; }
-.skip-button { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; padding: 0 9px; border-radius: 8px; background: transparent; color: var(--muted); font-size: 11px; font-weight: 850; }
+.skip-button { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; padding: 0 9px; border-radius: 8px; background: transparent; color: var(--muted); font-size: var(--fs-body); font-weight: 850; }
 .token-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.token-row > span { color: var(--muted); font-size: 11px; font-weight: 800; }
-.token-row button { min-height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-deep); font-size: 11px; font-weight: 800; }
+.token-row > span { color: var(--muted); font-size: var(--fs-caption); font-weight: 800; }
+.token-row button { min-height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-deep); font-size: var(--fs-caption); font-weight: 800; }
 .board { position: relative; min-height: 210px; overflow: hidden; padding: 14px 16px; border: 1.5px dashed var(--line-strong); border-radius: 12px; background: #fffdf7; }
-.board-label { color: var(--muted); font-size: 11px; font-weight: 900; text-align: center; }
-.board-caption { display: flex; justify-content: center; gap: 7px; margin-top: 12px; color: var(--muted); font-size: 11px; text-align: center; }
+.board-label { color: var(--muted); font-size: var(--fs-caption); font-weight: 900; text-align: center; }
+.board-caption { display: flex; justify-content: center; gap: 7px; margin-top: 12px; color: var(--muted); font-size: var(--fs-caption); text-align: center; }
 .caption-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); }
 @media (max-width: 560px) {
   .exercise-page { padding-top: 8px; }
@@ -45,7 +45,7 @@
   .answer-actions { position: sticky; bottom: 0; z-index: 5; margin: 4px -12px -12px; padding: 9px 12px calc(9px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); border-radius: 0 0 13px 13px; background: rgba(255, 254, 251, .98); }
 }
 
-.coach-label { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border: 1.5px solid var(--line-strong); border-radius: 50%; background: var(--yellow); font-size: 8px; font-weight: 950; }
+.coach-label { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border: 1.5px solid var(--line-strong); border-radius: 50%; background: var(--yellow); font-size: var(--fs-caption); font-weight: 950; }
 /* Samakan papan operasi lama dengan palet tinta, kertas, dan aksen Ruang Hitung. */
 .board-input { border-color: var(--line-strong); color: var(--ink); background: white; box-shadow: 2px 2px 0 var(--line-strong); }
 .board-input::placeholder { color: var(--muted); }

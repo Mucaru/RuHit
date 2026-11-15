@@ -39,7 +39,10 @@ assert.match(progress, /MAX_HISTORY|500_000/)
 assert.match(await read('client/public/sw.js'), /isStaticAsset/)
 assert.match(await read('client/public/sw.js'), /PRECACHE_URLS\.includes/)
 const localStorageFiles = []
-for (const file of allSourceFiles) if ((await read(file)).includes('localStorage')) localStorageFiles.push(file)
+for (const file of allSourceFiles) {
+  if (file.endsWith('.test.ts') || file.endsWith('.test.tsx')) continue
+  if ((await read(file)).includes('localStorage')) localStorageFiles.push(file)
+}
 assert.deepEqual(localStorageFiles, ['client/src/lib/progress.ts'], 'Only the validated progress module may access localStorage')
 assert.doesNotMatch(engine, /\beval\s*\(|innerHTML|dangerouslySetInnerHTML/)
 for (const file of allSourceFiles) {
@@ -54,4 +57,24 @@ await access(path.join(root, 'docs/riset-kurikulum.md'))
 await access(path.join(root, 'docs/brand.md'))
 const output = await stat(path.join(root, 'client/kelas/5/index.html'))
 assert.ok(output.isFile(), 'Class 5 route HTML should be generated before dev/build')
+
+// Tipografi: tidak boleh ada font-size di bawah 12px. Token --fs-body = 16px dan --fs-caption = 14px.
+const typographyTokens = { '--fs-body': 16, '--fs-caption': 14 }
+const tokensCss = await read('client/src/styles/tokens.css')
+assert.match(tokensCss, /--fs-body:\s*16px/, 'Token --fs-body harus 16px')
+assert.match(tokensCss, /--fs-caption:\s*14px/, 'Token --fs-caption harus 14px')
+const cssFiles = (await readdir(path.join(root, 'client/src/styles'))).filter((name) => name.endsWith('.css')).map((name) => `client/src/styles/${name}`)
+cssFiles.push('client/public/404.css')
+for (const file of cssFiles) {
+  for (const match of (await read(file)).matchAll(/font-size:\s*([^;}]+)/g)) {
+    const value = match[1].trim()
+    const token = value.match(/var\((--[a-z-]+)\)/)
+    if (token) { assert.ok(token[1] in typographyTokens, `${file}: token font-size tidak dikenal (${value})`); continue }
+    const literal = value.match(/^(\d*\.?\d+)(px|rem|em)$/)
+    if (!literal) continue
+    assert.notEqual(literal[2], 'em', `${file}: font-size ${value} berbasis em harus dibungkus max(..., var(--fs-caption))`)
+    assert.ok((literal[2] === 'px' ? Number(literal[1]) : Number(literal[1]) * 16) >= 12, `${file}: font-size ${value} di bawah 12px`)
+  }
+}
+if ((await read('client/public/.well-known/security.txt')).includes('GANTI-DENGAN')) console.warn('PERINGATAN: client/public/.well-known/security.txt masih berisi placeholder. Isi kontak keamanan asli sebelum rilis publik.')
 console.log('PASS: static architecture, CSP/security headers, progress schema, no HTML injection, and generated routes.')

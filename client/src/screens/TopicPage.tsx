@@ -27,7 +27,7 @@ export function TopicPage({ topic, legacyTopic, grade }: { topic?: Topic; legacy
 
   return (
     <>
-      <SiteHeader backHref={`/kelas/${grade}/`} backLabel={`Kelas ${grade}`} />
+      <SiteHeader backHref={`/kelas/${grade}/`} backLabel={`Kelas ${grade}`} grade={grade} />
       <main className="page inner-page topic-page">
         <section className="topic-hero paper-card">
           <div><p className="eyebrow">KELAS {grade} · {selectedTopic?.element ?? 'LATIHAN BERSUSUN'}</p><h1>{title}</h1><p>{description}</p></div>

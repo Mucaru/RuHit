@@ -26,17 +26,42 @@ const decimal = (n: number) => (n / 10).toFixed(1).replace('.', ',')
 const factors = (n: number) => Array.from({ length: n }, (_, i) => i + 1).filter((v) => n % v === 0)
 const isPrime = (n: number) => n > 1 && factors(n).length === 2
 const lcm = (a: number, b: number) => Math.abs(a * b) / gcd(a, b)
+/** Semua urutan dari sebuah daftar (3 item = 6 urutan). */
+const permutations = <T>(items: T[]): T[][] => (items.length <= 1 ? [items] : items.flatMap((item, index) => permutations([...items.slice(0, index), ...items.slice(index + 1)]).map((rest) => [item, ...rest])))
+/** Jawaban benar + pengecoh pilihan (dipakai berurutan) yang dijamin berbeda satu sama lain; kalau kurang, diisi dari pool. */
+const distinctChoices = (correct: string, preferred: string[], pool: string[], size = 3) => {
+  const result = [correct]
+  for (const item of [...preferred, ...pool]) {
+    if (result.length >= size) break
+    if (!result.includes(item)) result.push(item)
+  }
+  return result
+}
 const choice = (correct: string, distractors: string[]) => [correct, ...distractors.filter((item) => item !== correct)].slice(0, 3)
 const shuffled = (rng: () => number, values: string[]) => [...values].sort(() => rng() - 0.5)
 
 const build: Record<string, Builder> = {
   'whole-place-value': (rng, grade) => {
-    const value = integer(rng, grade <= 2 ? 10 : grade <= 4 ? 1000 : 100000, grade <= 2 ? 99 : grade <= 4 ? 9999 : 999999)
-    const digits = String(value)
-    const position = integer(rng, 0, digits.length - 1)
+    // Aturan supaya soalnya jelas dan menguji nilai tempat:
+    // 1) semua angka berbeda, jadi "nilai angka 3" tidak ambigu (dulu "bilangan 33, nilai angka 3?");
+    // 2) angka yang ditanyakan bukan 0 (nilainya selalu 0) dan bukan di tempat satuan (nilainya sama dengan angkanya);
+    // 3) bilangan dua angka tidak berakhir 0, supaya jawaban tidak sama dengan bilangan yang sudah tertulis di soal.
+    const length = grade <= 2 ? 2 : grade <= 4 ? 4 : 6
+    const pool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    const picked: number[] = []
+    for (let index = 0; index < length; index += 1) {
+      const options = pool.filter((digit) => digit !== 0 || (index !== 0 && !(length === 2 && index === 1)))
+      const digit = options[integer(rng, 0, options.length - 1)]
+      picked.push(digit)
+      pool.splice(pool.indexOf(digit), 1)
+    }
+    const value = Number(picked.join(''))
+    const askable = picked.map((digit, index) => ({ digit, position: length - 1 - index })).filter((item) => item.digit !== 0 && item.position >= 1)
+    const { digit, position } = askable[integer(rng, 0, askable.length - 1)]
     const place = 10 ** position
-    const answer = Math.floor(value / place) % 10 * place
-    return { params: { value, position }, prompt: `Pada bilangan ${value.toLocaleString('id-ID')}, berapa nilai angka ${digits[digits.length - 1 - position]}?`, expected: String(answer), explanation: `Angka itu berada di tempat ${place.toLocaleString('id-ID')}, jadi nilainya ${answer.toLocaleString('id-ID')}.`, hints: ['Cari posisi angka dari kanan.', 'Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya.', 'Kalikan angka tersebut dengan nilai tempatnya.'], misconception: 'Menyebut digitnya saja, bukan nilai digit berdasarkan tempat.', visual: 'place-value' }
+    const answer = digit * place
+    const placeName = ['satuan', 'puluhan', 'ratusan', 'ribuan', 'puluh ribuan', 'ratus ribuan'][position]
+    return { params: { value, position }, prompt: `Pada bilangan ${value.toLocaleString('id-ID')}, berapa nilai angka ${digit}?`, expected: String(answer), explanation: `Angka ${digit} berada di tempat ${placeName}, jadi nilainya ${digit} × ${place.toLocaleString('id-ID')} = ${answer.toLocaleString('id-ID')}.`, hints: ['Cari posisi angka dari kanan.', 'Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya.', 'Kalikan angka tersebut dengan nilai tempatnya.'], misconception: 'Menyebut digitnya saja, bukan nilai digit berdasarkan tempat.', visual: 'place-value' }
   },
   'whole-compose': (rng, grade) => {
     const thousands = grade >= 5 ? integer(rng, 1, 8) : 0
@@ -58,11 +83,15 @@ const build: Record<string, Builder> = {
   },
   'whole-order': (rng, grade) => {
     const max = grade <= 2 ? 20 : grade <= 4 ? 10000 : 100000
-    const values = [integer(rng, 10, max), integer(rng, 10, max), integer(rng, 10, max)]
-    while (new Set(values).size < 3) values[2] = integer(rng, 10, max)
+    // Tiga bilangan berbeda. (Dulu hanya elemen ketiga yang dilempar ulang, sehingga dua angka awal yang kembar membuat loop tak berujung.)
+    const values: number[] = []
+    while (values.length < 3) {
+      const value = integer(rng, 10, max)
+      if (!values.includes(value)) values.push(value)
+    }
     const sorted = [...values].sort((a, b) => a - b)
     const expected = sorted.join(' – ')
-    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: [expected, values.join(' – '), [...sorted].reverse().join(' – ')] }
+    return { params: { values }, prompt: `Urutkan dari yang terkecil: ${values.join(', ')}.`, expected, explanation: `Urutan yang benar: ${expected}.`, hints: ['Perhatikan jumlah digit.', 'Bandingkan nilai tempat dari kiri.', 'Susun dari nilai paling kecil ke paling besar.'], misconception: 'Mengurutkan dari digit terakhir atau menebak berdasarkan panjang tulisan.', visual: 'number-line', choices: distinctChoices(expected, [values.join(' – '), [...sorted].reverse().join(' – ')], permutations(sorted).map((item) => item.join(' – '))) }
   },
   'whole-add': (rng, grade) => {
     const max = grade <= 2 ? 20 : grade <= 4 ? 1000 : 99999
@@ -113,7 +142,7 @@ const build: Record<string, Builder> = {
     const d = pick(rng, [4, 5, 6, 8, 10]); const nums = [1, integer(rng, 2, d - 2), d - 1].sort((a, b) => a - b)
     const values = nums.map((n) => fraction(n, d)); const shuffledValues = shuffled(rng, values)
     const expected = values.join(' – ')
-    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: [expected, values.slice().reverse().join(' – '), shuffledValues.join(' – ')] }
+    return { params: { nums: shuffledValues.map((item) => Number(item.split('/')[0])), d }, prompt: `Urutkan dari terkecil: ${shuffledValues.join(', ')}.`, expected, explanation: `Penyebut sama, jadi urutkan pembilangnya: ${expected}.`, hints: ['Semua pecahan memiliki penyebut sama.', 'Bandingkan pembilangnya.', 'Urutkan pembilang dari kecil ke besar.'], misconception: 'Mengurutkan pecahan berdasarkan penyebut atau menganggap penyebut besar selalu lebih besar.', visual: 'fraction-bar', choices: distinctChoices(expected, [values.slice().reverse().join(' – '), shuffledValues.join(' – ')], permutations(values).map((item) => item.join(' – '))) }
   },
   'fraction-equivalent': (rng) => {
     const n = integer(rng, 1, 4); const d = integer(rng, n + 1, 6); const factor = integer(rng, 2, 4)

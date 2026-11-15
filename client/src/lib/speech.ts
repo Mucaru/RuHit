@@ -17,6 +17,16 @@ export function toSpeakable(text: string) {
     .trim()
 }
 
+/** Suara bahasa Indonesia kalau perangkat punya (kode bahasa bisa "id-ID" atau "id_ID"). */
+export function indonesianVoice(voices: SpeechSynthesisVoice[]) {
+  return voices.find((item) => item.lang.toLowerCase().replace('_', '-').startsWith('id'))
+}
+
+/**
+ * Satu-satunya pintu suara di seluruh aplikasi: LessonReader, BijiCompanion, PracticePage, dan Exercise
+ * memakainya, jadi teks selalu lewat toSpeakable dan bahasanya selalu id-ID.
+ * Mengembalikan false kalau perangkat tidak mendukung suara; onEnd dipanggil saat selesai atau gagal.
+ */
 export function speak(text: string, onEnd?: () => void) {
   if (!canSpeak()) return false
   const synth = window.speechSynthesis
@@ -24,7 +34,7 @@ export function speak(text: string, onEnd?: () => void) {
   const utterance = new SpeechSynthesisUtterance(toSpeakable(text))
   utterance.lang = 'id-ID'
   utterance.rate = 0.85
-  const voice = synth.getVoices().find((item) => item.lang.toLowerCase().replace('_', '-').startsWith('id'))
+  const voice = indonesianVoice(synth.getVoices())
   if (voice) utterance.voice = voice
   utterance.onend = () => onEnd?.()
   utterance.onerror = () => onEnd?.()

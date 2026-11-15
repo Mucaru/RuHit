@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STORAGE_KEY, dueLeitnerCards, emptyProgress, isMastered, loadProgress, parseProgress, recommendedLevel, recordLearningSession, recordSession, saveProgress, starsFor, streakOf } from './progress'
+import { STORAGE_KEY, dueLeitnerCards, emptyProgress, isMastered, loadProgress, parseProgress, recommendedLevel, recordLearningSession, recordSession, saveProgress, setLastGrade, hasProgress, starsFor, streakOf } from './progress'
 import type { QuestionResult, StorageLike } from './progress'
 
 const memory = (initial: Record<string, string> = {}): StorageLike & { data: Record<string, string> } => {
@@ -160,5 +160,38 @@ describe('penguasaan topik dan kotak Leitner', () => {
     }, day(2026, 10, 8)).progress
     expect(second.leitner['pecahan-operasi-fraction-add-same'].box).toBe(1)
     expect(second.topics['pecahan-operasi'].total).toBe(16)
+  })
+})
+
+describe('kelas terakhir (lastGrade)', () => {
+  const raw = (grade: unknown) => JSON.stringify({ v: 2, levels: {}, topics: {}, leitner: {}, history: [], days: [], stickers: [], seenGuide: true, lastGrade: grade })
+
+  it('divalidasi dan dijepit ke 1-6 saat dibaca dari localStorage', () => {
+    expect(parseProgress(raw(4)).lastGrade).toBe(4)
+    expect(parseProgress(raw(99)).lastGrade).toBe(6)
+    expect(parseProgress(raw(-3)).lastGrade).toBe(1)
+    expect(parseProgress(raw(5.9)).lastGrade).toBe(5)
+  })
+
+  it('nilai yang bukan angka menjadi null, data lama tanpa lastGrade juga null', () => {
+    expect(parseProgress(raw('5')).lastGrade).toBeNull()
+    expect(parseProgress(raw(null)).lastGrade).toBeNull()
+    expect(parseProgress(raw(Number.NaN)).lastGrade).toBeNull()
+    expect(emptyProgress().lastGrade).toBeNull()
+    expect(parseProgress(JSON.stringify({ v: 1, levels: {}, history: [], days: [] })).lastGrade).toBeNull()
+  })
+
+  it('setLastGrade menyimpan kelas valid dan mengembalikan objek yang sama kalau tidak berubah', () => {
+    const start = emptyProgress()
+    const saved = setLastGrade(start, 3)
+    expect(saved.lastGrade).toBe(3)
+    expect(setLastGrade(saved, 3)).toBe(saved)
+    expect(setLastGrade(saved, 99).lastGrade).toBe(6)
+    expect(setLastGrade(saved, Number.NaN)).toBe(saved)
+  })
+
+  it('hasProgress hanya true setelah anak benar-benar berlatih, bukan sekadar membuka kelas', () => {
+    expect(hasProgress(setLastGrade(emptyProgress(), 5))).toBe(false)
+    expect(hasProgress(recordSession(emptyProgress(), { activity: 'addition', level: 1, results: results(['clean']) }).progress)).toBe(true)
   })
 })

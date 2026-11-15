@@ -1,4 +1,9 @@
-# Replace this placeholder contact with a monitored security contact before public launch.
-Contact: mailto:security@ruanghitung.invalid
+# security.txt (RFC 9116). WAJIB diisi sebelum rilis publik, lalu hapus baris komentar ini.
+# 1. Contact: ganti dengan email yang benar-benar kamu cek (contoh bentuk: mailto:keamanan@domain-kamu.id)
+#    atau URL halaman pelaporan (misalnya GitHub Security Advisories milik repo ini).
+# 2. Expires: perbarui paling lambat setiap 12 bulan.
+# 3. Canonical (opsional): hapus tanda # di baris bawah dan isi dengan domain produksi.
+Contact: mailto:GANTI-DENGAN-EMAIL-ANDA
 Expires: 2027-11-12T00:00:00.000Z
 Preferred-Languages: id, en
+# Canonical: https://GANTI-DENGAN-DOMAIN-ANDA/.well-known/security.txt
