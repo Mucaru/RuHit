@@ -1,3 +1,4 @@
+import { FOOD_ITEMS, ITEMS } from './items'
 import type { QuestionParams, VisualKind } from './types'
 
 /**
@@ -49,7 +50,6 @@ const shuffle = <T,>(rng: () => number, values: T[]) => {
 }
 
 const names = ['Adi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fani', 'Gita', 'Hana']
-const foods = ['kue', 'pizza', 'semangka', 'cokelat batang', 'roti panjang']
 
 export const fractionBuilders: Record<string, FractionBuilder> = {
   // Perbaikan: penyebut selalu berbeda dan hasil kurang dari 1 utuh agar jawabannya mudah ditulis.
@@ -143,15 +143,16 @@ export const fractionBuilders: Record<string, FractionBuilder> = {
     const a = integer(rng, 1, d - 2)
     const b = integer(rng, 1, d - a - 1)
     const [first, second] = shuffle(rng, names)
-    const food = pick(rng, foods)
+    const item = pick(rng, [...FOOD_ITEMS])
+    const food = ITEMS[item].noun
     return {
-      params: { a, b, d },
+      params: { a, b, d, item },
       prompt: `Ibu membuat satu ${food} yang dibagi jadi ${d} bagian sama besar. ${first} makan ${frac(a, d)} bagian dan ${second} makan ${frac(b, d)} bagian. Berapa bagian ${food} yang sudah dimakan?`,
       expected: simplify(a + b, d),
       explanation: `Dimakan ${a} potong + ${b} potong = ${a + b} potong dari ${d} potong, yaitu ${frac(a + b, d)}${gcd(a + b, d) > 1 ? ` atau ${simplify(a + b, d)} jika disederhanakan` : ''}.`,
       hints: ['Cerita ini meminta kita menggabungkan dua bagian. Operasinya penjumlahan.', 'Penyebutnya sama, jadi tinggal jumlahkan pembilang.', 'Tulis hasilnya dengan penyebut yang sama.'],
       misconception: 'Menjumlahkan penyebut padahal potongan kue berukuran sama.',
-      visual: 'fraction-bar',
+      visual: 'food',
     }
   },
 
@@ -160,15 +161,16 @@ export const fractionBuilders: Record<string, FractionBuilder> = {
     const a = integer(rng, 3, d - 1)
     const b = integer(rng, 1, a - 1)
     const [first] = shuffle(rng, names)
-    const food = pick(rng, foods)
+    const item = pick(rng, [...FOOD_ITEMS])
+    const food = ITEMS[item].noun
     return {
-      params: { a, b, d },
+      params: { a, b, d, item },
       prompt: `Di piring ada ${frac(a, d)} bagian ${food}. ${first} memakan ${frac(b, d)} bagian. Berapa bagian ${food} yang tersisa di piring?`,
       expected: simplify(a - b, d),
       explanation: `Tersisa ${a} potong − ${b} potong = ${a - b} potong dari ${d} potong, yaitu ${frac(a - b, d)}${gcd(a - b, d) > 1 ? ` atau ${simplify(a - b, d)} jika disederhanakan` : ''}.`,
       hints: ['Kata "tersisa" berarti kita mengurangi.', 'Penyebutnya sama, kurangkan pembilangnya saja.', 'Penyebut tetap sama.'],
       misconception: 'Menjumlahkan padahal soal menanyakan bagian yang tersisa.',
-      visual: 'fraction-bar',
+      visual: 'food',
     }
   },
 }

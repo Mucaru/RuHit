@@ -1,3 +1,4 @@
+import { describeCards, describeFood, describeMoney, describeObjects, describeRatio } from './story-visual'
 import type { LearningQuestion, VisualKind } from './types'
 
 /** Hasil keputusan: jenis visual yang boleh digambar, atau 'hidden' kalau visual akan menyesatkan atau membocorkan jawaban. */
@@ -108,6 +109,16 @@ export function usableVisual(question: LearningQuestion): VisualDecision {
       return clockTimes(question) ? question.visual : 'hidden'
     case 'chart':
       return numericList(params.values, 2) || numericList(params.counts, 2) ? question.visual : 'hidden'
+    case 'objects':
+      return describeObjects(question) ? question.visual : 'hidden'
+    case 'food':
+      return describeFood(question) ? question.visual : 'hidden'
+    case 'money':
+      return describeMoney(question) ? question.visual : 'hidden'
+    case 'ratio':
+      return describeRatio(question) ? question.visual : 'hidden'
+    case 'cards':
+      return describeCards(question) ? question.visual : 'hidden'
     case 'shape':
       return params.sides !== undefined ? question.visual : 'hidden'
     case 'position':

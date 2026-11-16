@@ -112,3 +112,16 @@
 .tally-group { position: relative; display: flex; width: 48px; height: 54px; align-items: end; justify-content: space-around; padding: 4px; }
 .tally-group i { display: block; width: 3px; height: 36px; border-radius: 2px; background: var(--ink); }
 .tally-group i.tally-diagonal { position: absolute; top: 6px; left: 22px; width: 3px; height: 46px; transform: rotate(45deg); transform-origin: center; }
+/* Soal cerita bergambar (SVG): benda, makanan dipotong, uang, tabel rasio, kartu banding */
+.story-wrap { margin: 18px auto 24px; max-width: 360px; text-align: center; }
+.story-wrap .story-visual { margin: 0 auto 6px; }
+.story-visual { display: block; width: min(100%, 360px); height: auto; margin: 18px auto 24px; }
+.story-text { fill: var(--ink); font-weight: 800; }
+.story-t14 { font-size: 14px; }
+.story-t16 { font-size: 16px; }
+.story-t18 { font-size: 18px; }
+.story-t20 { font-size: 20px; }
+.story-card { fill: var(--paper-white); stroke: var(--line-strong); stroke-width: 2.5; }
+.story-ask { fill: #fde8cf; stroke: var(--orange-dark); stroke-width: 2; stroke-dasharray: 5 4; }
+.story-rule { stroke: #9d9b8e; stroke-width: 1.5; }
+.story-note { display: block; color: var(--muted); font-size: var(--fs-caption); }
