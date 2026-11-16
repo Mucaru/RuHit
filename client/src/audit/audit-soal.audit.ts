@@ -36,11 +36,6 @@ const clean = (text: string) => text.replace(/\|/g, '\\|').replace(/\s+/g, ' ').
 const numbersIn = (text: string) => (text.match(/\d[\d.]*\d|\d/g) ?? []).map((item) => Number(item.replace(/\./g, ''))).filter((value) => Number.isFinite(value))
 const leaks = (text: string, answer: string) => answer.length >= 2 && !/^[A-D]$/i.test(answer) && new RegExp(`(^|[^\\d.,/])${escapeRegExp(answer)}($|[^\\d.,/])`).test(text)
 
-/** Hasil membaca VisualAid.tsx: jenis visual yang tidak sampai ke layar sebagaimana dirancang. */
-const notRendered: Partial<Record<VisualKind, string>> = {
-  volume: 'VisualAid tidak memanggil VolumeVisual; layar hanya menampilkan "Bayangkan benda di sekitarmu"',
-  angle: 'VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudut tidak tergambar',
-}
 /** Hasil membaca FractionModel.tsx: tipe yang punya cabang sendiri, dan tipe yang memakai caption tanpa label. */
 const fractionSwitch = new Set(['fraction-identify', 'fraction-half-quarter', 'fraction-equivalent', 'fraction-simplify', 'fraction-compare', 'fraction-order', 'fraction-add-same', 'fraction-word-add', 'fraction-subtract-same', 'fraction-word-subtract', 'fraction-add-different', 'fraction-subtract-different', 'fraction-multiply-whole', 'fraction-divide-whole', 'fraction-of-quantity', 'fraction-improper-to-mixed', 'fraction-mixed-to-improper'])
 
@@ -80,7 +75,6 @@ function inspect(q: LearningQuestion): Flag[] {
     // Bocor hanya kalau angka yang tampil BUKAN angka yang sudah tertulis di soal (kebetulan sama dengan operand bukan kebocoran).
     if (shown.some((item) => String(item) === expected.trim() && !inPrompt(item))) add('VISUAL-BOCOR', 'tinggi', `tabel nilai tempat menampilkan jawaban "${expected}"`)
   }
-  if (notRendered[q.visual]) add('VISUAL-TIDAK-TAMPIL', 'sedang', `${q.visual}: ${notRendered[q.visual]}`)
   if (q.visual === 'fraction-bar' && !fractionSwitch.has(q.typeId)) add('VISUAL-PECAHAN-DEFAULT', 'sedang', 'tipe ini jatuh ke cabang default FractionModel (satu batang saja)')
   if (q.visual === 'none' && /\b(gambar|lihat|perhatikan|diagram|tabel)\b/i.test(q.prompt)) add('RUJUK-GAMBAR-TANPA-VISUAL', 'sedang', `soal menyebut gambar/tabel tapi visual = none: ${clean(q.prompt).slice(0, 80)}`)
 
@@ -160,7 +154,7 @@ it('menulis docs/audit-soal.md', () => {
   md.push('', '## 2. Temuan dari membaca kode (berlaku global)', '')
   md.push('1. (Sudah diperbaiki di Commit 2) Tabel nilai tempat kini ribuan di kiri; visual yang tidak cocok disembunyikan oleh `visual-guard.ts` (kode VISUAL-DISEMBUNYIKAN).')
   md.push('2. **Garis bilangan tidak proporsional.** Titik-titiknya disebar rata (`flex: 1`) berapa pun nilainya, padahal teksnya meminta anak memperhatikan letak nilai.')
-  md.push('3. **Kode mati.** `AngleVisual` dan `VolumeVisual` didefinisikan tapi tidak dipanggil `VisualAid`.')
+  md.push('3. (Sudah diperbaiki di Commit 4) Bangun ruang, volume, sudut, dan durasi kini punya visual sendiri (`SolidVisual`, `AngleVisual`, `ClockVisual`); kode mati lama dihapus.')
   md.push('', '## 3. Per tipe soal', '')
   let currentTopic = ''
   for (const result of results) {

@@ -1,0 +1,26 @@
+diff -ruN base8/RuHit-master/client/src/lib/learning/engine.ts ruhit/RuHit-master/client/src/lib/learning/engine.ts
+--- base8/RuHit-master/client/src/lib/learning/engine.ts	2026-11-16 09:33:05.945451954 +0000
++++ ruhit/RuHit-master/client/src/lib/learning/engine.ts	2026-11-16 09:32:57.814610242 +0000
+@@ -283,18 +283,18 @@
+   'duration-calculate': (rng) => {
+     const start = integer(rng, 7 * 60, 15 * 60); const duration = integer(rng, 20, 180); const end = start + duration
+     const fmt = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}.${String(minutes % 60).padStart(2, '0')}`
+-    return { params: { start, duration, end }, prompt: `Angkot berangkat pukul ${fmt(start)} dan tiba pukul ${fmt(end)}. Berapa lama perjalanan dalam menit?`, expected: String(duration), explanation: `Selisih waktu dari mulai sampai selesai adalah ${duration} menit.`, hints: ['Ubah jam menjadi menit atau hitung bertahap.', 'Ingat satu jam sama dengan 60 menit.', 'Kurangi waktu selesai dengan waktu mulai.'], misconception: 'Menganggap satu jam sama dengan 100 menit.', visual: 'number-line' }
++    return { params: { start, duration, end }, prompt: `Angkot berangkat pukul ${fmt(start)} dan tiba pukul ${fmt(end)}. Berapa lama perjalanan dalam menit?`, expected: String(duration), explanation: `Selisih waktu dari mulai sampai selesai adalah ${duration} menit.`, hints: ['Ubah jam menjadi menit atau hitung bertahap.', 'Ingat satu jam sama dengan 60 menit.', 'Kurangi waktu selesai dengan waktu mulai.'], misconception: 'Menganggap satu jam sama dengan 100 menit.', visual: 'clock' }
+   },
+   'volume-unit-cubes': (rng) => {
+     const length = integer(rng, 2, 6); const width = integer(rng, 2, 5); const height = integer(rng, 2, 4)
+-    return { params: { length, width, height }, prompt: `Balok tersusun dari kubus satuan: ${length} panjang, ${width} lebar, dan ${height} tinggi. Berapa kubus satuan yang dibutuhkan?`, expected: String(length * width * height), explanation: `Jumlah kubus = ${length} × ${width} × ${height} = ${length * width * height}.`, hints: ['Hitung jumlah kubus pada satu lapisan.', 'Kalikan panjang dan lebar untuk satu lapisan.', 'Kalikan banyak kubus satu lapisan dengan jumlah lapisan.'], misconception: 'Menghitung hanya satu lapisan atau mencampur jumlah kubus dengan luas permukaan.', visual: 'blocks' }
++    return { params: { length, width, height }, prompt: `Balok tersusun dari kubus satuan: ${length} panjang, ${width} lebar, dan ${height} tinggi. Berapa kubus satuan yang dibutuhkan?`, expected: String(length * width * height), explanation: `Jumlah kubus = ${length} × ${width} × ${height} = ${length * width * height}.`, hints: ['Hitung jumlah kubus pada satu lapisan.', 'Kalikan panjang dan lebar untuk satu lapisan.', 'Kalikan banyak kubus satu lapisan dengan jumlah lapisan.'], misconception: 'Menghitung hanya satu lapisan atau mencampur jumlah kubus dengan luas permukaan.', visual: 'volume' }
+   },
+   'solid-properties': (rng) => {
+     const solid = pick(rng, [{ name: 'kubus', faces: 6, edges: 12, vertices: 8 }, { name: 'balok', faces: 6, edges: 12, vertices: 8 }])
+     const property = pick(rng, ['faces', 'edges', 'vertices'] as const)
+     const labels: Record<'faces' | 'edges' | 'vertices', string> = { faces: 'sisi', edges: 'rusuk', vertices: 'titik sudut' }
+     const answer = solid[property]
+-    return { params: { solid: solid.name, faces: solid.faces, edges: solid.edges, vertices: solid.vertices, property }, prompt: `Berapa banyak ${labels[property]} pada ${solid.name}?`, expected: String(answer), explanation: `${solid.name} memiliki ${solid.faces} sisi, ${solid.edges} rusuk, dan ${solid.vertices} titik sudut.`, hints: ['Bayangkan bangun ruang dari beberapa sisi datar.', 'Bedakan sisi, rusuk, dan titik sudut.', 'Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.'], misconception: 'Menyamakan sisi (bidang) dengan rusuk (garis tepi).', visual: 'blocks' }
++    return { params: { solid: solid.name, faces: solid.faces, edges: solid.edges, vertices: solid.vertices, property }, prompt: `Berapa banyak ${labels[property]} pada ${solid.name}?`, expected: String(answer), explanation: `${solid.name} memiliki ${solid.faces} sisi, ${solid.edges} rusuk, dan ${solid.vertices} titik sudut.`, hints: ['Bayangkan bangun ruang dari beberapa sisi datar.', 'Bedakan sisi, rusuk, dan titik sudut.', 'Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.'], misconception: 'Menyamakan sisi (bidang) dengan rusuk (garis tepi).', visual: 'volume' }
+   },
+   'grid-location': (rng) => {
+     const x = integer(rng, 2, 5); const y = integer(rng, 1, 5); const dx = pick(rng, [-1, 1]); const dy = pick(rng, [-1, 1]); const nx = x + dx; const ny = Math.min(6, Math.max(1, y + dy))
+

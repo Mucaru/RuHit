@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateQuestion } from './engine'
-import { gridSize, placeValueNumbers, usableVisual } from './visual-guard'
+import { angleTurn, clockTimes, describeGeometry, describeSolid, placeValueNumbers, usableVisual } from './visual-guard'
 import type { LearningQuestion, VisualKind } from './types'
 
 const q = (typeId: string, visual: VisualKind, params: LearningQuestion['params']): LearningQuestion => ({ id: 't', typeId, topicId: 'uji', params, prompt: '', expected: '', explanation: '', hints: ['', '', ''], misconception: '', visual })
@@ -30,12 +30,30 @@ describe('visual-guard: tabel nilai tempat', () => {
 })
 
 describe('visual-guard: kisi, garis bilangan, diagram', () => {
-  it('kisi hanya tampil kalau kolom dan baris eksplisit dan muat; persegi bersisi 8 tidak lagi jadi 8x3', () => {
-    expect(usableVisual(q('area-square', 'grid', { side: 8 }))).toBe('hidden')
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toBe('grid')
-    expect(gridSize(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toEqual({ columns: 6, rows: 4 })
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 12, width: 4 }))).toBe('hidden')
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 9 }))).toBe('hidden')
+  it('bangun geometri diterima kalau parameternya lengkap dan masuk akal', () => {
+    expect(usableVisual(q('area-square', 'grid', { side: 8 }))).toBe('grid')
+    expect(describeGeometry(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toEqual({ kind: 'rectangle', length: 6, width: 4, mode: 'area', square: false })
+    expect(describeGeometry(q('perimeter-square', 'grid', { side: 5 }))).toMatchObject({ mode: 'perimeter', square: true })
+    expect(usableVisual(q('perimeter-triangle', 'grid', { a: 5, b: 6, c: 7 }))).toBe('grid')
+    expect(usableVisual(q('grid-location', 'grid', { x: 3, y: 2 }))).toBe('grid')
+  })
+
+  it('bangun geometri ditolak kalau parameter kurang atau mustahil', () => {
+    expect(usableVisual(q('area-rectangle', 'grid', {}))).toBe('hidden')
+    expect(usableVisual(q('area-rectangle', 'grid', { length: 6 }))).toBe('hidden')
+    expect(usableVisual(q('perimeter-triangle', 'grid', { a: 3, b: 4, c: 9 }))).toBe('hidden')
+    expect(usableVisual(q('grid-location', 'grid', { x: 9, y: 1 }))).toBe('hidden')
+    expect(usableVisual(q('tipe-lain', 'grid', { side: 5 }))).toBe('hidden')
+  })
+
+  it('semua soal luas, keliling, dan petak dari generator tergambar (tidak ada yang tersembunyi)', () => {
+    const types = ['perimeter-square', 'perimeter-rectangle', 'perimeter-triangle', 'area-square', 'area-rectangle', 'area-triangle', 'area-composite', 'grid-location']
+    for (const typeId of types) {
+      for (let seed = 1; seed <= 60; seed += 1) {
+        const question = generateQuestion(typeId, 'uji', seeded(seed * 31 + 7), 3 + (seed % 4), seed % 5)
+        expect(usableVisual(question), `${typeId}: ${question.prompt}`).toBe('grid')
+      }
+    }
   })
 
   it('garis bilangan dan diagram tanpa data sungguhan disembunyikan', () => {
@@ -56,6 +74,36 @@ describe('visual-guard: kisi, garis bilangan, diagram', () => {
   })
 
   it('visual lain (pecahan, sudut, volume, none) diteruskan apa adanya', () => {
-    for (const kind of ['fraction-bar', 'angle', 'volume', 'none'] as VisualKind[]) expect(usableVisual(q('apa-saja', kind, {}))).toBe(kind)
+    for (const kind of ['fraction-bar', 'none'] as VisualKind[]) expect(usableVisual(q('apa-saja', kind, {}))).toBe(kind)
+  })
+})
+
+describe('visual-guard: bangun ruang, sudut, jam', () => {
+  it('balok kubus satuan dan bangun ruang polos', () => {
+    expect(describeSolid(q('volume-unit-cubes', 'volume', { length: 6, width: 2, height: 4 }))).toEqual({ length: 6, width: 2, height: 4, cubes: true })
+    expect(describeSolid(q('volume-unit-cubes', 'volume', { length: 9, width: 2, height: 4 }))).toBeNull()
+    expect(describeSolid(q('solid-properties', 'volume', { solid: 'kubus' }))).toMatchObject({ cubes: false, length: 3, width: 3, height: 3 })
+    expect(describeSolid(q('solid-properties', 'volume', { solid: 'balok' }))).toMatchObject({ cubes: false, length: 4, width: 3, height: 2 })
+    expect(usableVisual(q('solid-properties', 'volume', {}))).toBe('hidden')
+  })
+
+  it('sudut hanya butuh jumlah seperempat putaran; jam butuh waktu berangkat dan tiba yang berurutan', () => {
+    expect(angleTurn(q('angle-measure', 'angle', { turn: 3 }))).toBe(3)
+    expect(usableVisual(q('angle-measure', 'angle', {}))).toBe('hidden')
+    expect(usableVisual(q('angle-measure', 'angle', { turn: 0 }))).toBe('hidden')
+    expect(clockTimes(q('duration-calculate', 'clock', { start: 810, end: 898 }))).toEqual({ start: 810, end: 898 })
+    expect(usableVisual(q('duration-calculate', 'clock', { start: 900, end: 800 }))).toBe('hidden')
+    expect(usableVisual(q('duration-calculate', 'clock', {}))).toBe('hidden')
+  })
+
+  it('semua soal volume, bangun ruang, sudut, dan durasi dari generator tergambar', () => {
+    const expected: Record<string, VisualKind> = { 'volume-unit-cubes': 'volume', 'solid-properties': 'volume', 'angle-measure': 'angle', 'duration-calculate': 'clock' }
+    for (const [typeId, kind] of Object.entries(expected)) {
+      for (let seed = 1; seed <= 60; seed += 1) {
+        const question = generateQuestion(typeId, 'uji', seeded(seed * 53 + 11), 5, seed % 5)
+        expect(question.visual, typeId).toBe(kind)
+        expect(usableVisual(question), `${typeId}: ${question.prompt}`).toBe(kind)
+      }
+    }
   })
 })
