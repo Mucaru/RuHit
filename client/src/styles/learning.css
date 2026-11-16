@@ -12,7 +12,7 @@
 .question-meta > span { color: var(--orange-dark); font-size: var(--fs-caption); font-weight: 950; letter-spacing: .06em; }
 .sound-button { min-height: 48px; padding: 0 12px; border: 1.5px solid var(--line-strong); border-radius: 10px; background: #eef4f5; font-size: var(--fs-body); font-weight: 850; }
 .question-card h2 { max-width: 650px; margin: 0 0 20px; font-size: clamp(1.35rem, 3vw, 1.85rem); line-height: 1.35; }
-.visual-fraction, .place-value-visual, .number-line-visual, .chart-visual, .angle-visual, .visual-note { max-width: 520px; margin: 18px auto 24px; }
+.visual-fraction, .place-value-visual, .number-line-visual, .chart-visual, .visual-note { max-width: 520px; margin: 18px auto 24px; }
 .visual-fraction { padding: 14px; border: 1.5px dashed var(--line); border-radius: 12px; background: #fffdf7; }
 .fraction-bar { display: flex; min-height: 38px; gap: 3px; }
 .fraction-part { flex: 1; border: 1px solid var(--line-strong); border-radius: 3px; background: white; }
@@ -40,17 +40,17 @@
 .geo-dash { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 5 4; }
 .geo-cell { fill: #fffdf7; stroke: #9d9b8e; stroke-width: 1.5; }
 .geo-player { fill: var(--orange); stroke: var(--line-strong); stroke-width: 3; }
+.geo-face-top { fill: #f9e7ae; }
+.geo-face-right { fill: #e8c46c; }
+.geo-edge { stroke: var(--line-strong); stroke-width: 3; stroke-linecap: round; fill: none; }
+.geo-hand-h { stroke: var(--line-strong); stroke-width: 6; stroke-linecap: round; }
+.geo-hand-m { stroke: var(--line-strong); stroke-width: 3; stroke-linecap: round; }
 .geo-label { fill: var(--ink); font-size: 16px; font-weight: 800; paint-order: stroke; stroke: #fffdf7; stroke-width: 4px; stroke-linejoin: round; }
 .chart-visual { display: flex; min-height: 150px; align-items: end; justify-content: space-around; gap: 12px; padding: 12px 16px; border-bottom: 2px solid var(--line-strong); border-left: 2px solid var(--line-strong); background: repeating-linear-gradient(to bottom, transparent 0 29px, rgba(40, 51, 52, .12) 30px); }
 .chart-column { display: flex; height: 126px; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: 5px; }
 .chart-bar { display: block; width: min(36px, 70%); height: 50%; border: 1.5px solid var(--line-strong); border-bottom: 0; border-radius: 4px 4px 0 0; background: var(--blue); }
 .chart-bar-1 { height: 10%; }.chart-bar-2 { height: 20%; }.chart-bar-3 { height: 30%; }.chart-bar-4 { height: 40%; }.chart-bar-5 { height: 50%; }.chart-bar-6 { height: 60%; }.chart-bar-7 { height: 70%; }.chart-bar-8 { height: 80%; }.chart-bar-9 { height: 90%; }.chart-bar-10 { height: 100%; }
 .chart-column small { font-size: var(--fs-caption); font-weight: 850; }
-.angle-visual { position: relative; width: 180px; height: 130px; }
-.angle-ray { position: absolute; bottom: 20px; left: 30px; width: 120px; height: 3px; transform-origin: left center; background: var(--line-strong); }
-.angle-ray-one { transform: rotate(-90deg); }
-.angle-ray-two { transform: rotate(-25deg); }
-.angle-arc { position: absolute; bottom: 20px; left: 30px; width: 70px; height: 70px; border: 2px solid var(--orange); border-top-color: transparent; border-right-color: transparent; border-radius: 50%; }
 .visual-note { padding: 14px; border: 1.5px dashed var(--line); border-radius: 10px; color: var(--muted); font-size: var(--fs-body); text-align: center; }
 .answer-label { display: block; margin: 18px 0 7px; font-size: var(--fs-body); font-weight: 900; }
 .answer-display { display: block; width: 100%; min-height: 58px; padding: 10px 16px; border: 2px solid var(--line-strong); border-radius: 10px; background: #fffefb; font-size: 24px; font-weight: 900; letter-spacing: .04em; text-align: right; }
@@ -112,7 +112,3 @@
 .tally-group { position: relative; display: flex; width: 48px; height: 54px; align-items: end; justify-content: space-around; padding: 4px; }
 .tally-group i { display: block; width: 3px; height: 36px; border-radius: 2px; background: var(--ink); }
 .tally-group i.tally-diagonal { position: absolute; top: 6px; left: 22px; width: 3px; height: 46px; transform: rotate(45deg); transform-origin: center; }
-.angle-visual, .volume-visual { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 18px auto 22px; }
-.angle-visual svg { width: min(220px, 70%); height: 150px; }
-.angle-visual small, .volume-visual small { color: var(--muted); font-size: var(--fs-caption); font-weight: 800; }
-.volume-visual svg { width: min(250px, 75%); height: 160px; }

@@ -58,6 +58,31 @@ export function describeGeometry(question: LearningQuestion): Geometry | null {
   }
 }
 
+/** Bangun ruang yang digambar SolidVisual. cubes = true: balok dari kubus satuan (berkisi dan berlabel); false: bangun polos dengan rusuk tersembunyi putus-putus. */
+export type SolidShape = { length: number; width: number; height: number; cubes: boolean }
+
+export function describeSolid(question: LearningQuestion): SolidShape | null {
+  const p = question.params
+  const dim = (value: unknown): value is number => isCount(value, 1, 8)
+  if (question.typeId === 'volume-unit-cubes') return dim(p.length) && dim(p.width) && dim(p.height) ? { length: p.length, width: p.width, height: p.height, cubes: true } : null
+  if (question.typeId === 'solid-properties') {
+    if (p.solid === 'kubus') return { length: 3, width: 3, height: 3, cubes: false }
+    if (p.solid === 'balok') return { length: 4, width: 3, height: 2, cubes: false }
+  }
+  return null
+}
+
+/** Jumlah seperempat putaran (1 sampai 4) yang diarsir pada gambar sudut. Tidak pernah menggambar atau menulis derajatnya. */
+export function angleTurn(question: LearningQuestion): number | null {
+  return isCount(question.params.turn, 1, 4) ? question.params.turn : null
+}
+
+/** Waktu berangkat dan tiba (menit sejak tengah malam) untuk dua jam analog. */
+export function clockTimes(question: LearningQuestion): { start: number; end: number } | null {
+  const { start, end } = question.params
+  return isNumber(start) && isNumber(end) && start >= 0 && end >= start && end < 2880 ? { start, end } : null
+}
+
 const numericList = (value: unknown, min: number) => Array.isArray(value) && value.length >= min && value.every(isNumber)
 
 /**
@@ -75,6 +100,12 @@ export function usableVisual(question: LearningQuestion): VisualDecision {
       return numericList(params.values, 2) || (isNumber(params.a) && isNumber(params.b)) ? question.visual : 'hidden'
     case 'grid':
       return describeGeometry(question) ? question.visual : 'hidden'
+    case 'volume':
+      return describeSolid(question) ? question.visual : 'hidden'
+    case 'angle':
+      return angleTurn(question) !== null ? question.visual : 'hidden'
+    case 'clock':
+      return clockTimes(question) ? question.visual : 'hidden'
     case 'chart':
       return numericList(params.values, 2) || numericList(params.counts, 2) ? question.visual : 'hidden'
     case 'shape':
