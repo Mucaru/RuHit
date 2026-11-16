@@ -16,6 +16,13 @@
 - `speak()` digabung ke `lib/speech.ts` (toSpeakable dan suara id-ID); tombol Dengarkan di `LessonReader`.
 - Copy: catatan kelas, label latihan tambahan, dan lencana kelas memakai bahasa anak/orang tua.
 
+### Soal cerita bergambar benda (16 Nov 2026, Commit 5)
+- Registri benda `lib/learning/items.ts`; generator menyimpan `item`/`itemA`/`itemB` di `params`, jadi gambar tidak menebak benda dari kalimat soal.
+- Visual baru (SVG, tanpa style inline): `objects` (`count-objects`, `pictogram-read`, `table-frequency`), `money` (`money-change`), `ratio` (`proportion`), `cards` (`compare-length`, `compare-weight`), `food` (`fraction-word-add/subtract`). Logika deskripsi dan tata letak ada di `lib/learning/story-visual.ts`, komponen di `components/StoryVisuals.tsx` dan `ItemIcons.tsx`.
+- Hanya yang diketahui soal yang digambar. Pecahan cerita memakai dua gambar makanan terpisah (batang gabungan lama menampakkan jumlah kotak berwarna = jawaban). Kartu banding berukuran sama dengan catatan "bukan ukuran sebenarnya", karena pita atau timbangan proporsional akan menampakkan jawabannya.
+- `count-objects` kini bervariasi (bola, apel, jeruk, pisang); `pictogram-read` menyebut nama buahnya di kalimat soal; `money-change` memakai apel, jeruk, atau pisang.
+- Tes: sapuan semua generator (tergambar, benda ada di registri, tata letak di dalam kanvas) dan tes bahwa semua angka di gambar sudah ada di kalimat soal.
+
 ## 2.0.0 — Ruang Hitung learning redesign
 
 - Replaced Express/static-server deployment with native Vite MPA routes and Cloudflare static assets.

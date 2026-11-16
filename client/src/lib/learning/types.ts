@@ -1,4 +1,4 @@
-export type VisualKind = 'place-value' | 'fraction-bar' | 'number-line' | 'grid' | 'angle' | 'chart' | 'blocks' | 'shape' | 'position' | 'pattern' | 'tally' | 'volume' | 'clock' | 'none'
+export type VisualKind = 'place-value' | 'fraction-bar' | 'number-line' | 'grid' | 'angle' | 'chart' | 'blocks' | 'shape' | 'position' | 'pattern' | 'tally' | 'volume' | 'clock' | 'objects' | 'food' | 'money' | 'ratio' | 'cards' | 'none'
 export type QuestionParams = Record<string, number | string | number[]>
 
 export type LearningQuestion = {

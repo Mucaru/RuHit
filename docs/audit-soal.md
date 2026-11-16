@@ -6,16 +6,15 @@ Ini temuan HEURISTIK dari data dan hasil membaca kode: bukan bukti bug sampai di
 
 ## 1. Ringkasan
 
-- Kombinasi tanpa temuan apa pun: **56** dari 188
+- Kombinasi tanpa temuan apa pun: **58** dari 188
 
 | Tingkat | Kode | Jumlah soal | Kombinasi terdampak | Contoh |
 |---|---|---|---|---|
 | sedang | `SOAL-MONOTON` | 390 | 13 | hanya 2 soal berbeda dari 30 percobaan |
 | sedang | `VISUAL-PECAHAN-DEFAULT` | 270 | 7 | tipe ini jatuh ke cabang default FractionModel (satu batang saja) |
-| sedang | `VISUAL-TIDAK-TAMPIL` | 60 | 2 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudu |
 | sedang | `PETUNJUK-BOCOR` | 22 | 4 | petunjuk 1/2 sudah menyebut jawaban "100" |
 | sedang | `SOAL-BOCOR` | 4 | 2 | soal sudah memuat jawaban "2/5" |
-| rendah | `VISUAL-DISEMBUNYIKAN` | 1920 | 64 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 1680 | 56 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `ANGKA-TANPA-TITIK` | 140 | 6 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 789, 4062, 7627. |
 | rendah | `KESULITAN-TIDAK-NAIK` | 81 | 80 | angka terbesar rata-rata level 0 = 20, level 4 = 20 |
 
@@ -23,7 +22,7 @@ Ini temuan HEURISTIK dari data dan hasil membaca kode: bukan bukti bug sampai di
 
 1. (Sudah diperbaiki di Commit 2) Tabel nilai tempat kini ribuan di kiri; visual yang tidak cocok disembunyikan oleh `visual-guard.ts` (kode VISUAL-DISEMBUNYIKAN).
 2. **Garis bilangan tidak proporsional.** Titik-titiknya disebar rata (`flex: 1`) berapa pun nilainya, padahal teksnya meminta anak memperhatikan letak nilai.
-3. **Kode mati.** `AngleVisual` dan `VolumeVisual` didefinisikan tapi tidak dipanggil `VisualAid`.
+3. (Sudah diperbaiki di Commit 4) Bangun ruang, volume, sudut, dan durasi kini punya visual sendiri (`SolidVisual`, `AngleVisual`, `ClockVisual`); kode mati lama dihapus.
 
 ## 3. Per tipe soal
 
@@ -1668,23 +1667,21 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 24 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 2 panjang, 4 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 2 panjang, 4 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":2,"width":4,"height":2}`
   - jawaban: `16`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 2 × 4 × 2 = 16.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 4 panjang, 5 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 4 panjang, 5 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":4,"width":5,"height":4}`
   - jawaban: `80`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 4 × 5 × 4 = 80.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 5 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 5 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":5,"width":4,"height":3}`
   - jawaban: `60`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
@@ -1697,22 +1694,21 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 6, level 4 = 4 |
 
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":2,"height":4}`
   - jawaban: `48`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 6 × 2 × 4 = 48.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 2 panjang, 5 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 2 panjang, 5 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":2,"width":5,"height":2}`
   - jawaban: `20`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 2 × 5 × 2 = 20.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 2 panjang, 2 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 2 panjang, 2 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":2,"width":2,"height":3}`
   - jawaban: `12`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
@@ -4781,7 +4777,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| sedang | `VISUAL-TIDAK-TAMPIL` | 30 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudut tidak tergambar |
 | sedang | `PETUNJUK-BOCOR` | 9 | petunjuk 1/2 sudah menyebut jawaban "90" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 3 soal berbeda dari 30 percobaan |
 
@@ -4810,7 +4805,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| sedang | `VISUAL-TIDAK-TAMPIL` | 30 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudut tidak tergambar |
 | sedang | `PETUNJUK-BOCOR` | 8 | petunjuk 1/2 sudah menyebut jawaban "90" |
 | sedang | `SOAL-MONOTON` | 30 | hanya 3 soal berbeda dari 30 percobaan |
 
@@ -4839,22 +4833,21 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 1302, level 4 = 1127 |
 
-- **Contoh** visual `number-line`: Angkot berangkat pukul 13.30 dan tiba pukul 14.58. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 13.30 dan tiba pukul 14.58. Berapa lama perjalanan dalam menit?
   - params: `{"start":810,"duration":88,"end":898}`
   - jawaban: `88`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
   - penjelasan: Selisih waktu dari mulai sampai selesai adalah 88 menit.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `number-line`: Angkot berangkat pukul 13.02 dan tiba pukul 15.38. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 13.02 dan tiba pukul 15.38. Berapa lama perjalanan dalam menit?
   - params: `{"start":782,"duration":156,"end":938}`
   - jawaban: `156`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
   - penjelasan: Selisih waktu dari mulai sampai selesai adalah 156 menit.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `number-line`: Angkot berangkat pukul 10.32 dan tiba pukul 13.08. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 10.32 dan tiba pukul 13.08. Berapa lama perjalanan dalam menit?
   - params: `{"start":632,"duration":156,"end":788}`
   - jawaban: `156`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
@@ -4867,22 +4860,21 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | number-line: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 1281, level 4 = 1238 |
 
-- **Contoh** visual `number-line`: Angkot berangkat pukul 10.03 dan tiba pukul 10.32. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 10.03 dan tiba pukul 10.32. Berapa lama perjalanan dalam menit?
   - params: `{"start":603,"duration":29,"end":632}`
   - jawaban: `29`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
   - penjelasan: Selisih waktu dari mulai sampai selesai adalah 29 menit.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `number-line`: Angkot berangkat pukul 10.12 dan tiba pukul 12.07. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 10.12 dan tiba pukul 12.07. Berapa lama perjalanan dalam menit?
   - params: `{"start":612,"duration":115,"end":727}`
   - jawaban: `115`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
   - penjelasan: Selisih waktu dari mulai sampai selesai adalah 115 menit.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `number-line`: Angkot berangkat pukul 11.28 dan tiba pukul 11.57. Berapa lama perjalanan dalam menit?
+- **Contoh** visual `clock`: Angkot berangkat pukul 11.28 dan tiba pukul 11.57. Berapa lama perjalanan dalam menit?
   - params: `{"start":688,"duration":29,"end":717}`
   - jawaban: `29`
   - petunjuk: 1) Ubah jam menjadi menit atau hitung bertahap. 2) Ingat satu jam sama dengan 60 menit. 3) Kurangi waktu selesai dengan waktu mulai.
@@ -4897,22 +4889,21 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 5, level 4 = 4 |
 
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 6 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":2,"height":4}`
   - jawaban: `48`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 6 × 2 × 4 = 48.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 2 panjang, 2 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 2 panjang, 2 lebar, dan 2 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":2,"width":2,"height":2}`
   - jawaban: `8`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 2 × 2 × 2 = 8.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 4 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 4 panjang, 2 lebar, dan 4 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":4,"width":2,"height":4}`
   - jawaban: `32`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
@@ -4923,23 +4914,21 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 25 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 6 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":4,"height":3}`
   - jawaban: `72`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 6 × 4 × 3 = 72.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 5 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 6 panjang, 5 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":5,"height":3}`
   - jawaban: `90`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
   - penjelasan: Jumlah kubus = 6 × 5 × 3 = 90.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Balok tersusun dari kubus satuan: 6 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
+- **Contoh** visual `volume`: Balok tersusun dari kubus satuan: 6 panjang, 4 lebar, dan 3 tinggi. Berapa kubus satuan yang dibutuhkan?
   - params: `{"length":6,"width":4,"height":3}`
   - jawaban: `72`
   - petunjuk: 1) Hitung jumlah kubus pada satu lapisan. 2) Kalikan panjang dan lebar untuk satu lapisan. 3) Kalikan banyak kubus satu lapisan dengan jumlah lapisan.
@@ -4953,22 +4942,21 @@ Tidak ada temuan otomatis.
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
 | sedang | `SOAL-MONOTON` | 30 | hanya 6 soal berbeda dari 30 percobaan |
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
-- **Contoh** visual `blocks`: Berapa banyak sisi pada kubus?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"faces"}`
+- **Contoh** visual `volume`: Berapa banyak sisi pada kubus?
+  - params: `{"solid":"kubus","faces":6,"edges":12,"vertices":8,"property":"faces"}`
   - jawaban: `6`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: kubus memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Berapa banyak titik sudut pada kubus?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"vertices"}`
+- **Contoh** visual `volume`: Berapa banyak titik sudut pada kubus?
+  - params: `{"solid":"kubus","faces":6,"edges":12,"vertices":8,"property":"vertices"}`
   - jawaban: `8`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: kubus memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Berapa banyak rusuk pada balok?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"edges"}`
+- **Contoh** visual `volume`: Berapa banyak rusuk pada balok?
+  - params: `{"solid":"balok","faces":6,"edges":12,"vertices":8,"property":"edges"}`
   - jawaban: `12`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: balok memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.
@@ -4981,22 +4969,21 @@ Tidak ada temuan otomatis.
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
 | sedang | `SOAL-MONOTON` | 30 | hanya 6 soal berbeda dari 30 percobaan |
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | blocks: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
-- **Contoh** visual `blocks`: Berapa banyak titik sudut pada kubus?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"vertices"}`
+- **Contoh** visual `volume`: Berapa banyak titik sudut pada kubus?
+  - params: `{"solid":"kubus","faces":6,"edges":12,"vertices":8,"property":"vertices"}`
   - jawaban: `8`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: kubus memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Berapa banyak titik sudut pada balok?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"vertices"}`
+- **Contoh** visual `volume`: Berapa banyak titik sudut pada balok?
+  - params: `{"solid":"balok","faces":6,"edges":12,"vertices":8,"property":"vertices"}`
   - jawaban: `8`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: balok memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `blocks`: Berapa banyak titik sudut pada balok?
-  - params: `{"faces":6,"edges":12,"vertices":8,"property":"vertices"}`
+- **Contoh** visual `volume`: Berapa banyak titik sudut pada balok?
+  - params: `{"solid":"balok","faces":6,"edges":12,"vertices":8,"property":"vertices"}`
   - jawaban: `8`
   - petunjuk: 1) Bayangkan bangun ruang dari beberapa sisi datar. 2) Bedakan sisi, rusuk, dan titik sudut. 3) Kubus dan balok memiliki jumlah sisi, rusuk, dan titik sudut yang sama.
   - penjelasan: balok memiliki 6 sisi, 12 rusuk, dan 8 titik sudut.

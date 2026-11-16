@@ -4,6 +4,7 @@ import { FractionModel } from './FractionModel'
 import { AngleVisual, ClockVisual } from './AngleClockVisual'
 import { GeometryVisual } from './GeometryVisual'
 import { SolidVisual } from './SolidVisual'
+import { CardsVisual, FoodVisual, MoneyVisual, ObjectsVisual, RatioVisual } from './StoryVisuals'
 
 const placeLabels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
 
@@ -89,5 +90,10 @@ export function VisualAid({ question, kind }: { question: LearningQuestion; kind
   if (visual === 'angle') return <AngleVisual question={question} />
   if (visual === 'volume') return <SolidVisual question={question} />
   if (visual === 'clock') return <ClockVisual question={question} />
+  if (visual === 'objects') return <ObjectsVisual question={question} />
+  if (visual === 'food') return <FoodVisual question={question} />
+  if (visual === 'money') return <MoneyVisual question={question} />
+  if (visual === 'ratio') return <RatioVisual question={question} />
+  if (visual === 'cards') return <CardsVisual question={question} />
   return <div className="visual-note">Bayangkan benda di sekitarmu, lalu hubungkan dengan soal ini.</div>
 }

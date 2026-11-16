@@ -1,4 +1,5 @@
 import type { LearningQuestion, QuestionParams, VisualKind } from './types'
+import { COUNT_PAIRS, FRUIT_TRIO, ITEMS, groupNoun } from './items'
 import { NEW_FRACTION_TYPES, STRICT_FRACTION_TYPES, extraAnswer, fractionBuilders, sameFractionValue } from './fractions'
 
 export const CLASS_FIVE_QUESTION_TYPES = [
@@ -113,7 +114,8 @@ const build: Record<string, Builder> = {
   },
   'money-change': (rng) => {
     const price = integer(rng, 10, 100) * 1000; const paid = Math.ceil(price / 10000) * 10000 + integer(rng, 0, 3) * 10000
-    return { params: { price, paid }, prompt: `Di pasar, harga 1 kg jeruk Rp${price.toLocaleString('id-ID')}. Kamu membayar Rp${paid.toLocaleString('id-ID')}. Berapa kembaliannya?`, expected: String(Math.max(0, paid - price)), explanation: `Kembalian = uang dibayar − harga = Rp${(paid - price).toLocaleString('id-ID')}.`, hints: ['Cari selisih uang yang dibayar dan harga.', 'Kurangi harga dari uang pembayaran.', 'Kembalian adalah uang dibayar dikurangi harga.'], misconception: 'Mengurangi uang yang dibayar dari harga, sehingga urutannya terbalik.', visual: 'blocks' }
+    const item = pick(rng, [...FRUIT_TRIO])
+    return { params: { price, paid, item }, prompt: `Di pasar, harga 1 kg ${ITEMS[item].noun} Rp${price.toLocaleString('id-ID')}. Kamu membayar Rp${paid.toLocaleString('id-ID')}. Berapa kembaliannya?`, expected: String(Math.max(0, paid - price)), explanation: `Kembalian = uang dibayar − harga = Rp${(paid - price).toLocaleString('id-ID')}.`, hints: ['Cari selisih uang yang dibayar dan harga.', 'Kurangi harga dari uang pembayaran.', 'Kembalian adalah uang dibayar dikurangi harga.'], misconception: 'Mengurangi uang yang dibayar dari harga, sehingga urutannya terbalik.', visual: 'money' }
   },
   'factor-list': (rng) => {
     const n = integer(rng, 12, 48)
@@ -238,7 +240,7 @@ const build: Record<string, Builder> = {
   },
   proportion: (rng) => {
     const a = integer(rng, 2, 5); const b = integer(rng, 2, 6); const k = integer(rng, 2, 5)
-    return { params: { a, b, k }, prompt: `Resep sirup memakai ${a} sendok sirup untuk ${b} gelas air. Jika sirupnya ${a * k} sendok, berapa gelas air yang diperlukan agar rasanya tetap sama?`, expected: String(b * k), explanation: `Bagian pertama dikali ${k}, jadi bagian kedua juga dikali ${k}.`, hints: ['Rasio harus tetap setara.', `Perhatikan faktor pengali dari ${a} ke ${a * k}.`, `Kalikan ${b} dengan faktor yang sama.`], misconception: 'Menambahkan selisih yang sama alih-alih mengalikan kedua bagian dengan faktor yang sama.', visual: 'blocks' }
+    return { params: { a, b, k }, prompt: `Resep sirup memakai ${a} sendok sirup untuk ${b} gelas air. Jika sirupnya ${a * k} sendok, berapa gelas air yang diperlukan agar rasanya tetap sama?`, expected: String(b * k), explanation: `Bagian pertama dikali ${k}, jadi bagian kedua juga dikali ${k}.`, hints: ['Rasio harus tetap setara.', `Perhatikan faktor pengali dari ${a} ke ${a * k}.`, `Kalikan ${b} dengan faktor yang sama.`], misconception: 'Menambahkan selisih yang sama alih-alih mengalikan kedua bagian dengan faktor yang sama.', visual: 'ratio' }
   },
   'pattern-multiplicative': (rng) => {
     const start = integer(rng, 2, 9); const factor = pick(rng, [2, 3, 4]); const current = start * factor * factor
@@ -302,8 +304,8 @@ const build: Record<string, Builder> = {
   },
   'table-frequency': (rng) => {
     const values = [integer(rng, 2, 9), integer(rng, 2, 9), integer(rng, 2, 9)]
-    const index = integer(rng, 0, 2); const names = ['Apel', 'Jeruk', 'Pisang']
-    return { params: { values, index }, prompt: `Data buah di pasar: Apel ${values[0]} kg, Jeruk ${values[1]} kg, Pisang ${values[2]} kg. Berapa kilogram jumlah seluruh buah?`, expected: String(values.reduce((sum, v) => sum + v, 0)), explanation: 'Jumlah seluruh data diperoleh dengan menjumlahkan frekuensi setiap kategori.', hints: ['Perhatikan jumlah pada setiap kategori.', 'Jangan menjumlahkan nama kategori, jumlahkan angkanya.', 'Jumlahkan ketiga frekuensi.'], misconception: 'Membaca frekuensi satu kategori sebagai jumlah seluruh data.', visual: 'chart' }
+    const index = integer(rng, 0, 2)
+    return { params: { values, index }, prompt: `Data buah di pasar: ${FRUIT_TRIO.map((id, i) => `${ITEMS[id].label} ${values[i]} kg`).join(', ')}. Berapa kilogram jumlah seluruh buah?`, expected: String(values.reduce((sum, v) => sum + v, 0)), explanation: 'Jumlah seluruh data diperoleh dengan menjumlahkan frekuensi setiap kategori.', hints: ['Perhatikan jumlah pada setiap kategori.', 'Jangan menjumlahkan nama kategori, jumlahkan angkanya.', 'Jumlahkan ketiga frekuensi.'], misconception: 'Membaca frekuensi satu kategori sebagai jumlah seluruh data.', visual: 'objects' }
   },
   'bar-chart-read': (rng) => {
     const values = [integer(rng, 2, 12), integer(rng, 2, 12), integer(rng, 2, 12)]
@@ -312,21 +314,23 @@ const build: Record<string, Builder> = {
   },
   'pictogram-read': (rng) => {
     const unit = pick(rng, [2, 5]); const counts = [integer(rng, 1, 4), integer(rng, 1, 4), integer(rng, 1, 4)]
-    return { params: { unit, counts }, prompt: `Pada piktogram kios buah, satu gambar mewakili ${unit} kg. Ada ${counts[0]}, ${counts[1]}, dan ${counts[2]} gambar pada tiga keranjang. Berapa kilogram jumlah buah seluruhnya?`, expected: String(counts.reduce((sum, v) => sum + v, 0) * unit), explanation: `Jumlah gambar ${counts.reduce((sum, v) => sum + v, 0)}. Setiap gambar bernilai ${unit}, jadi total ${counts.reduce((sum, v) => sum + v, 0) * unit}.`, hints: ['Baca keterangan nilai satu gambar.', 'Jumlahkan semua gambar terlebih dahulu.', 'Kalikan total gambar dengan nilai setiap gambar.'], misconception: 'Menganggap satu simbol selalu bernilai satu tanpa membaca legenda.', visual: 'chart' }
+    const total = counts.reduce((sum, v) => sum + v, 0)
+    return { params: { unit, counts }, prompt: `Pada piktogram kios buah, satu gambar mewakili ${unit} kg. Ada ${counts[0]} gambar apel, ${counts[1]} gambar jeruk, dan ${counts[2]} gambar pisang. Berapa kilogram jumlah buah seluruhnya?`, expected: String(total * unit), explanation: `Jumlah gambar ${total}. Setiap gambar bernilai ${unit}, jadi total ${total * unit}.`, hints: ['Baca keterangan nilai satu gambar.', 'Jumlahkan semua gambar terlebih dahulu.', 'Kalikan total gambar dengan nilai setiap gambar.'], misconception: 'Menganggap satu simbol selalu bernilai satu tanpa membaca legenda.', visual: 'objects' }
   },
   'count-objects': (rng) => {
     const a = integer(rng, 2, 8); const b = integer(rng, 1, 8)
-    return { params: { a, b, values: [a, b] }, prompt: `Ada ${a} bola merah dan ${b} bola biru. Berapa jumlah bola semuanya?`, expected: String(a + b), explanation: `${a} bola merah ditambah ${b} bola biru sama dengan ${a + b} bola.`, hints: ['Gabungkan dua kelompok bola.', 'Mulai hitung dari kelompok yang lebih besar.', 'Jumlahkan banyak bola merah dan biru.'], misconception: 'Menghitung satu kelompok saja atau mengulang hitungan awal.', visual: 'chart' }
+    const [itemA, itemB] = pick(rng, [...COUNT_PAIRS]); const nounA = ITEMS[itemA].noun; const nounB = ITEMS[itemB].noun; const group = groupNoun(itemA, itemB)
+    return { params: { a, b, values: [a, b], itemA, itemB }, prompt: `Ada ${a} ${nounA} dan ${b} ${nounB}. Berapa jumlah ${group} semuanya?`, expected: String(a + b), explanation: `${a} ${nounA} ditambah ${b} ${nounB} sama dengan ${a + b} ${group}.`, hints: [`Gabungkan dua kelompok ${group}.`, 'Mulai hitung dari kelompok yang lebih besar.', `Jumlahkan banyak ${nounA} dan ${nounB}.`], misconception: 'Menghitung satu kelompok saja atau mengulang hitungan awal.', visual: 'objects' }
   },
   'compare-length': (rng) => {
     const a = integer(rng, 10, 90); let b = integer(rng, 10, 90); while (a === b) b = integer(rng, 10, 90)
     const expected = a > b ? 'A' : 'B'
-    return { params: { a, b }, prompt: `Pita A panjangnya ${a} cm dan pita B ${b} cm. Pita mana yang lebih panjang?`, expected, choices: ['A', 'B'], explanation: `Pita ${expected} lebih panjang karena ukurannya lebih besar.`, hints: ['Perhatikan satuan kedua pita.', 'Bandingkan angka panjangnya.', 'Pilih pita dengan ukuran sentimeter lebih besar.'], misconception: 'Mengira pita yang angkanya lebih kecil berarti lebih panjang.', visual: 'chart' }
+    return { params: { a, b }, prompt: `Pita A panjangnya ${a} cm dan pita B ${b} cm. Pita mana yang lebih panjang?`, expected, choices: ['A', 'B'], explanation: `Pita ${expected} lebih panjang karena ukurannya lebih besar.`, hints: ['Perhatikan satuan kedua pita.', 'Bandingkan angka panjangnya.', 'Pilih pita dengan ukuran sentimeter lebih besar.'], misconception: 'Mengira pita yang angkanya lebih kecil berarti lebih panjang.', visual: 'cards' }
   },
   'compare-weight': (rng) => {
     const a = integer(rng, 1, 20); let b = integer(rng, 1, 20); while (a === b) b = integer(rng, 1, 20)
     const expected = a > b ? 'A' : 'B'
-    return { params: { a, b }, prompt: `Karung A beratnya ${a} kg dan karung B ${b} kg. Karung mana yang lebih berat?`, expected, choices: ['A', 'B'], explanation: `Karung ${expected} lebih berat karena jumlah kilogramnya lebih besar.`, hints: ['Kedua berat memakai satuan kilogram.', 'Bandingkan angka kilogram.', 'Pilih angka yang lebih besar.'], misconception: 'Menyamakan ukuran benda dengan beratnya tanpa membandingkan satuan.', visual: 'chart' }
+    return { params: { a, b }, prompt: `Karung A beratnya ${a} kg dan karung B ${b} kg. Karung mana yang lebih berat?`, expected, choices: ['A', 'B'], explanation: `Karung ${expected} lebih berat karena jumlah kilogramnya lebih besar.`, hints: ['Kedua berat memakai satuan kilogram.', 'Bandingkan angka kilogram.', 'Pilih angka yang lebih besar.'], misconception: 'Menyamakan ukuran benda dengan beratnya tanpa membandingkan satuan.', visual: 'cards' }
   },
   'compare-duration': (rng) => {
     const a = integer(rng, 10, 90); let b = integer(rng, 10, 90); while (a === b) b = integer(rng, 10, 90)
@@ -485,11 +489,12 @@ const visualByType: Record<string, VisualKind> = {
   'whole-place-value': 'place-value', 'whole-compose': 'place-value', 'whole-compare': 'place-value', 'whole-order': 'number-line',
   'whole-add': 'place-value', 'whole-subtract': 'place-value', 'whole-multiply': 'place-value', 'whole-divide': 'place-value',
   'fraction-compare': 'fraction-bar', 'fraction-order': 'fraction-bar', 'fraction-equivalent': 'fraction-bar', 'fraction-simplify': 'fraction-bar',
-  'fraction-identify': 'fraction-bar', 'fraction-subtract-same': 'fraction-bar', 'fraction-improper-to-mixed': 'fraction-bar', 'fraction-mixed-to-improper': 'fraction-bar', 'fraction-word-add': 'fraction-bar', 'fraction-word-subtract': 'fraction-bar',
+  'fraction-identify': 'fraction-bar', 'fraction-subtract-same': 'fraction-bar', 'fraction-improper-to-mixed': 'fraction-bar', 'fraction-mixed-to-improper': 'fraction-bar', 'fraction-word-add': 'food', 'fraction-word-subtract': 'food',
   'fraction-add-same': 'fraction-bar', 'fraction-add-different': 'fraction-bar', 'fraction-subtract-different': 'fraction-bar', 'fraction-multiply-whole': 'fraction-bar', 'fraction-divide-whole': 'fraction-bar', 'fraction-of-quantity': 'fraction-bar', 'fraction-to-decimal': 'number-line',
   'decimal-compare': 'number-line', 'decimal-order': 'number-line', 'decimal-place': 'place-value', 'decimal-add': 'place-value', 'decimal-subtract': 'place-value', 'decimal-to-fraction': 'fraction-bar',
   'perimeter-square': 'grid', 'perimeter-rectangle': 'grid', 'perimeter-triangle': 'grid', 'area-square': 'grid', 'area-rectangle': 'grid', 'area-triangle': 'grid', 'area-composite': 'grid', 'area-composite-basic': 'grid',
-  'angle-measure': 'angle', 'duration-calculate': 'clock', 'volume-unit-cubes': 'volume', 'solid-properties': 'volume', 'table-frequency': 'chart', 'bar-chart-read': 'chart', 'pictogram-read': 'chart',
+  'angle-measure': 'angle', 'duration-calculate': 'clock', 'volume-unit-cubes': 'volume', 'solid-properties': 'volume', 'table-frequency': 'objects', 'bar-chart-read': 'chart', 'pictogram-read': 'objects',
+  'count-objects': 'objects', 'money-change': 'money', 'proportion': 'ratio', 'compare-length': 'cards', 'compare-weight': 'cards',
 }
 
 function shuffleChoices(values: string[], rng: () => number): string[] {
