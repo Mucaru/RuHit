@@ -6,17 +6,16 @@ Ini temuan HEURISTIK dari data dan hasil membaca kode: bukan bukti bug sampai di
 
 ## 1. Ringkasan
 
-- Kombinasi tanpa temuan apa pun: **47** dari 188
+- Kombinasi tanpa temuan apa pun: **56** dari 188
 
 | Tingkat | Kode | Jumlah soal | Kombinasi terdampak | Contoh |
 |---|---|---|---|---|
-| tinggi | `VISUAL-BOCOR` | 4 | 3 | tabel nilai tempat menampilkan jawaban "10" |
 | sedang | `SOAL-MONOTON` | 390 | 13 | hanya 2 soal berbeda dari 30 percobaan |
 | sedang | `VISUAL-PECAHAN-DEFAULT` | 270 | 7 | tipe ini jatuh ke cabang default FractionModel (satu batang saja) |
 | sedang | `VISUAL-TIDAK-TAMPIL` | 60 | 2 | angle: VisualAid memakai ilustrasi CSS statis; AngleVisual (SVG sesuai derajat) tidak dipakai, jadi besar sudu |
 | sedang | `PETUNJUK-BOCOR` | 22 | 4 | petunjuk 1/2 sudah menyebut jawaban "100" |
 | sedang | `SOAL-BOCOR` | 4 | 2 | soal sudah memuat jawaban "2/5" |
-| rendah | `VISUAL-DISEMBUNYIKAN` | 2313 | 78 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+| rendah | `VISUAL-DISEMBUNYIKAN` | 1920 | 64 | chart: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `ANGKA-TANPA-TITIK` | 140 | 6 | angka 4 digit tanpa pemisah ribuan: Urutkan dari yang terkecil: 789, 4062, 7627. |
 | rendah | `KESULITAN-TIDAK-NAIK` | 81 | 80 | angka terbesar rata-rata level 0 = 20, level 4 = 20 |
 
@@ -166,9 +165,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 21 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-BOCOR` | 1 | tabel nilai tempat menampilkan jawaban "10" |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 20 − 15.
   - params: `{"a":20,"b":15}`
@@ -646,29 +643,27 @@ Tidak ada temuan otomatis.
 
 #### `whole-place-value` kelas 3
 
-30 soal dibangkitkan, 29 berbeda.
+30 soal dibangkitkan, 28 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-BOCOR` | 2 | tabel nilai tempat menampilkan jawaban "50" |
+Tidak ada temuan otomatis.
 
-- **Contoh** visual `place-value`: Pada bilangan 88, berapa nilai angka 8?
-  - params: `{"value":88,"position":1}`
+- **Contoh** visual `place-value`: Pada bilangan 86, berapa nilai angka 8?
+  - params: `{"value":86,"position":1}`
   - jawaban: `80`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 10, jadi nilainya 80.
+  - penjelasan: Angka 8 berada di tempat puluhan, jadi nilainya 8 × 10 = 80.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 3.268, berapa nilai angka 8?
-  - params: `{"value":3268,"position":0}`
-  - jawaban: `8`
+- **Contoh** visual `place-value`: Pada bilangan 3.295, berapa nilai angka 3?
+  - params: `{"value":3295,"position":3}`
+  - jawaban: `3000`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 1, jadi nilainya 8.
+  - penjelasan: Angka 3 berada di tempat ribuan, jadi nilainya 3 × 1.000 = 3.000.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 2.180, berapa nilai angka 0?
-  - params: `{"value":2180,"position":0}`
-  - jawaban: `0`
+- **Contoh** visual `place-value`: Pada bilangan 2.340, berapa nilai angka 4?
+  - params: `{"value":2340,"position":1}`
+  - jawaban: `40`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 1, jadi nilainya 0.
+  - penjelasan: Angka 4 berada di tempat puluhan, jadi nilainya 4 × 10 = 40.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 
 #### `whole-place-value` kelas 4
@@ -677,23 +672,23 @@ Tidak ada temuan otomatis.
 
 Tidak ada temuan otomatis.
 
-- **Contoh** visual `place-value`: Pada bilangan 3.005, berapa nilai angka 0?
-  - params: `{"value":3005,"position":2}`
-  - jawaban: `0`
+- **Contoh** visual `place-value`: Pada bilangan 3.782, berapa nilai angka 8?
+  - params: `{"value":3782,"position":1}`
+  - jawaban: `80`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 100, jadi nilainya 0.
+  - penjelasan: Angka 8 berada di tempat puluhan, jadi nilainya 8 × 10 = 80.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 2.795, berapa nilai angka 7?
-  - params: `{"value":2795,"position":2}`
-  - jawaban: `700`
+- **Contoh** visual `place-value`: Pada bilangan 2.617, berapa nilai angka 6?
+  - params: `{"value":2617,"position":2}`
+  - jawaban: `600`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 100, jadi nilainya 700.
+  - penjelasan: Angka 6 berada di tempat ratusan, jadi nilainya 6 × 100 = 600.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 815.131, berapa nilai angka 5?
-  - params: `{"value":815131,"position":3}`
-  - jawaban: `5000`
+- **Contoh** visual `place-value`: Pada bilangan 842.130, berapa nilai angka 4?
+  - params: `{"value":842130,"position":4}`
+  - jawaban: `40000`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 1.000, jadi nilainya 5.000.
+  - penjelasan: Angka 4 berada di tempat puluh ribuan, jadi nilainya 4 × 10.000 = 40.000.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 
 #### `whole-compose` kelas 3
@@ -923,9 +918,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 27 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| tinggi | `VISUAL-BOCOR` | 1 | tabel nilai tempat menampilkan jawaban "10" |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `place-value`: Hitung 20 − 14.
   - params: `{"a":20,"b":14}`
@@ -1786,7 +1779,9 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 15 berbeda.
 
-Tidak ada temuan otomatis.
+| Tingkat | Kode | Jumlah | Contoh |
+|---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Beberapa petak disusun menjadi persegi panjang dengan 5 baris dan 3 kolom. Berapa petak yang membentuk bangun itu?
   - params: `{"rows":5,"columns":3}`
@@ -1811,7 +1806,9 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 16 berbeda.
 
-Tidak ada temuan otomatis.
+| Tingkat | Kode | Jumlah | Contoh |
+|---|---|---|---|
+| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 
 - **Contoh** visual `grid`: Beberapa petak disusun menjadi persegi panjang dengan 4 baris dan 2 kolom. Berapa petak yang membentuk bangun itu?
   - params: `{"rows":4,"columns":2}`
@@ -2000,23 +1997,23 @@ Tidak ada temuan otomatis.
 
 Tidak ada temuan otomatis.
 
-- **Contoh** visual `place-value`: Pada bilangan 8.420, berapa nilai angka 4?
-  - params: `{"value":8420,"position":2}`
-  - jawaban: `400`
+- **Contoh** visual `place-value`: Pada bilangan 8.672, berapa nilai angka 7?
+  - params: `{"value":8672,"position":1}`
+  - jawaban: `70`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 100, jadi nilainya 400.
+  - penjelasan: Angka 7 berada di tempat puluhan, jadi nilainya 7 × 10 = 70.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 608.369, berapa nilai angka 0?
-  - params: `{"value":608369,"position":4}`
-  - jawaban: `0`
+- **Contoh** visual `place-value`: Pada bilangan 682.907, berapa nilai angka 8?
+  - params: `{"value":682907,"position":4}`
+  - jawaban: `80000`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 10.000, jadi nilainya 0.
+  - penjelasan: Angka 8 berada di tempat puluh ribuan, jadi nilainya 8 × 10.000 = 80.000.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 892.082, berapa nilai angka 8?
-  - params: `{"value":892082,"position":1}`
-  - jawaban: `80`
+- **Contoh** visual `place-value`: Pada bilangan 813.067, berapa nilai angka 1?
+  - params: `{"value":813067,"position":4}`
+  - jawaban: `10000`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 10, jadi nilainya 80.
+  - penjelasan: Angka 1 berada di tempat puluh ribuan, jadi nilainya 1 × 10.000 = 10.000.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 
 #### `whole-place-value` kelas 6
@@ -2025,25 +2022,25 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 627828, level 4 = 539381 |
+| rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 633105, level 4 = 528741 |
 
-- **Contoh** visual `place-value`: Pada bilangan 335.415, berapa nilai angka 4?
-  - params: `{"value":335415,"position":2}`
-  - jawaban: `400`
+- **Contoh** visual `place-value`: Pada bilangan 342.860, berapa nilai angka 6?
+  - params: `{"value":342860,"position":1}`
+  - jawaban: `60`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 100, jadi nilainya 400.
+  - penjelasan: Angka 6 berada di tempat puluhan, jadi nilainya 6 × 10 = 60.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 480.201, berapa nilai angka 0?
-  - params: `{"value":480201,"position":3}`
-  - jawaban: `0`
+- **Contoh** visual `place-value`: Pada bilangan 458.712, berapa nilai angka 1?
+  - params: `{"value":458712,"position":1}`
+  - jawaban: `10`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 1.000, jadi nilainya 0.
+  - penjelasan: Angka 1 berada di tempat puluhan, jadi nilainya 1 × 10 = 10.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
-- **Contoh** visual `place-value`: Pada bilangan 120.486, berapa nilai angka 6?
-  - params: `{"value":120486,"position":0}`
-  - jawaban: `6`
+- **Contoh** visual `place-value`: Pada bilangan 102.937, berapa nilai angka 2?
+  - params: `{"value":102937,"position":3}`
+  - jawaban: `2000`
   - petunjuk: 1) Cari posisi angka dari kanan. 2) Urutannya satuan, puluhan, ratusan, ribuan, dan seterusnya. 3) Kalikan angka tersebut dengan nilai tempatnya.
-  - penjelasan: Angka itu berada di tempat 1, jadi nilainya 6.
+  - penjelasan: Angka 2 berada di tempat ribuan, jadi nilainya 2 × 1.000 = 2.000.
   - langkah Biji: Pahami soalnya > Pikirkan caranya > Kerjakan pelan-pelan > Cek hasilnya > Jawabanmu
 
 #### `whole-compose` kelas 5
@@ -4418,9 +4415,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 14 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 11 cm. Berapa kelilingnya?
   - params: `{"side":11}`
@@ -4447,7 +4442,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 8 |
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 16 cm. Berapa kelilingnya?
@@ -4475,7 +4469,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 23 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 14, level 4 = 14 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 7 cm × 4 cm. Berapa kelilingnya?
@@ -4503,7 +4496,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 24 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 14, level 4 = 12 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 15 cm × 13 cm. Berapa kelilingnya?
@@ -4531,7 +4523,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 8 |
 
 - **Contoh** visual `grid`: Segitiga memiliki sisi 5 cm, 10 cm, dan 9 cm. Berapa kelilingnya?
@@ -4557,9 +4548,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Segitiga memiliki sisi 5 cm, 6 cm, dan 5 cm. Berapa kelilingnya?
   - params: `{"a":5,"b":6,"c":5}`
@@ -4584,9 +4573,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 11 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 12 cm. Berapa luasnya?
   - params: `{"side":12}`
@@ -4611,9 +4598,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 11 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Sebuah persegi memiliki sisi 6 cm. Berapa luasnya?
   - params: `{"side":6}`
@@ -4638,9 +4623,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 27 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 24 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 4 cm × 8 cm. Berapa luasnya?
   - params: `{"length":4,"width":8}`
@@ -4667,7 +4650,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 22 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 11, level 4 = 10 |
 
 - **Contoh** visual `grid`: Persegi panjang berukuran 14 cm × 4 cm. Berapa luasnya?
@@ -4695,7 +4677,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 12, level 4 = 11 |
 
 - **Contoh** visual `grid`: Segitiga memiliki alas 10 cm dan tinggi 10 cm. Berapa luasnya?
@@ -4721,9 +4702,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 26 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Segitiga memiliki alas 16 cm dan tinggi 16 cm. Berapa luasnya?
   - params: `{"base":16,"height":16}`
@@ -4748,9 +4727,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 29 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Bangun gabungan terdiri dari dua persegi panjang: 4 × 3 cm dan 2 × 2 cm. Berapa luas seluruhnya?
   - params: `{"a":4,"b":3,"c":2,"d":2}`
@@ -4775,9 +4752,7 @@ Tidak ada temuan otomatis.
 
 30 soal dibangkitkan, 30 berbeda.
 
-| Tingkat | Kode | Jumlah | Contoh |
-|---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
+Tidak ada temuan otomatis.
 
 - **Contoh** visual `grid`: Bangun gabungan terdiri dari dua persegi panjang: 4 × 5 cm dan 3 × 4 cm. Berapa luas seluruhnya?
   - params: `{"a":4,"b":5,"c":3,"d":4}`
@@ -5035,7 +5010,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 4, level 4 = 4 |
 
 - **Contoh** visual `grid`: Kamu berada di petak (2, 4). Bergerak satu petak ke kiri. Kolom berubah. Berapa kolom barumu?
@@ -5063,7 +5037,6 @@ Tidak ada temuan otomatis.
 
 | Tingkat | Kode | Jumlah | Contoh |
 |---|---|---|---|
-| rendah | `VISUAL-DISEMBUNYIKAN` | 30 | grid: tidak cocok untuk soal ini (parameter kurang atau tipe tidak bermakna), penjaga tidak menggambarnya |
 | rendah | `KESULITAN-TIDAK-NAIK` | 1 | angka terbesar rata-rata level 0 = 5, level 4 = 4 |
 
 - **Contoh** visual `grid`: Kamu berada di petak (5, 4). Bergerak satu petak ke kiri. Kolom berubah. Berapa kolom barumu?

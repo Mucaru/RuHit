@@ -39,15 +39,61 @@ describe('VisualAid: tabel nilai tempat', () => {
 
 describe('VisualAid: penjaga', () => {
   it('tidak menggambar apa pun untuk visual yang akan menyesatkan atau membocorkan jawaban', () => {
-    for (const question of [q('whole-compose', 'place-value', { value: 4321, hundreds: 3 }), q('money-change', 'blocks', {}), q('area-square', 'grid', { side: 8 }), q('compare-length', 'chart', {})]) {
+    for (const question of [q('whole-compose', 'place-value', { value: 4321, hundreds: 3 }), q('money-change', 'blocks', {}), q('area-rectangle', 'grid', {}), q('compare-length', 'chart', {})]) {
       const { container } = render(<VisualAid question={question} />)
       expect(container.innerHTML, question.typeId).toBe('')
       cleanup()
     }
   })
+})
 
-  it('kisi yang valid tetap tampil dengan jumlah petak yang benar', () => {
+const labelsOf = (container: HTMLElement) => [...container.querySelectorAll('.geo-label')].map((item) => item.textContent)
+
+describe('VisualAid: bangun geometri hanya menampilkan yang diketahui soal', () => {
+  it('luas persegi panjang: panjang, lebar, dan kisi satuan; luasnya tidak tertulis', () => {
     const { container } = render(<VisualAid question={q('area-rectangle', 'grid', { length: 6, width: 4 })} />)
-    expect(container.querySelectorAll('.area-grid-cell')).toHaveLength(24)
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('6 cm kali 4 cm')
+    expect(labelsOf(container)).toEqual(['6 cm', '4 cm'])
+    expect(container.querySelectorAll('.geo-grid line')).toHaveLength(5 + 3)
+    expect(container.textContent).not.toContain('24')
+  })
+
+  it('keliling persegi panjang: keempat sisi berlabel, tanpa kisi, kelilingnya tidak tertulis', () => {
+    const { container } = render(<VisualAid question={q('perimeter-rectangle', 'grid', { length: 6, width: 4 })} />)
+    expect(labelsOf(container)).toEqual(['6 cm', '6 cm', '4 cm', '4 cm'])
+    expect(container.querySelector('.geo-grid')).toBeNull()
+    expect(container.textContent).not.toContain('20')
+  })
+
+  it('keliling segitiga: tiga titik dan tiga label sisi', () => {
+    const { container } = render(<VisualAid question={q('perimeter-triangle', 'grid', { a: 5, b: 6, c: 7 })} />)
+    expect(container.querySelector('.geo-shape')?.getAttribute('points')?.split(' ')).toHaveLength(3)
+    expect(labelsOf(container).sort()).toEqual(['5 cm', '6 cm', '7 cm'])
+    expect(container.textContent).not.toContain('18')
+  })
+
+  it('luas segitiga: alas dan tinggi saja', () => {
+    const { container } = render(<VisualAid question={q('area-triangle', 'grid', { base: 8, height: 6 })} />)
+    expect(labelsOf(container)).toEqual(['alas 8 cm', 'tinggi 6 cm'])
+    expect(container.textContent).not.toContain('24')
+  })
+
+  it('bangun gabungan: dua persegi panjang dan tanda tambah, luas total tidak tertulis', () => {
+    const { container } = render(<VisualAid question={q('area-composite', 'grid', { a: 4, b: 3, c: 2, d: 5 })} />)
+    expect(container.querySelectorAll('.geo-shape')).toHaveLength(2)
+    expect(labelsOf(container)).toEqual(['+', '4 × 3 cm', '2 × 5 cm'])
+    expect(container.textContent).not.toContain('22')
+  })
+
+  it('petak: kisi 6x6 dengan satu penanda di posisi sekarang', () => {
+    const { container } = render(<VisualAid question={q('grid-location', 'grid', { x: 3, y: 2, nx: 4, ny: 3 })} />)
+    expect(container.querySelectorAll('.geo-cell')).toHaveLength(36)
+    expect(container.querySelectorAll('.geo-player')).toHaveLength(1)
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('kolom 3, baris 2')
+  })
+
+  it('tidak memakai inline style (CSP)', () => {
+    const { container } = render(<VisualAid question={q('perimeter-triangle', 'grid', { a: 5, b: 6, c: 7 })} />)
+    expect(container.querySelector('[style]')).toBeNull()
   })
 })

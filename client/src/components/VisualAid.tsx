@@ -1,6 +1,7 @@
 import type { LearningQuestion, VisualKind } from '../lib/learning/types'
 import { placeValueNumbers, usableVisual } from '../lib/learning/visual-guard'
 import { FractionModel } from './FractionModel'
+import { GeometryVisual } from './GeometryVisual'
 
 const placeLabels = ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan', 'Puluh ribuan', 'Ratus ribuan']
 
@@ -32,14 +33,6 @@ function NumberLine({ question }: { question: LearningQuestion }) {
     {values.slice(0, 5).map((value, index) => <span className="number-line-point" key={`${value}-${index}`}><i /><small>{value}</small></span>)}
     <small className="number-line-caption">Perhatikan letak nilai, bukan hanya bentuk angkanya.</small>
     <span className="sr-only">Rentang contoh {min} sampai {max}, selisih {spread}.</span>
-  </div>
-}
-
-function GridVisual({ question }: { question: LearningQuestion }) {
-  const columns = Math.min(8, Math.max(2, Number(question.params.columns ?? question.params.length ?? question.params.side ?? question.params.b ?? 4)))
-  const rows = Math.min(6, Math.max(2, Number(question.params.rows ?? question.params.width ?? question.params.height ?? question.params.a ?? 3)))
-  return <div className={`area-grid area-grid-${columns}`} aria-label={`Kisi petak ${columns} kolom dan ${rows} baris`}>
-    {Array.from({ length: columns * rows }, (_, index) => <span className="area-grid-cell" key={index} />)}
   </div>
 }
 
@@ -100,7 +93,7 @@ export function VisualAid({ question, kind }: { question: LearningQuestion; kind
   if (visual === 'fraction-bar') return <FractionModel question={question} />
   if (visual === 'place-value' || visual === 'blocks') return <PlaceValue question={question} />
   if (visual === 'number-line') return <NumberLine question={question} />
-  if (visual === 'grid') return <GridVisual question={question} />
+  if (visual === 'grid') return <GeometryVisual question={question} />
   if (visual === 'chart') return <ChartVisual question={question} />
   if (visual === 'shape') return <ShapeVisual question={question} />
   if (visual === 'position') return <PositionVisual question={question} />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { generateQuestion } from './engine'
-import { gridSize, placeValueNumbers, usableVisual } from './visual-guard'
+import { describeGeometry, placeValueNumbers, usableVisual } from './visual-guard'
 import type { LearningQuestion, VisualKind } from './types'
 
 const q = (typeId: string, visual: VisualKind, params: LearningQuestion['params']): LearningQuestion => ({ id: 't', typeId, topicId: 'uji', params, prompt: '', expected: '', explanation: '', hints: ['', '', ''], misconception: '', visual })
@@ -30,12 +30,30 @@ describe('visual-guard: tabel nilai tempat', () => {
 })
 
 describe('visual-guard: kisi, garis bilangan, diagram', () => {
-  it('kisi hanya tampil kalau kolom dan baris eksplisit dan muat; persegi bersisi 8 tidak lagi jadi 8x3', () => {
-    expect(usableVisual(q('area-square', 'grid', { side: 8 }))).toBe('hidden')
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toBe('grid')
-    expect(gridSize(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toEqual({ columns: 6, rows: 4 })
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 12, width: 4 }))).toBe('hidden')
-    expect(usableVisual(q('area-rectangle', 'grid', { length: 6, width: 9 }))).toBe('hidden')
+  it('bangun geometri diterima kalau parameternya lengkap dan masuk akal', () => {
+    expect(usableVisual(q('area-square', 'grid', { side: 8 }))).toBe('grid')
+    expect(describeGeometry(q('area-rectangle', 'grid', { length: 6, width: 4 }))).toEqual({ kind: 'rectangle', length: 6, width: 4, mode: 'area', square: false })
+    expect(describeGeometry(q('perimeter-square', 'grid', { side: 5 }))).toMatchObject({ mode: 'perimeter', square: true })
+    expect(usableVisual(q('perimeter-triangle', 'grid', { a: 5, b: 6, c: 7 }))).toBe('grid')
+    expect(usableVisual(q('grid-location', 'grid', { x: 3, y: 2 }))).toBe('grid')
+  })
+
+  it('bangun geometri ditolak kalau parameter kurang atau mustahil', () => {
+    expect(usableVisual(q('area-rectangle', 'grid', {}))).toBe('hidden')
+    expect(usableVisual(q('area-rectangle', 'grid', { length: 6 }))).toBe('hidden')
+    expect(usableVisual(q('perimeter-triangle', 'grid', { a: 3, b: 4, c: 9 }))).toBe('hidden')
+    expect(usableVisual(q('grid-location', 'grid', { x: 9, y: 1 }))).toBe('hidden')
+    expect(usableVisual(q('tipe-lain', 'grid', { side: 5 }))).toBe('hidden')
+  })
+
+  it('semua soal luas, keliling, dan petak dari generator tergambar (tidak ada yang tersembunyi)', () => {
+    const types = ['perimeter-square', 'perimeter-rectangle', 'perimeter-triangle', 'area-square', 'area-rectangle', 'area-triangle', 'area-composite', 'grid-location']
+    for (const typeId of types) {
+      for (let seed = 1; seed <= 60; seed += 1) {
+        const question = generateQuestion(typeId, 'uji', seeded(seed * 31 + 7), 3 + (seed % 4), seed % 5)
+        expect(usableVisual(question), `${typeId}: ${question.prompt}`).toBe('grid')
+      }
+    }
   })
 
   it('garis bilangan dan diagram tanpa data sungguhan disembunyikan', () => {

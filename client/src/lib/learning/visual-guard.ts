@@ -25,11 +25,37 @@ export function placeValueNumbers(question: LearningQuestion): number[] | null {
   return null
 }
 
-/** Ukuran kisi yang sungguh dipakai GridVisual: kolom dari columns/length/side, baris dari rows/width/height. */
-export function gridSize(question: LearningQuestion): { columns: number; rows: number } | null {
-  const columns = firstOf(question, ['columns', 'length', 'side'])
-  const rows = firstOf(question, ['rows', 'width', 'height'])
-  return isCount(columns, 2, 8) && isCount(rows, 2, 6) ? { columns, rows } : null
+/** Bangun yang digambar GeometryVisual. Hanya berisi ukuran yang sudah diketahui soal, tidak pernah hasil keliling atau luas. */
+export type Geometry =
+  | { kind: 'rectangle'; length: number; width: number; mode: 'perimeter' | 'area'; square: boolean }
+  | { kind: 'triangle-sides'; a: number; b: number; c: number }
+  | { kind: 'triangle-area'; base: number; height: number }
+  | { kind: 'composite'; a: number; b: number; c: number; d: number }
+  | { kind: 'locator'; x: number; y: number }
+
+/** Membaca parameter soal geometri; null kalau ada yang kurang atau tidak masuk akal (mis. segitiga yang tidak bisa dibuat). */
+export function describeGeometry(question: LearningQuestion): Geometry | null {
+  const p = question.params
+  const size = (value: unknown): value is number => isCount(value, 1, 40)
+  const mode = question.typeId.startsWith('area') ? 'area' : 'perimeter'
+  switch (question.typeId) {
+    case 'perimeter-square':
+    case 'area-square':
+      return size(p.side) ? { kind: 'rectangle', length: p.side, width: p.side, mode, square: true } : null
+    case 'perimeter-rectangle':
+    case 'area-rectangle':
+      return size(p.length) && size(p.width) ? { kind: 'rectangle', length: p.length, width: p.width, mode, square: false } : null
+    case 'perimeter-triangle':
+      return size(p.a) && size(p.b) && size(p.c) && p.a + p.b > p.c && p.a + p.c > p.b && p.b + p.c > p.a ? { kind: 'triangle-sides', a: p.a, b: p.b, c: p.c } : null
+    case 'area-triangle':
+      return size(p.base) && size(p.height) ? { kind: 'triangle-area', base: p.base, height: p.height } : null
+    case 'area-composite':
+      return size(p.a) && size(p.b) && size(p.c) && size(p.d) ? { kind: 'composite', a: p.a, b: p.b, c: p.c, d: p.d } : null
+    case 'grid-location':
+      return isCount(p.x, 1, 6) && isCount(p.y, 1, 6) ? { kind: 'locator', x: p.x, y: p.y } : null
+    default:
+      return null
+  }
 }
 
 const numericList = (value: unknown, min: number) => Array.isArray(value) && value.length >= min && value.every(isNumber)
@@ -48,7 +74,7 @@ export function usableVisual(question: LearningQuestion): VisualDecision {
     case 'number-line':
       return numericList(params.values, 2) || (isNumber(params.a) && isNumber(params.b)) ? question.visual : 'hidden'
     case 'grid':
-      return gridSize(question) ? question.visual : 'hidden'
+      return describeGeometry(question) ? question.visual : 'hidden'
     case 'chart':
       return numericList(params.values, 2) || numericList(params.counts, 2) ? question.visual : 'hidden'
     case 'shape':
